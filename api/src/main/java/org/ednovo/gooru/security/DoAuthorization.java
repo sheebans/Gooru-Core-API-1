@@ -196,7 +196,7 @@ public class DoAuthorization {
 		if (user != null) {
 			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				userCredential = userService.getUserCredential(user, sessionToken, skipCache, request.getParameter("sharedSecretKey"));
+			   // userCredential = userService.getUserCredential(user, sessionToken, skipCache, request.getParameter("sharedSecretKey"));
 				authentication.setUserCredential(userCredential);
 			} else {
 				userCredential = authentication.getUserCredential();

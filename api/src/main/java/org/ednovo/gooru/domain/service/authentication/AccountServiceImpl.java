@@ -174,7 +174,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-		
+		System.out.println("start : " + System.currentTimeMillis());
 		if (!errors.hasErrors()) {
 			rejectIfNull(username, GL0061, 400, USER_NAME);
 			rejectIfNull(password, GL0061, 400, PASSWORD);
@@ -284,7 +284,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 									.exclude(new String[] { "*.class", "*.school", "*.schoolDistrict", "*.status", "*.meta" }).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
-				LOGGER.error("Failed to  put  value from redis server {}", e);
+				LOGGER.error("Failed to  put  value to redis server {}", e);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());

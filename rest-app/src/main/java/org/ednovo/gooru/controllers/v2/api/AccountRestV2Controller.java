@@ -72,7 +72,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Resource(name = "serverConstants")
 	private Properties serverConstants;
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
