@@ -408,6 +408,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
+        Collection collection = this.getCollectionDao().getCollection(collectionId);
+		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
