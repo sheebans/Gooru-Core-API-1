@@ -25,10 +25,6 @@ public class CollectionEventLog extends EventLog {
 	@Autowired
 	private CollectionDao collectionDao;
 
-	public CollectionDao getCollectionDao() {
-		return collectionDao;
-	}
-
 	public void collectionEventLog(String courseId, String unitId, String lessonId, CollectionItem collection, User user, Collection data, String action) {
 		try {
 			String collectionType = collection.getContent().getContentType().getName();
@@ -173,6 +169,9 @@ public class CollectionEventLog extends EventLog {
 	           }
 	   }
 
+	public CollectionDao getCollectionDao() {
+		return collectionDao;
+	}
 
 	public ClassRepository getClassRepository() {
 		return classRepository;
