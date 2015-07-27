@@ -574,6 +574,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
+		if (collection.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(collection.getContentId());
+			this.getGooruImageUtil().imageUpload(collection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(collection.getMediaFilename());
+			collection.setImagePath(basePath.toString());
+		}
 		createCollectionSettings(collection);
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
