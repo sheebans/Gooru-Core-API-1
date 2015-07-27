@@ -253,7 +253,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		Object publishStatus = content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
-			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(publishStatus));
+			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS_ID.get(((Number)publishStatus).shortValue()));
 		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
 		content.remove(DATA);
