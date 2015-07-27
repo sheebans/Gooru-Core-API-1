@@ -63,7 +63,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		this.updateCollection(collection, newCollection, user);
 		if (newCollection.getPosition() != null) {
-			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), COURSE);
+			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), collection.getGooruOid(), user.getPartyUid());
+			reorderCollectionItem(collectionItem, newCollection.getPosition(), COURSE, user);
 		}
 	}
 

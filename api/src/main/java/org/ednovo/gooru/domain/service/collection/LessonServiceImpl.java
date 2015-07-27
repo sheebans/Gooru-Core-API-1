@@ -61,7 +61,8 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), LESSON);
+			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(unit.getGooruOid(), collection.getGooruOid(), user.getPartyUid());
+			reorderCollectionItem(collectionItem, newCollection.getPosition(), LESSON, user);
 		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -117,6 +118,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		if (newCollection.getTaxonomyCourseIds() != null) {
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
 			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
+		if (newCollection.getSubdomainIds() != null) {
+			List<Map<String, Object>> subdomain = updateSubdomain(collection, newCollection.getSubdomainIds());
+			data.put(SUBDOMAIN, subdomain);
 		}
 		return data;
 	}
