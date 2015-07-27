@@ -46,12 +46,10 @@ public class UserTransformer extends ObjectTransformer {
 		
 		boolean sharedSecretMatched = false;
 		
-		if (UserGroupSupport.getUserCredential() != null) {
-			String storedSecret = UserGroupSupport.getUserCredential().getStoredSecretKey();
-			String receivedSecret  = UserGroupSupport.getUserCredential().getSharedSecretKey();
-			if(receivedSecret != null && storedSecret != null && storedSecret.equals(receivedSecret)){
-				sharedSecretMatched = true;
-			}
+		String storedSecret = UserGroupSupport.getUserCredential().getStoredSecretKey();
+		String receivedSecret  = UserGroupSupport.getUserCredential().getSharedSecretKey();
+		if(receivedSecret != null && storedSecret != null && storedSecret.equals(receivedSecret)){
+			sharedSecretMatched = true;
 		}
 		
 		boolean isGooruUser = false;
