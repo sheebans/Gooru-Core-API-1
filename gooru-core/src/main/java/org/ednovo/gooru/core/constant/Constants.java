@@ -243,6 +243,8 @@ public class Constants implements ParameterProperties {
 	public static final Short SCORE_TYPE_SELF_REPORTED = 1;
 
 	public static final Short SCORE_TYPE_COMPUTER_SCORED = 2;
+	
+	public static final Map<Short, String> PUBLISH_STATUS_ID;
 
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
@@ -275,9 +277,16 @@ public class Constants implements ParameterProperties {
 
 	static {
 		Map<String, Short> publishStatus = new HashMap<String, Short>();
-		publishStatus.put("pending",(short)244);
-		publishStatus.put("reviewed",(short)245);
+		publishStatus.put("pending",PUBLISH_PENDING_STATUS_ID);
+		publishStatus.put("reviewed",PUBLISH_REVIEWED_STATUS_ID);
 		PUBLISH_STATUS = Collections.unmodifiableMap(publishStatus);
+	}
+	
+	static {
+		Map<Short, String> publishStatusId = new HashMap<Short, String>();
+		publishStatusId.put(PUBLISH_PENDING_STATUS_ID, "pending");
+		publishStatusId.put(PUBLISH_REVIEWED_STATUS_ID, "reviewed");
+		PUBLISH_STATUS_ID = Collections.unmodifiableMap(publishStatusId);
 	}
 
 	static {
