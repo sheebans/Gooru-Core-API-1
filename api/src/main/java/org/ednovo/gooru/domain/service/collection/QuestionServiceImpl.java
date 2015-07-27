@@ -127,10 +127,10 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			question.setSharing(question.getSharing());
 		}
 		if (newQuestion.getAnswers() != null) {
-			updateAnswerList(question.getAnswers(), newQuestion.getAnswers());
+			updateAnswerList(newQuestion.getAnswers(), question.getAnswers());
 		}
 		if (newQuestion.getHints() != null) {
-			updateHintList(question.getHints(), newQuestion.getHints());
+			updateHintList(newQuestion.getHints(), question.getHints());
 		}
 		if (newQuestion.getRecordSource() != null) {
 			question.setRecordSource(newQuestion.getRecordSource());
