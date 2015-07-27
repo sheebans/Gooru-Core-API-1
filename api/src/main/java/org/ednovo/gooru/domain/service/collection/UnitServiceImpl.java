@@ -46,7 +46,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
 			CollectionItem unit = createCollection(collection, parentCollection, user);
-			getUnitEventLog().unitEventLogs(courseId, unit, user, collection, ADD);
+			getUnitEventLog().unitEventLogs(courseId, unit, user, collection, CREATE);
 			Map<String, Object> data = generateUnitMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.UNIT_SUMMARY);
 			createContentMeta(collection, data);
@@ -70,6 +70,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
 			updateContentMeta(contentMeta, data);
+			
+
 		}
 	}
 

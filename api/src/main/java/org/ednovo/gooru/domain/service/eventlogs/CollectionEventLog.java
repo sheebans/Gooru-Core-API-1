@@ -41,20 +41,20 @@ public class CollectionEventLog extends EventLog {
 				JSONArray newArray = new JSONArray();
 				newArray.addAll(classUids);
 				payLoadObject.put(CLASS_GOORU_IDS, newArray);
-				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(ADD)? ITEM_CREATE:CLASS_ITEM_DELETE);
+				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:CLASS_ITEM_DELETE);
 			} else {
-				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(ADD)? ITEM_CREATE:CLASS_ITEM_DELETE);
+				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:ITEM_DELETE);
 			}
 			
-			if(action.equalsIgnoreCase(ADD)){
-				payLoadObject.put(MODE, ADD);
+			if(action.equalsIgnoreCase(CREATE)){
+				payLoadObject.put(MODE, CREATE);
 				payLoadObject.put(DATA, data);
-				payLoadObject.put(PARENT_SHARING,collection.getCollection().getSharing());
 				payLoadObject.put(ITEM_SEQUENCE,collection.getItemSequence());
 				payLoadObject.put(ITEM_ID,collection.getCollectionItemId());
 			}
 			else{
 				payLoadObject.put(MODE, DELETE);
+				payLoadObject.put(ITEM_SEQUENCE,collection.getItemSequence());
 			}
 			if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
 				payLoadObject.put(TYPE, ASSESSMENT);
@@ -90,7 +90,11 @@ public class CollectionEventLog extends EventLog {
 				payLoadObject.put(TYPE, RESOURCE);
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 			}
-			if(action.equalsIgnoreCase(ADD)){
+			if(action.equalsIgnoreCase(CREATE)){
+				payLoadObject.put(MODE, CREATE);
+				payLoadObject.put(DATA, data);
+				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+			} else if (action.equalsIgnoreCase(ADD)) {
 				payLoadObject.put(MODE, ADD);
 				payLoadObject.put(DATA, data);
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
