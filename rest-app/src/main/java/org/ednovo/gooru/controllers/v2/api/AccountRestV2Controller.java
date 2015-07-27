@@ -90,8 +90,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			response.sendRedirect(getValue(RETURN_URL, json));
 			return null;
 		} else {
-		//	return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
-			return null;
+			return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 		}
 
 	}
