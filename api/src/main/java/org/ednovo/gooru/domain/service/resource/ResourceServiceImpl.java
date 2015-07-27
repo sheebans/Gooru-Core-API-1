@@ -1377,6 +1377,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setGooruOid(UUID.randomUUID().toString());
 			resource.setUser(user);
 			resource.setTitle(title);
+			resource.setMediaType(newResource.getMediaType());
 			if (newResource.getCategory() != null) {
 				resource.setCategory(newResource.getCategory().toLowerCase());
 			}

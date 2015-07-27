@@ -408,6 +408,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
+        Collection collection = this.getCollectionDao().getCollection(collectionId);
+		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
@@ -571,6 +573,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
 			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+		}
+		if (collection.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(collection.getContentId());
+			this.getGooruImageUtil().imageUpload(collection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(collection.getMediaFilename());
+			collection.setImagePath(basePath.toString());
 		}
 		createCollectionSettings(collection);
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
