@@ -185,7 +185,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			if (parentId == null) {
 				parentId = parentCollectionItem.getCollection().getGooruOid();
 			}
-			reorderCollectionItem(parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), COLLECTION, user);
+			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
+			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
 		}
 		if (newCollection.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
@@ -217,7 +218,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			reorderCollectionItem(collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), collectionItem.getContent().getContentType().getName(), user);
+			this.resetSequence(collectionItem.getCollection(), collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
@@ -485,7 +486,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
 			data.put(TAXONOMY_COURSE, taxonomyCourse);
 		}
-		
+
 		if (newCollection.getSubdomainIds() != null) {
 			List<Map<String, Object>> subdomain = updateSubdomain(collection, newCollection.getSubdomainIds());
 			data.put(SUBDOMAIN, subdomain);

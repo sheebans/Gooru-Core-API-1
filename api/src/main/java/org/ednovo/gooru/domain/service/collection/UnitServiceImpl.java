@@ -60,8 +60,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if (newCollection.getPosition() != null) {
-			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), collection.getGooruOid(), user.getPartyUid());
-			reorderCollectionItem(collectionItem, newCollection.getPosition(), UNIT, user);
+			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), UNIT);
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);

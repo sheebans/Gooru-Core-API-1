@@ -1971,7 +1971,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public void updateFolderSharing(final String gooruOid) {
-		final Resource collection = this.getResourceRepository().findResourceByContent(gooruOid);
+		final Collection collection = this.getCollectionByGooruOid(gooruOid, null);
 		if (collection != null) {
 			if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid(), PUBLIC) > 0) {
 				collection.setSharing(Sharing.PUBLIC.getSharing());
