@@ -61,8 +61,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(unit.getGooruOid(), collection.getGooruOid(), user.getPartyUid());
-			reorderCollectionItem(collectionItem, newCollection.getPosition(), LESSON, user);
+			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), LESSON);
 		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {

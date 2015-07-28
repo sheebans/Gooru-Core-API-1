@@ -221,44 +221,6 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 	}
 
-	protected void reorderCollectionItem(final String collectionItemId, final int position, final String collectionType, final User user) {
-		final CollectionItem collectionItem = getCollectionDao().getCollectionItem(collectionItemId);
-		reorderCollectionItem(collectionItem, position, collectionType, user);
-	}
-
-	protected void reorderCollectionItem(final CollectionItem collectionItem, final int position, final String collectionType, final User user) {
-		rejectIfNull(collectionItem, GL0056, 404, collectionType);
-		final Collection collection = getCollectionDao().getCollection(collectionItem.getCollection().getGooruOid());
-		final Integer existCollectionItemSequence = collectionItem.getItemSequence();
-		if (existCollectionItemSequence > position) {
-			for (CollectionItem ci : collection.getCollectionItems()) {
-				if (ci.getItemSequence() >= position && ci.getItemSequence() <= existCollectionItemSequence) {
-					if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
-						ci.setItemSequence(position);
-					} else {
-						ci.setItemSequence(ci.getItemSequence() + 1);
-					}
-				}
-			}
-		} else if (existCollectionItemSequence < position) {
-			for (final CollectionItem ci : collection.getCollectionItems()) {
-				if (ci.getItemSequence() <= position && existCollectionItemSequence <= ci.getItemSequence()) {
-					if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
-						if (collection.getCollectionItems().size() < position) {
-							ci.setItemSequence(collection.getCollectionItems().size());
-						} else {
-							ci.setItemSequence(position);
-						}
-					} else {
-						ci.setItemSequence(ci.getItemSequence() - 1);
-					}
-				}
-			}
-		}
-		getCollectionDao().save(collection);
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-	}
-
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
 		return getCollectionDao().getCollections(filters, limit, offset);
