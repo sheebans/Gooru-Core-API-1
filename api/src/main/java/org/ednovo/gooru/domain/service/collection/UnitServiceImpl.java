@@ -29,9 +29,6 @@ import org.springframework.validation.Errors;
 
 @Service
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
-
-	@Autowired
-	private SubdomainRepository subdomainRepository;
 	
 	@Autowired
 	public UnitEventLog unitEventLog;
@@ -111,7 +108,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		if (newCollection.getSubdomainIds() != null) {
-			List<Map<String, Object>> subdomain = updateUnitDomain(collection, newCollection.getSubdomainIds());
+			List<Map<String, Object>> subdomain = updateSubdomain(collection, newCollection.getSubdomainIds());
 			data.put(SUBDOMAIN, subdomain);
 		}
 		if (newCollection.getTaxonomyCourseIds() != null) {
@@ -121,42 +118,12 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		return data;
 	}
 
-	private List<Map<String, Object>> updateUnitDomain(Content content, List<Integer> subdomainIds) {
-		this.getContentRepository().deleteContentSubdomainAssoc(content.getContentId());
-		List<Map<String, Object>> unitDomains = null;
-		if (subdomainIds != null && subdomainIds.size() > 0) {
-			List<Subdomain> domains = this.getSubdomainRepository().getSubdomains(subdomainIds);
-			if (domains != null && domains.size() > 0) {
-				unitDomains = new ArrayList<Map<String, Object>>();
-				List<ContentSubdomainAssoc> contentDomainAssocs = new ArrayList<ContentSubdomainAssoc>();
-				for (Subdomain subdomain : domains) {
-					ContentSubdomainAssoc contentDomainAssoc = new ContentSubdomainAssoc();
-					contentDomainAssoc.setContent(content);
-					contentDomainAssoc.setSubdomain(subdomain);
-					contentDomainAssocs.add(contentDomainAssoc);
-					Map<String, Object> unitDomain = new HashMap<String, Object>();
-					unitDomain.put(ID, subdomain.getSubdomainId());
-					unitDomain.put(SUBJECT_ID, subdomain.getTaxonomyCourse().getSubjectId());
-					unitDomain.put(COURSE_ID, subdomain.getTaxonomyCourse().getCourseId());
-					unitDomain.put(NAME, subdomain.getDomain().getName());
-					unitDomains.add(unitDomain);
-				}
-				this.getContentRepository().saveAll(contentDomainAssocs);
-			}
-		}
-		return unitDomains;
-	}
-
 	private Errors validateUnit(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
-	}
-
-	public SubdomainRepository getSubdomainRepository() {
-		return subdomainRepository;
 	}
 	
 	public UnitEventLog getUnitEventLog() {

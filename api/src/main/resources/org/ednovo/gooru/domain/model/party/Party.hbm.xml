@@ -148,11 +148,11 @@
 
 			<many-to-one name="organization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
-				not-null="false" lazy="false" fetch="join" cascade="none" />
+				not-null="false" lazy="proxy"  cascade="none" />
 
 			<many-to-one name="primaryOrganization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="primary_organization_uid"
-				not-null="false" lazy="false" fetch="join" cascade="none" />
+				not-null="false" lazy="proxy"  cascade="none" />
 
 			<set name="identities" inverse="true" cascade="persist,delete"
 				lazy="true">
@@ -173,15 +173,15 @@
 
 			<many-to-one name="userGroup"
 				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
-				not-null="false" lazy="false" fetch="join" cascade="none" />
+				not-null="false" lazy="proxy" cascade="none" />
 
 			<many-to-one name="school"
 				class="org.ednovo.gooru.core.api.model.Organization" column="school_uid"
-				not-null="false" lazy="false" cascade="none" />
+				not-null="false" lazy="proxy" cascade="none" />
 
 			<many-to-one name="schoolDistrict"
 				class="org.ednovo.gooru.core.api.model.Organization" column="school_district_uid"
-				not-null="false" lazy="false" cascade="none" />
+				not-null="false" lazy="proxy" cascade="none" />
 
 			<many-to-one name="stateProvince"
 				class="org.ednovo.gooru.core.api.model.Province" column="state_province_uid"

@@ -86,6 +86,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 			destCollectionItem.setStart(sourceCollectionItem.getStart());
 			destCollectionItem.setAssociatedUser(user);
 			destCollectionItem.setStop(sourceCollectionItem.getStop());
+			destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 			destCollectionItem.setCollection(destCollection);
 			this.getCollectionDao().save(destCollectionItem);
 		}

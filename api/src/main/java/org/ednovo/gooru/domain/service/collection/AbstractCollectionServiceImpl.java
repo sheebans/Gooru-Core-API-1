@@ -18,10 +18,12 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.ContentSubdomainAssoc;
 import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -35,6 +37,7 @@ import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
@@ -62,19 +65,23 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private TaxonomyCourseRepository taxonomyCourseRepository;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private CollectionEventLog collectionEventLog;
+	
+	@Autowired
+	private SubdomainRepository subdomainRepository;
 
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
 
 	protected final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
+	
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -164,10 +171,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public void resetSequence(String parentGooruOid, String id, String userUid, String collectionType) {
 		CollectionItem itemSequence;
-		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
+		if (!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))) {
 			itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, id, userUid);
-		}
-		else{
+		} else {
 			itemSequence = this.getCollectionDao().getCollectionItem(id);
 		}
 		int sequence = itemSequence.getItemSequence();
@@ -185,10 +191,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
 		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
 		CollectionItem collectionItem;
-		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
+		if (!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))) {
 			collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
-		}
-		else{
+		} else {
 			collectionItem = this.getCollectionDao().getCollectionItem(gooruOid);
 		}
 		if (collectionItem != null) {
@@ -253,7 +258,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		Object publishStatus = content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
-			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(publishStatus));
+			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS_ID.get(((Number) publishStatus).shortValue()));
 		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
 		content.remove(DATA);
@@ -395,36 +400,62 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void updateContentMetaDataSummary(Long parentId, String contentType, String action) {
 		ContentMeta parentContentMeta = this.getContentRepository().getContentMeta(parentId);
 		if (parentContentMeta != null) {
 			int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
-			if(action.equalsIgnoreCase(DELETE)){
-				count -=1;
+			if (action.equalsIgnoreCase(DELETE)) {
+				count -= 1;
 			}
 			Map<String, Object> metaData = JsonDeserializer.deserialize(parentContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			
-			if(contentType.equalsIgnoreCase(UNIT)){
+
+			if (contentType.equalsIgnoreCase(UNIT)) {
 				summary.put(MetaConstants.UNIT_COUNT, count);
 			}
-			if(contentType.equalsIgnoreCase(LESSON)){
+			if (contentType.equalsIgnoreCase(LESSON)) {
 				summary.put(MetaConstants.LESSON_COUNT, count);
 			}
-			if(contentType.equalsIgnoreCase(COLLECTION)){
+			if (contentType.equalsIgnoreCase(COLLECTION)) {
 				summary.put(MetaConstants.COLLECTION_COUNT, count);
 			}
-			if(contentType.equalsIgnoreCase(ASSESSMENT)){
+			if (contentType.equalsIgnoreCase(ASSESSMENT)) {
 				summary.put(MetaConstants.ASSESSMENT_COUNT, count);
 			}
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(parentContentMeta, metaData);
-			}
+		}
 	}
 	
+	protected List<Map<String, Object>> updateSubdomain(Content content, List<Integer> subdomainIds) {
+		this.getContentRepository().deleteContentSubdomainAssoc(content.getContentId());
+		List<Map<String, Object>> unitDomains = null;
+		if (subdomainIds != null && subdomainIds.size() > 0) {
+			List<Subdomain> domains = this.getSubdomainRepository().getSubdomains(subdomainIds);
+			if (domains != null && domains.size() > 0) {
+				unitDomains = new ArrayList<Map<String, Object>>();
+				List<ContentSubdomainAssoc> contentDomainAssocs = new ArrayList<ContentSubdomainAssoc>();
+				for (Subdomain subdomain : domains) {
+					ContentSubdomainAssoc contentDomainAssoc = new ContentSubdomainAssoc();
+					contentDomainAssoc.setContent(content);
+					contentDomainAssoc.setSubdomain(subdomain);
+					contentDomainAssocs.add(contentDomainAssoc);
+					Map<String, Object> unitDomain = new HashMap<String, Object>();
+					unitDomain.put(ID, subdomain.getSubdomainId());
+					unitDomain.put(SUBJECT_ID, subdomain.getTaxonomyCourse().getSubjectId());
+					unitDomain.put(COURSE_ID, subdomain.getTaxonomyCourse().getCourseId());
+					unitDomain.put(NAME, subdomain.getDomain().getName());
+					unitDomains.add(unitDomain);
+				}
+				this.getContentRepository().saveAll(contentDomainAssocs);
+			}
+		}
+		return unitDomains;
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
@@ -452,13 +483,17 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public SettingService getSettingService() {
 		return settingService;
 	}
-	
+
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
 
 	public CollectionEventLog getCollectionEventLog() {
 		return collectionEventLog;
+	}
+
+	public SubdomainRepository getSubdomainRepository() {
+		return subdomainRepository;
 	}
 
 }

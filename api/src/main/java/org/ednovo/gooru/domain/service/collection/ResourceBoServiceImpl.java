@@ -50,6 +50,7 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 			resource.setGooruOid(UUID.randomUUID().toString());
 			resource.setUser(user);
 			resource.setTitle(title);
+			resource.setMediaType(newResource.getMediaType());
 			if (newResource.getResourceFormat() != null) {
 				CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(resourcetype);

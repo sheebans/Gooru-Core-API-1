@@ -118,6 +118,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
 			data.put(TAXONOMY_COURSE, taxonomyCourse);
 		}
+		if (newCollection.getSubdomainIds() != null) {
+			List<Map<String, Object>> subdomain = updateSubdomain(collection, newCollection.getSubdomainIds());
+			data.put(SUBDOMAIN, subdomain);
+		}
 		return data;
 	}
 
