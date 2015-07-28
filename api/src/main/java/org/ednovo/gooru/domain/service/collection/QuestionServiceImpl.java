@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentHint;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -52,6 +53,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 : question.getQuestionText().length()));
 		License license = (License) getBaseRepository().get(License.class, CREATIVE_COMMONS);
 		question.setLicense(license);
+
 		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.QUESTION);
 		question.setContentType(contentType);
 		question.setGooruOid(UUID.randomUUID().toString());
@@ -91,6 +93,9 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		if (question.isQuestionNewGen()) {
 			getMongoQuestionsService().createQuestion(question.getGooruOid(), data);
+		}
+		if (question.getMediaFiles() != null && question.getMediaFiles().size() > 0) {
+			updateMediaFiles(question.getFolder(), question.getMediaFiles());
 		}
 		return question;
 	}
@@ -160,7 +165,27 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		if (question.isQuestionNewGen()) {
 			getMongoQuestionsService().updateQuestion(question.getGooruOid(), data);
 		}
+		if (newQuestion.getMediaFiles() != null && newQuestion.getMediaFiles().size() > 0) {
+			updateMediaFiles(question.getFolder(), newQuestion.getMediaFiles());
+		}
 		return newQuestion;
+	}
+
+	private void updateMediaFiles(String folderPath, List<String> mediaFiles) {
+		for (String mediaFilename : mediaFiles) {
+			StringBuilder sourceRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
+			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(mediaFilename);
+			File srcFile = new File(sourceRepoPath.toString());
+			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
+			targetRepoPath.append(folderPath).append(File.separator);
+			File destFile = new File(targetRepoPath.toString());
+			if (!destFile.exists()) {
+				destFile.mkdirs();
+			}
+			if (srcFile.exists()) {
+				srcFile.renameTo(new File(targetRepoPath.append(mediaFilename).toString()));
+			}
+		}
 	}
 
 	private void updateAnswerList(Set<AssessmentAnswer> sourceList, Set<AssessmentAnswer> existingList) {
