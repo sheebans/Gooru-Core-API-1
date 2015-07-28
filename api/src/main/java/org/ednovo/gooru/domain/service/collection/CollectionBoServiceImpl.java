@@ -298,9 +298,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		reject(!resource.getContentType().getName().equalsIgnoreCase(QUESTION), GL0056, 404, RESOURCE);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
+		collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, null, ADD);
 		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
-		return createCollectionItem(collectionItem, collection, resource, user);
+		return collectionItem;
 	}
 
 	@Override

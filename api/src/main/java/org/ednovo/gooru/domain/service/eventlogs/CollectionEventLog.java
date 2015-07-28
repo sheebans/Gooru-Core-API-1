@@ -76,7 +76,7 @@ public class CollectionEventLog extends EventLog {
 		}
 	}
 
-	public void collectionItemEventLog(String collectionId, CollectionItem resource, String userUid, String contentType, Object data, String action) {
+	public void collectionItemEventLog(String collectionId, CollectionItem resource, String user, String contentType, Object data, String action) {
 		try {
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 			context.put(CONTENT_GOORU_ID, resource.getContent().getGooruOid());
@@ -108,7 +108,7 @@ public class CollectionEventLog extends EventLog {
 			payLoadObject.put(ITEM_ID,resource.getCollectionItemId());
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-			session.put(ORGANIZATION_UID, userUid != null);
+			session.put(ORGANIZATION_UID, user);
 			SessionContextSupport.putLogParameter(SESSION, session.toString());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
