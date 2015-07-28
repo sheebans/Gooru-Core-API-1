@@ -218,9 +218,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			Collection parentCollection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
-			this.resetSequence(parentCollection, collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
-
+			this.resetSequence(collectionItem.getCollection(), collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
