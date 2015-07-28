@@ -185,8 +185,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			if (parentId == null) {
 				parentId = parentCollectionItem.getCollection().getGooruOid();
 			}
-			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
-			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
+			reorderCollectionItem(parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), COLLECTION, user);
 		}
 		if (newCollection.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
@@ -218,8 +217,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			Collection parentCollection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
-			this.resetSequence(parentCollection, collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
+			reorderCollectionItem(collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), collectionItem.getContent().getContentType().getName(), user);
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
@@ -324,7 +322,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId,String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
+	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -363,7 +361,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
-		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
 		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> collection : results) {
 			collections.add(mergeMetaData(collection));
@@ -408,7 +406,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
-        Collection collection = this.getCollectionDao().getCollection(collectionId);
+		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
@@ -486,6 +484,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (newCollection.getTaxonomyCourseIds() != null) {
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
 			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
+		
+		if (newCollection.getSubdomainIds() != null) {
+			List<Map<String, Object>> subdomain = updateSubdomain(collection, newCollection.getSubdomainIds());
+			data.put(SUBDOMAIN, subdomain);
 		}
 		return data;
 	}
