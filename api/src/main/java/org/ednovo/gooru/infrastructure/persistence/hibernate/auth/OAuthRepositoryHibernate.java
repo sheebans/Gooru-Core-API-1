@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.api.model.LtiService;
 import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -106,7 +107,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public Long getOauthClientCount(String organizationUId, String grantType) {
-		String sql = "SELECT count(1) as count from  oauth_client c WHERE organization_uid = '"+organizationUId+"'";
+		String sql = "SELECT count(1) as count from  oauth2_client c WHERE organization_uid = '"+organizationUId+"'";
 		if (grantType != null){
 			sql +="AND  c.grant_types = '" + grantType +"'";
 		}
@@ -122,5 +123,30 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return list(query);
 	}
+	
+	public LtiService getLtiServiceByOAuthContentId(OAuthClient oAuthClient){
+		Long oauthContentId = oAuthClient.getContentId();
+		String hql = " FROM LtiService ltiService WHERE ltiService.oauthClient.contentId=:oauthContentId";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("oauthContentId", oauthContentId);
+		List<LtiService> results = list(query);
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
 
+	@Override
+	public OAuthClient getOauthClientByContentId(Long oauthContentId) {
+		
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.contentId=:oauthContentId";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("oauthContentId", oauthContentId);
+		List<OAuthClient> results = list(query);
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
+	
 }

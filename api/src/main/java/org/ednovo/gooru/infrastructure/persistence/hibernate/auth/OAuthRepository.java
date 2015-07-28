@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.LtiService;
 import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -42,5 +43,9 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public Long getOauthClientCount(String organizationUId, String grantType);
 	
-	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);	
+	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);
+	
+	LtiService getLtiServiceByOAuthContentId(OAuthClient oAuthClient);
+	
+	OAuthClient getOauthClientByContentId(Long oauthContentId);
 }
