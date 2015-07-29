@@ -101,6 +101,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -115,6 +116,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfImportedPage;
@@ -211,6 +213,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
+	
+	@Autowired
+	private MongoQuestionsService mongoQuestionsService;
 
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
@@ -244,6 +249,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
 			resourceObject.put(RESOURCE, question);
+			if (question.isQuestionNewGen()) { 
+				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
+				if (json != null) {
+					resourceObject.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
+			}
 		} else {
 			resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 			resourceObject.put(RESOURCE, resource);
@@ -1935,6 +1947,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
+	}
+
+	public MongoQuestionsService getMongoQuestionsService() {
+		return mongoQuestionsService;
 	}
 
 }
