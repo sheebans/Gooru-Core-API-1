@@ -2924,4 +2924,8 @@ public interface ParameterProperties {
     
     String LTI_OAUTH_CONTENT_ID = "oauthContentId";
     
+    String LTI_OUTCOME_SERVICEURL = "outcomeServiceUrl";
+    
+    String LTI_RESULT_SOURCEID = "resultSourceId";
+    
 }
