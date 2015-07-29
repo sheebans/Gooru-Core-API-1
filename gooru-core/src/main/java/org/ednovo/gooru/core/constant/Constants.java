@@ -27,6 +27,7 @@ public class Constants implements ParameterProperties {
 	public static final String SEC_NOTE = "note";
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FETCH_TYPE = "fetchType";
+	public static final String USER_TOPIC = "user";
 
 	public static final String SAKAI_SESSION_ID = "sakaiSessionId";
 
