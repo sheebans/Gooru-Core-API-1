@@ -168,6 +168,9 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		if (newQuestion.getMediaFiles() != null && newQuestion.getMediaFiles().size() > 0) {
 			updateMediaFiles(question.getFolder(), newQuestion.getMediaFiles());
 		}
+		if (newQuestion.getDeletedMediaFiles() != null && newQuestion.getDeletedMediaFiles().size() > 0) { 
+			deleteMediaFiles(question.getFolder(), newQuestion.getDeletedMediaFiles());
+		}
 		return newQuestion;
 	}
 
@@ -184,6 +187,17 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 			if (srcFile.exists()) {
 				srcFile.renameTo(new File(targetRepoPath.append(mediaFilename).toString()));
+			}
+		}
+	}
+	
+	private void deleteMediaFiles(String folderPath, List<String> mediaFiles) { 
+		for (String mediaFilename : mediaFiles) {
+			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
+			targetRepoPath.append(folderPath).append(File.separator).append(mediaFilename);
+			File srcFile = new File(targetRepoPath.toString());
+			if (srcFile.exists()) {
+				srcFile.delete();
 			}
 		}
 	}
