@@ -73,7 +73,7 @@ public class GooruCoreLtiProviderServiceImpl extends ServerValidationUtils imple
 		rejectIfNull(ltiService, GL0056, LTI_SERVICE_ID);
 		
 		rejectIfNull(serviceId, GL0006, LTI_OAUTH_KEY);
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.getOauthClientByContentId(ltiService.getOauthContentId());
+		OAuthClient oAuthClient = oAuthRepository.getOauthClientByContentId(ltiService.getOauthContentId());
 		rejectIfNull(oAuthClient, GL0056, OAUTH_CLIENT);
 		ltiService.setOAuthClient(oAuthClient);
 		return ltiService;
