@@ -5,7 +5,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface LtiServiceRepository extends BaseRepository {
 	
-	LtiService getLtiServiceByServiceUrlAndSourceId(String outcomeServiceUrl, String resultSourceId) throws Exception;
+	LtiService getLtiServiceByServiceUrlAndSourceId(String outcomeServiceUrl, String resultSourceId);
 	
-	LtiService getLtiServiceByServiceId(String serviceId) throws Exception;
+	LtiService getLtiServiceByServiceId(String serviceId);
 }

@@ -41,7 +41,9 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_USER_INFO = "select client_id from oauth_access_token where token_id = :accessToken";
 	private static final String APPLICATION_STATUS_ACTIVE = CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus();
-
+	private static final String FIND_OAUTHCLIENT_BY_CONTENTID = " FROM OAuthClient oauthClient WHERE oauthClient.contentId=:oauthContentId";
+	private static final String FIND_LTISERVICE_BY_OAUTH_CONTENTID = " FROM LtiService ltiService WHERE ltiService.oauthClient.contentId=:oauthContentId";
+	
 	@Override
 	public String findClientByAccessToken(String accessToken) {
 		SQLQuery query = getSession().createSQLQuery(GET_USER_INFO);
@@ -126,27 +128,19 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	public LtiService getLtiServiceByOAuthContentId(OAuthClient oAuthClient){
 		Long oauthContentId = oAuthClient.getContentId();
-		String hql = " FROM LtiService ltiService WHERE ltiService.oauthClient.contentId=:oauthContentId";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("oauthContentId", oauthContentId);
+		Query query = getSession().createQuery(FIND_LTISERVICE_BY_OAUTH_CONTENTID);
+		query.setParameter(LTI_OAUTH_CONTENT_ID, oauthContentId);
 		List<LtiService> results = list(query);
-		if(results.size() > 0){
-			return results.get(0);
-		}
-		return null;
+		return results.size() > 0 ? results.get(0) : null;
 	}
 
 	@Override
 	public OAuthClient getOauthClientByContentId(Long oauthContentId) {
 		
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.contentId=:oauthContentId";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("oauthContentId", oauthContentId);
+		Query query = getSession().createQuery(FIND_OAUTHCLIENT_BY_CONTENTID);
+		query.setParameter(LTI_OAUTH_CONTENT_ID, oauthContentId);
 		List<OAuthClient> results = list(query);
-		if(results.size() > 0){
-			return results.get(0);
-		}
-		return null;
+		return results.size() > 0 ? results.get(0) : null;
 	}
 	
 }

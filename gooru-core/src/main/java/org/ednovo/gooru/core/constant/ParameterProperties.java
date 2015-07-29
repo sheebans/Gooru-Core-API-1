@@ -2922,4 +2922,6 @@ public interface ParameterProperties {
     
     String LTI_SERVICE_ID = "serviceId";
     
+    String LTI_OAUTH_CONTENT_ID = "oauthContentId";
+    
 }

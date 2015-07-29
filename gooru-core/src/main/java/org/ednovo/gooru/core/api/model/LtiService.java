@@ -3,18 +3,13 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Entity;
-
-import org.ednovo.gooru.core.api.model.OAuthClient;
-
-@Entity(name="ltiService")
 public class LtiService implements Serializable{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = -8622752975475405545L;
+
 	private String ltiServiceId;
 	
 	private String serviceKey;

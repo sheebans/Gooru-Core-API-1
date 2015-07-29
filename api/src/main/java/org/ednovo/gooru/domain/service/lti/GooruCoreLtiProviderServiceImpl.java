@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-@Service("gooruCoreLtiProviderService")
+@Service
 public class GooruCoreLtiProviderServiceImpl extends ServerValidationUtils implements GooruCoreLtiProviderService,ParameterProperties, ConstantProperties {
 
 	@Autowired
@@ -51,23 +51,23 @@ public class GooruCoreLtiProviderServiceImpl extends ServerValidationUtils imple
 	}
 
 	@Override
-	public LtiService getLtiServiceByOAuthKey(String oauthKey) throws Exception{
+	public LtiService getLtiServiceByOAuthKey(String oauthKey) {
 		rejectIfNull(oauthKey, GL0006, LTI_OAUTH_KEY);
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
 		rejectIfNull(oAuthClient, GL0056, OAUTH_CLIENT);
-		LtiService ltiService = (LtiService) oAuthRepository.getLtiServiceByOAuthContentId(oAuthClient);		
+		LtiService ltiService = oAuthRepository.getLtiServiceByOAuthContentId(oAuthClient);		
 		ltiService.setOAuthClient(oAuthClient);
 		return ltiService;
 	}
 
 	@Override
-	public LtiService getLtiServiceByServiceUrlAndSourceId(String outcomeServiceUrl, String resultSourceId) throws Exception {
+	public LtiService getLtiServiceByServiceUrlAndSourceId(String outcomeServiceUrl, String resultSourceId) {
 		
 		return ltiServiceRepository.getLtiServiceByServiceUrlAndSourceId(outcomeServiceUrl, resultSourceId);
 	}
 
 	@Override
-	public LtiService getLtiServiceByServiceId(String serviceId) throws Exception {
+	public LtiService getLtiServiceByServiceId(String serviceId) {
 		rejectIfNull(serviceId, GL0006, LTI_SERVICE_ID);
 		LtiService ltiService = ltiServiceRepository.getLtiServiceByServiceId(serviceId);
 		rejectIfNull(ltiService, GL0056, LTI_SERVICE_ID);
