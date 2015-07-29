@@ -274,6 +274,10 @@
 				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
+				
+				<!-- LTI -->
+				<value>org/ednovo/gooru/domain/model/ltiService/LtiService.hbm.xml
+				</value>
 
 			</list>
 		</property>

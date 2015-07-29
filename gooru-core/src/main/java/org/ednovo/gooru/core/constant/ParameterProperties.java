@@ -2914,4 +2914,18 @@ public interface ParameterProperties {
     
     String PARENT_SHARING = "parentSharing";
     
+    String LTI_OAUTH_KEY = "oauthKey";
+    
+    String LTI_SERVICE = "lti_service";
+    
+    String SERVICE_KEY = "service key";
+    
+    String LTI_SERVICE_ID = "serviceId";
+    
+    String LTI_OAUTH_CONTENT_ID = "oauthContentId";
+    
+    String LTI_OUTCOME_SERVICEURL = "outcomeServiceUrl";
+    
+    String LTI_RESULT_SOURCEID = "resultSourceId";
+    
 }

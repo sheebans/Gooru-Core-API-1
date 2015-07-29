@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.api.model.LtiService;
 import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -40,7 +41,9 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_USER_INFO = "select client_id from oauth_access_token where token_id = :accessToken";
 	private static final String APPLICATION_STATUS_ACTIVE = CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus();
-
+	private static final String FIND_OAUTHCLIENT_BY_CONTENTID = " FROM OAuthClient oauthClient WHERE oauthClient.contentId=:oauthContentId";
+	private static final String FIND_LTISERVICE_BY_OAUTH_CONTENTID = " FROM LtiService ltiService WHERE ltiService.oauthClient.contentId=:oauthContentId";
+	
 	@Override
 	public String findClientByAccessToken(String accessToken) {
 		SQLQuery query = getSession().createSQLQuery(GET_USER_INFO);
@@ -106,7 +109,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public Long getOauthClientCount(String organizationUId, String grantType) {
-		String sql = "SELECT count(1) as count from  oauth_client c WHERE organization_uid = '"+organizationUId+"'";
+		String sql = "SELECT count(1) as count from  oauth2_client c WHERE organization_uid = '"+organizationUId+"'";
 		if (grantType != null){
 			sql +="AND  c.grant_types = '" + grantType +"'";
 		}
@@ -122,5 +125,22 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return list(query);
 	}
+	
+	public LtiService getLtiServiceByOAuthContentId(OAuthClient oAuthClient){
+		Long oauthContentId = oAuthClient.getContentId();
+		Query query = getSession().createQuery(FIND_LTISERVICE_BY_OAUTH_CONTENTID);
+		query.setParameter(LTI_OAUTH_CONTENT_ID, oauthContentId);
+		List<LtiService> results = list(query);
+		return results.size() > 0 ? results.get(0) : null;
+	}
 
+	@Override
+	public OAuthClient getOauthClientByContentId(Long oauthContentId) {
+		
+		Query query = getSession().createQuery(FIND_OAUTHCLIENT_BY_CONTENTID);
+		query.setParameter(LTI_OAUTH_CONTENT_ID, oauthContentId);
+		List<OAuthClient> results = list(query);
+		return results.size() > 0 ? results.get(0) : null;
+	}
+	
 }
