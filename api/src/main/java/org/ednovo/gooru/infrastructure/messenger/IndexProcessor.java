@@ -104,7 +104,7 @@ public class IndexProcessor extends BaseComponent {
 		transactionTemplate.setReadOnly(true);
 		queueNames.put(Constants.RESOURCE,configSettingRepository.getConfigSetting(RESOURCE_QUEUE_KEY));
 		queueNames.put(Constants.SCOLLECTION,configSettingRepository.getConfigSetting(SCOLLECTION_QUEUE_KEY));
-		queueNames.put(Constants.USER,configSettingRepository.getConfigSetting(USER_QUEUE_KEY));
+		queueNames.put(Constants.USER_TOPIC,configSettingRepository.getConfigSetting(USER_QUEUE_KEY));
 	}
 
 	public void index(final String uuids, final String action, final String type) {
