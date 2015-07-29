@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -103,7 +102,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
@@ -118,13 +117,13 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	private static final String YOUTUBE_VIDEO = "youtube.com";
 
 	public static final String CONVERT_DOCUMENT_PDF = "convert.docToPdf";
-	
+
 	public static String V2_ORGANIZE_DATA = "v2-organize-data-";
-	
-	private static final String FOLDER_IN_BUCKET = "folderInBucket"; 
-	
+
+	private static final String FOLDER_IN_BUCKET = "folderInBucket";
+
 	private static final String GOORU_BUCKET = "gooruBucket";
-	
+
 	@Autowired
 	private KafkaProducer kafkaProducer;
 
@@ -174,10 +173,11 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(SESSIONTOKEN, UserGroupSupport.getSessionToken());
 		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		param.put(GOORU_BUCKET, settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
-		param.put(CALL_BACK_URL, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"v2/resource/" + resource.getGooruOid() + "?sessionToken="+UserGroupSupport.getSessionToken());
+		param.put(CALL_BACK_URL, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "v2/resource/" + resource.getGooruOid() + "?sessionToken=" + UserGroupSupport.getSessionToken());
 		param.put(FOLDER_IN_BUCKET, resource.getFolder());
 		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/document-to-pdf", Method.POST.getName());
-		//kafkaProducer.push(new JSONSerializer().serialize(param)); // FIX ME TO-DO
+		// kafkaProducer.push(new JSONSerializer().serialize(param)); // FIX ME
+		// TO-DO
 	}
 
 	public void downloadResourceImage(String repoPath, Resource resource, String webSrc) {
@@ -433,34 +433,34 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key=" + ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
 			try {
 				ClientResource clientResource = new ClientResource(requestURL);
-					Representation representation = new ClientResource(requestURL).get();
-					Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
-					});
-					Map<String, Object> pageInfo = (Map<String, Object>) data.get(PAGE_INFO);
-					Integer totalResults = (Integer) pageInfo.get(TOTAL_RESULTS);
-					if (totalResults > 0) {
-						status = 200;
+				Representation representation = new ClientResource(requestURL).get();
+				Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
+				});
+				Map<String, Object> pageInfo = (Map<String, Object>) data.get(PAGE_INFO);
+				Integer totalResults = (Integer) pageInfo.get(TOTAL_RESULTS);
+				if (totalResults > 0) {
+					status = 200;
+				}
+				if (status == 200) {
+					LOGGER.info("youtube api response code: " + status);
+					List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
+					Map<String, Object> item = items.get(0);
+					Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
+					resourceFeeds.setTitle((String) snippet.get(TITLE));
+					resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
+					if (item.get(STATISTICS) != null) {
+						Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
+						resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
+						resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
 					}
-					if (status == 200) {
-						LOGGER.info("youtube api response code: " + status);
-						List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
-						Map<String, Object> item = items.get(0);
-						Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
-						resourceFeeds.setTitle((String) snippet.get(TITLE));
-						resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
-						if (item.get(STATISTICS) != null) {
-							Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
-							resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
-							resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
-						}
 
-						if (item.get(CONTENT_DETAILS) != null) {
-							Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
-							PeriodFormatter formatter = ISOPeriodFormat.standard();
-							Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
-							Seconds seconds = period.toStandardSeconds();
-							resourceFeeds.setDuration((long) seconds.getSeconds());
-						}
+					if (item.get(CONTENT_DETAILS) != null) {
+						Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
+						PeriodFormatter formatter = ISOPeriodFormat.standard();
+						Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
+						Seconds seconds = period.toStandardSeconds();
+						resourceFeeds.setDuration((long) seconds.getSeconds());
+					}
 					resourceFeeds.setUrlStatus(status);
 					return resourceFeeds;
 				}
@@ -485,7 +485,10 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				File file = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
 				if (fileExtension.equalsIgnoreCase(PDF)) {
 					PDDocument doc = PDDocument.load(file);
-					ResourceInfo resourceInfo = new ResourceInfo();
+					ResourceInfo resourceInfo = this.resourceRepository.findResourceInfo(resource.getGooruOid());
+					if (resourceInfo == null) {
+						resourceInfo = new ResourceInfo();
+					}
 					resourceInfo.setResource(resource);
 					resourceInfo.setNumOfPages(doc.getNumberOfPages());
 					resourceInfo.setLastUpdated(resource.getLastModified());
