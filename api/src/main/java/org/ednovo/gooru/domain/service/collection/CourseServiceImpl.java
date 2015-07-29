@@ -42,7 +42,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.COURSE.getCollectionType());
 			CollectionItem course = createCollection(collection, parentCollection, user);
-			getCourseEventLog().courseEventLogs(parentCollection.getGooruOid(), course, user, collection, ADD );
+			getCourseEventLog().courseEventLogs(parentCollection.getGooruOid(), course, user, collection, CREATE );
 			Map<String, Object> data = generateCourseMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COURSE_SUMMARY);
 			createContentMeta(collection, data);
@@ -65,6 +65,9 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		if (newCollection.getPosition() != null) {
 			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), COURSE);
 		}
+		CollectionItem course = getCollectionDao().getCollectionItemById(courseId, user);
+		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, collection, EDIT );
+
 	}
 
 	@Override

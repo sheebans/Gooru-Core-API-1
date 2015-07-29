@@ -35,22 +35,22 @@ public class LessonEventLog extends EventLog{
 				JSONArray newArray = new JSONArray();
 				newArray.addAll(classUids);
 				payLoadObject.put(CLASS_GOORU_IDS, newArray);
-				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(ADD)? ITEM_CREATE:CLASS_ITEM_DELETE);
+				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:CLASS_ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, CLASS_COURSE_LESSON);
 			} else {
-				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(ADD)? ITEM_CREATE:CLASS_ITEM_DELETE);
+				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_LESSON);
 			}
 			
-			if(action.equalsIgnoreCase(ADD)){
-				payLoadObject.put(MODE, ADD);
+			if(action.equalsIgnoreCase(CREATE)){
+				payLoadObject.put(MODE, CREATE);
 				payLoadObject.put(DATA, data);
-				payLoadObject.put(PARENT_SHARING,lesson.getCollection().getSharing());
 				payLoadObject.put(ITEM_SEQUENCE,lesson.getItemSequence());
 				payLoadObject.put(ITEM_ID,lesson.getCollectionItemId());
 			}
 			else{
 				payLoadObject.put(MODE, DELETE);
+				payLoadObject.put(ITEM_SEQUENCE,lesson.getItemSequence());
 			}
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();

@@ -43,7 +43,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.LESSON.getCollectionType());
 			CollectionItem lesson = createCollection(collection, parentCollection, user);
-			getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, collection, ADD);
+			getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, collection, CREATE);
 			Map<String, Object> data = generateLessonMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.LESSON_SUMMARY);
 			createContentMeta(collection, data);
