@@ -70,7 +70,7 @@ public class GooruCoreLtiProviderServiceImpl extends ServerValidationUtils imple
 	public LtiService getLtiServiceByServiceId(String serviceId) {
 		rejectIfNull(serviceId, GL0006, LTI_SERVICE_ID);
 		LtiService ltiService = ltiServiceRepository.getLtiServiceByServiceId(serviceId);
-		rejectIfNull(ltiService, GL0056, LTI_SERVICE_ID);
+		rejectIfNull(ltiService, GL0056, SERVICE_KEY);
 		
 		rejectIfNull(serviceId, GL0006, LTI_OAUTH_KEY);
 		OAuthClient oAuthClient = oAuthRepository.getOauthClientByContentId(ltiService.getOauthContentId());
