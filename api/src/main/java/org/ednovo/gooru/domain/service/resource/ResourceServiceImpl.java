@@ -248,14 +248,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
-			resourceObject.put(RESOURCE, question);
+			Map<String, Object> questionModel = initializeWithModel(question);
 			if (question.isQuestionNewGen()) { 
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
 				if (json != null) {
-					resourceObject.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					questionModel.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
 					}));
 				}
 			}
+			resourceObject.put(RESOURCE, questionModel);
 		} else {
 			resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 			resourceObject.put(RESOURCE, resource);
@@ -265,6 +266,34 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
 		setContentProvider(resource);
 		return resourceObject;
+	}
+	
+	private Map<String, Object> initializeWithModel(AssessmentQuestion question) {
+		Map<String, Object> instance = new HashMap<>();
+		instance.put("assetURI", question.getAssetURI());
+		instance.put("category", question.getCategory());
+		instance.put("createdOn", question.getCreatedOn());
+		instance.put("distinguish", question.getDistinguish());
+		instance.put("folder", question.getFolder());
+		instance.put("gooruOid", question.getGooruOid());
+		instance.put("isOer", question.getIsOer());
+		instance.put("lastModified", question.getLastModified());
+		instance.put("resourceFormat", question.getResourceFormat());
+		instance.put("resourceType", question.getResourceType());
+		instance.put("sharing", question.getSharing());
+		instance.put("thumbnails", question.getThumbnails());
+		instance.put("type", question.getType());
+		instance.put("url", question.getUrl());
+		instance.put("version", question.getVersion());
+		instance.put("license", question.getLicense());
+		instance.put("taxonomySet", question.getTaxonomySet());
+		instance.put("typeName", question.getTypeName());
+		instance.put("answers", question.getAnswers());
+		instance.put("hints", question.getHints());
+		instance.put("explanation", question.getExplanation());
+		instance.put("questionText", question.getQuestionText());
+		instance.put("title", question.getTitle());
+		return instance;
 	}
 
 	@Override
