@@ -102,7 +102,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				if (userClass.getVisibility()) {
 					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), userClass.getCourseGooruOid());
 				} else {
-					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode());
+					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), userClass.getCourseGooruOid());
 				}
 			} catch (Exception e) {
 				LOGGER.error(ERROR, e);
