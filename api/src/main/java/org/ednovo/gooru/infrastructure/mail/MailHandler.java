@@ -715,7 +715,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	
-	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode) {
+	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
 		
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
@@ -727,6 +727,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(GOORU_OID, gooruOid);
 			map.put(RECIPIENT, email);
 			map.put("classCode", classCode);
+			map.put(COURSE_ID, courseId);
 			map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
 			map.put(SUBJECT,  inviteUser + " has invited you to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
@@ -739,7 +740,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 		StringBuilder url =  new StringBuilder(serverpath);
-		url.append("#students-view&id=").append(gooruOid).append("#c-id=").append(courseId).append("&userEmailId=").append(email);
+		url.append("#students-view&id=").append(gooruOid).append("&c-id=").append(courseId).append("&userEmailId=").append(email);
 		String shortenUrl = this.shareService.getShortenUrl(url.toString(), true);
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_OPEN_CLASS_USER.getEvent());
 		Map<String, Object> map = eventMapData(eventMapping);
