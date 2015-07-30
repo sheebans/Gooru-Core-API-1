@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -21,7 +20,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +29,6 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBoServiceImpl.class);
 	private final static String RESOURCE_IMAGE_DIMENSION = "160x120,80x60";
 
-	@Autowired
-	private GooruImageUtil gooruImageUtil;
 
 	@Override
 	public Resource createResource(Resource newResource, User user) {
@@ -203,9 +199,4 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 	public Resource getResource(String resourceId) {
 		return this.getResourceRepository().findResourceByContentGooruId(resourceId);
 	}
-	
-	public GooruImageUtil getGooruImageUtil() {
-		return gooruImageUtil;
-	}
-
 }
