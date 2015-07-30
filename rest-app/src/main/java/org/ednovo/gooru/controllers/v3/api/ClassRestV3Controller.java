@@ -106,6 +106,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	public void joinClass(@PathVariable(value = ID) final String classUId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClassService().joinClass(classUId, user);
+		this.getClassService().updateMemberCount(classUId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })

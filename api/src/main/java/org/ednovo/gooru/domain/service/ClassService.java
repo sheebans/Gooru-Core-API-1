@@ -41,5 +41,7 @@ public interface ClassService {
 	List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset);
 
 	boolean hasTeachAndStudy(String gooruUid);
+	
+	void updateMemberCount(String classUid);
 
 }
