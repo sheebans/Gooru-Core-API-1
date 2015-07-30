@@ -641,7 +641,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
-		updateCollectionMetaDataSummary(collectionContentId, RESOURCE, contentType);
+		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
 	}
 
 	private Errors validateResource(final Resource resource) {
