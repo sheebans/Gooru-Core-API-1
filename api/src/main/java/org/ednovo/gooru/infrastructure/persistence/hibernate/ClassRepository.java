@@ -40,5 +40,7 @@ public interface ClassRepository extends BaseRepository {
 	List<Map<String, Object>> getCollectionItems(String gooruOid);
 	
 	List<String> getClassUid(String courseId);
+	
+	void updateMemberCount(String classUid);
 
 }

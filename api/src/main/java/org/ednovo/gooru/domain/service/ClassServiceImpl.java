@@ -358,6 +358,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
 		return getClassRepository().getCollectionItem(courseId, limit, offset);
 	}
@@ -438,6 +439,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		content.remove(META_DATA);
 		content.remove(IMAGE_PATH);
 		return content;
+	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateMemberCount(String classUid) {
+		this.getClassRepository().updateMemberCount(classUid);
 	}
 
 	@Override
