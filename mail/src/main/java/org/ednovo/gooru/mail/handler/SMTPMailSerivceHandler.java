@@ -1,6 +1,5 @@
 package org.ednovo.gooru.mail.handler;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
