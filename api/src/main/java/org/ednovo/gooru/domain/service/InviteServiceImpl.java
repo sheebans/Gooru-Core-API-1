@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
@@ -46,6 +47,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -99,10 +101,15 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				emailIds.add(email);
 			}
 			try {
-				if (userClass.getVisibility()) {
-					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), userClass.getCourseGooruOid());
+				String courseGooruOid = null;
+				Content content = this.getContentRepository().findByContent(userClass.getCourseContentId());
+				if (content != null) { 
+					courseGooruOid = content.getGooruOid();
+				}
+				if (userClass.getVisibility() != null && !userClass.getVisibility()) {					
+					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
 				} else {
-					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), userClass.getCourseGooruOid());
+					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
 				}
 			} catch (Exception e) {
 				LOGGER.error(ERROR, e);
