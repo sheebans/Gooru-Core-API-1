@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentHint;
@@ -17,6 +15,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.AssessmentQuestionAssetAssoc;
 import org.ednovo.gooru.core.api.model.Asset;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.License;
@@ -28,7 +27,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +41,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	@Autowired
 	private QuestionRepository questionRepository;
 
-	@Autowired
-	private AssetManager assetManager;
+	
+	private final static String QUESTION_IMAGE_DIMENSION = "160x120,80x60";
 
 	@Override
 	public AssessmentQuestion createQuestion(String data, User user) {
@@ -89,11 +87,20 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setCreator(user);
 		question.setUser(user);
 		question.setIsOer(1);
+		if (question.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(question.getContentId());
+			getGooruImageUtil().imageUpload(question.getMediaFilename(), folderPath, QUESTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(question.getMediaFilename());
+			question.setThumbnail(basePath.toString());
+		}
+		
 		this.getQuestionRepository().save(question);
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		if (question.isQuestionNewGen()) {
 			getMongoQuestionsService().createQuestion(question.getGooruOid(), data);
 		}
+		
 		if (question.getMediaFiles() != null && question.getMediaFiles().size() > 0) {
 			updateMediaFiles(question.getFolder(), question.getMediaFiles());
 		}
@@ -140,20 +147,15 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		if (newQuestion.getRecordSource() != null) {
 			question.setRecordSource(newQuestion.getRecordSource());
 		}
-		/*
-		 * Remove the assets for the new generation question. These assets are
-		 * in not stored in association in mysql. Since the question is getting
-		 * overridden we need to use original object (as we are using transient
-		 * field).
-		 */
-		if (newQuestion.isQuestionNewGen()) {
-			List<String> deletedMediaFiles = newQuestion.getDeletedMediaFiles();
-			if (deletedMediaFiles != null && deletedMediaFiles.size() > 0) {
-				for (String deletedMediaFile : deletedMediaFiles) {
-					assetManager.deletePathIfExist(question.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + deletedMediaFile);
-				}
-			}
+		
+		if (newQuestion.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(question.getContentId());
+			getGooruImageUtil().imageUpload(newQuestion.getMediaFilename(), folderPath, QUESTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(newQuestion.getMediaFilename());
+			question.setThumbnail(basePath.toString());
 		}
+
 		question.setLastModified(new java.util.Date(System.currentTimeMillis()));
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		this.getQuestionRepository().save(question);
@@ -168,9 +170,10 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		if (newQuestion.getMediaFiles() != null && newQuestion.getMediaFiles().size() > 0) {
 			updateMediaFiles(question.getFolder(), newQuestion.getMediaFiles());
 		}
-		if (newQuestion.getDeletedMediaFiles() != null && newQuestion.getDeletedMediaFiles().size() > 0) { 
+		if (newQuestion.getDeletedMediaFiles() != null && newQuestion.getDeletedMediaFiles().size() > 0) {
 			deleteMediaFiles(question.getFolder(), newQuestion.getDeletedMediaFiles());
 		}
+		
 		return newQuestion;
 	}
 
@@ -190,8 +193,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 		}
 	}
-	
-	private void deleteMediaFiles(String folderPath, List<String> mediaFiles) { 
+
+	private void deleteMediaFiles(String folderPath, List<String> mediaFiles) {
 		for (String mediaFilename : mediaFiles) {
 			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
 			targetRepoPath.append(folderPath).append(File.separator).append(mediaFilename);
@@ -344,72 +347,9 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		return copyQuestion(question, user);
 	}
 
-	public AssessmentQuestion updateQuestionAssest(String questionId, String fileNames) throws Exception {
-		AssessmentQuestion question = getQuestion(questionId);
-		final String repositoryPath = question.getOrganization().getNfsStorageArea().getInternalPath();
-		final String mediaFolderPath = repositoryPath + "/" + Constants.UPLOADED_MEDIA_FOLDER;
-		String[] assetKeyArr = fileNames.split("\\s*,\\s*");
-		for (int i = 0; i < assetKeyArr.length; i++) {
-			String resourceImageFile = mediaFolderPath + "/" + assetKeyArr[i];
-			File mediaImage = new File(resourceImageFile);
-			if (!mediaImage.isFile()) {
-				throw new BadRequestException(ServerValidationUtils.generateMessage(GL0056, FILE));
-			}
-			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
-			String fileName = assetKeyArr[i].split("_")[1];
-			byte[] fileContent = FileUtils.readFileToByteArray(mediaImage);
-			if (fileContent.length > 0) {
-				AssessmentQuestionAssetAssoc questionAsset = null;
-				if (assetKey != null && assetKey.length() > 0) {
-					questionAsset = getQuestionAsset(assetKey, questionId);
-				}
-				Asset asset = null;
-				if (questionAsset == null) {
-					asset = new Asset();
-					asset.setHasUniqueName(true);
-					questionAsset = new AssessmentQuestionAssetAssoc();
-					questionAsset.setQuestion(question);
-					questionAsset.setAsset(asset);
-					questionAsset.setAssetKey(assetKey);
-				} else {
-					asset = questionAsset.getAsset();
-				}
-				asset.setFileData(fileContent);
-				asset.setName(fileName);
-				question.setThumbnail(fileName);
-				this.getBaseRepository().save(question);
-				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
-				assets.add(uploadQuestionAsset(questionId, questionAsset, true));
-				question.setAssets(assets);
-				mediaImage.delete();
-			}
-		}
-		return question;
-	}
-
 	@Override
 	public AssessmentQuestion getQuestion(String questionId) {
 		return this.getQuestionRepository().getQuestion(questionId);
-	}
-
-	private AssessmentQuestionAssetAssoc getQuestionAsset(final String assetKey, String questionId) {
-		return getQuestionRepository().getQuestionAsset(assetKey, questionId);
-	}
-
-	public AssessmentQuestionAssetAssoc uploadQuestionAsset(String gooruQuestionId, AssessmentQuestionAssetAssoc questionAsset, boolean index) throws Exception {
-		if (questionAsset.getAsset().getFileData() != null && questionAsset.getAsset().getFileData().length > 2) {
-			AssessmentQuestion question = getQuestion(gooruQuestionId);
-			Asset asset = questionAsset.getAsset();
-			asset.setHasUniqueName(true);
-			this.getQuestionRepository().save(asset);
-			String realPath = asset.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder();
-			this.getResourceImageUtil().sendMsgToGenerateThumbnails(question, asset.getName());
-			getAssetManager().saveAssetResource(asset, realPath);
-			getQuestionRepository().save(asset);
-			getQuestionRepository().save(questionAsset);
-			return questionAsset;
-		}
-		return null;
 	}
 
 	private static AssessmentQuestion buildQuestion(String data) {
@@ -455,9 +395,4 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	public QuestionRepository getQuestionRepository() {
 		return questionRepository;
 	}
-
-	public AssetManager getAssetManager() {
-		return assetManager;
-	}
-
 }
