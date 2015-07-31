@@ -29,6 +29,8 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.QuestionRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -362,9 +364,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
-		xstream.addImplicitCollection(AssessmentQuestion.class, "depthOfKnowledgeIds", Integer.class);
-		xstream.addImplicitCollection(AssessmentQuestion.class, "standardIds", Integer.class);
-		xstream.addImplicitCollection(AssessmentQuestion.class, "skillIds", Integer.class);
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
@@ -374,6 +373,13 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		AssessmentQuestion question = null;
 		try {
 			question = (AssessmentQuestion) xstream.fromXML(data);
+			// deserialized again with flex json, to get as empty array object when it's passed as empty array string in json.
+			// TO DO FIX ME, figure out one json deserialization which work  for all scenario.
+			JSONObject JsonData = new  JSONObject(data);
+			AssessmentQuestion assessmentQuestion = JsonDeserializer.deserialize(JsonData.getJSONObject(QUESTION).toString(), AssessmentQuestion.class);
+			question.setDepthOfKnowledgeIds(assessmentQuestion.getDepthOfKnowledgeIds());
+			question.setStandardIds(assessmentQuestion.getStandardIds());
+			question.setSkillIds(assessmentQuestion.getSkillIds());
 		} catch (Exception e) {
 			throw new BadRequestException(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		}
