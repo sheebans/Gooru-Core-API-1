@@ -196,6 +196,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collection.setImagePath(basePath.toString());
 		}
 		updateCollection(collection, newCollection, user);
+
+		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
+			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		}
+		
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
