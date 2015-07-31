@@ -340,7 +340,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeLastModifiedUser) {
 			Object lastModifiedUserUid = collection.get(LAST_MODIFIED_USER_UID);
 			if (lastModifiedUserUid != null) {
-				collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
+				Long collaborator = getCollaboratorRepository().getCollaboratorsCountById(collectionId);
+				if (collaborator != null && collaborator > 0) { 
+					collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
+				}
 			}
 		}
 		collection.remove(LAST_MODIFIED_USER_UID);
