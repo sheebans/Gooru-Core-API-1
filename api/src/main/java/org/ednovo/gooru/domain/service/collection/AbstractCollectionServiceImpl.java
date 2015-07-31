@@ -22,7 +22,6 @@ import org.ednovo.gooru.core.api.model.ContentSubdomainAssoc;
 import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.MetaConstants;
-import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
@@ -37,7 +36,6 @@ import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
-import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
@@ -168,9 +166,6 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		getCollectionDao().save(collection);
 		
-		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
-			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
-		}
 		return collection;
 
 	}
