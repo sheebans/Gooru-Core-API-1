@@ -360,10 +360,12 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
-		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "skillIds", Integer.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "standardIds", Integer.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "depthOfKnowledgeIds", Integer.class);
+		
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
