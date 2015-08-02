@@ -89,14 +89,11 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setCreator(user);
 		question.setUser(user);
 		question.setIsOer(1);
+		this.getQuestionRepository().save(question);
 		if (question.getMediaFilename() != null) {
-			String folderPath = Collection.buildResourceFolder(question.getContentId());
-			getGooruImageUtil().imageUpload(question.getMediaFilename(), folderPath, QUESTION_IMAGE_DIMENSION);
-			StringBuilder basePath = new StringBuilder(folderPath);
-			basePath.append(File.separator).append(question.getMediaFilename());
-			question.setThumbnail(basePath.toString());
+			getGooruImageUtil().imageUpload(question.getMediaFilename(), question.getFolder(), QUESTION_IMAGE_DIMENSION);
+			question.setThumbnail(question.getMediaFilename());
 		}
-		
 		this.getQuestionRepository().save(question);
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		if (question.isQuestionNewGen()) {
@@ -151,11 +148,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		}
 		
 		if (newQuestion.getMediaFilename() != null) {
-			String folderPath = Collection.buildResourceFolder(question.getContentId());
-			getGooruImageUtil().imageUpload(newQuestion.getMediaFilename(), folderPath, QUESTION_IMAGE_DIMENSION);
-			StringBuilder basePath = new StringBuilder(folderPath);
-			basePath.append(File.separator).append(newQuestion.getMediaFilename());
-			question.setThumbnail(basePath.toString());
+			getGooruImageUtil().imageUpload(newQuestion.getMediaFilename(), question.getFolder(), QUESTION_IMAGE_DIMENSION);
+			question.setThumbnail(newQuestion.getMediaFilename());
 		}
 
 		question.setLastModified(new java.util.Date(System.currentTimeMillis()));
