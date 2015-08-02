@@ -129,6 +129,11 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 			if (newResource.getAttach() != null) {
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
+			if (newResource.getMediaFilename() != null) {
+				this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), resource.getFolder(), RESOURCE_IMAGE_DIMENSION);
+				resource.setThumbnail(newResource.getMediaFilename());
+			}
+			getResourceRepository().save(resource);
 		}
 
 		return resource;
@@ -184,12 +189,10 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 		if (newResource.getAttach() != null) {
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
 		}
+		
 		if (newResource.getMediaFilename() != null) {
-			String folderPath = Collection.buildResourceFolder(resource.getContentId());
-			this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), folderPath, RESOURCE_IMAGE_DIMENSION);
-			StringBuilder basePath = new StringBuilder(folderPath);
-			basePath.append(File.separator).append(newResource.getMediaFilename());
-			resource.setThumbnail(basePath.toString());
+			this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), resource.getFolder(), RESOURCE_IMAGE_DIMENSION);
+			resource.setThumbnail(newResource.getMediaFilename());
 		}
 		this.getResourceRepository().save(resource);
 
