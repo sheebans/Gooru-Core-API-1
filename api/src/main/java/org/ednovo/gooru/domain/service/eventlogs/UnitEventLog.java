@@ -32,9 +32,9 @@ public class UnitEventLog extends EventLog {
 			List<String> classUids = this.getClassRepository().getClassUid(courseId);
 			
 			if (!classUids.isEmpty()) {
-				JSONArray newArray = new JSONArray();
-				newArray.addAll(classUids);
-				payLoadObject.put(CLASS_GOORU_IDS, newArray);
+				JSONArray classIds = new JSONArray();
+				classIds.addAll(classUids);
+				payLoadObject.put(CLASS_GOORU_IDS, classIds);
 				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:CLASS_ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, CLASS_COURSE_UNIT);
 			} else {
@@ -42,16 +42,23 @@ public class UnitEventLog extends EventLog {
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_UNIT);
 			}
 			
+			payLoadObject.put(MODE, action);
+			payLoadObject.put(ITEM_SEQUENCE,unit.getItemSequence());
 			if(action.equalsIgnoreCase(CREATE)){
-				payLoadObject.put(MODE, CREATE);
 				payLoadObject.put(DATA, data);
-				payLoadObject.put(ITEM_SEQUENCE,unit.getItemSequence());
 				payLoadObject.put(ITEM_ID,unit.getCollectionItemId());
-			}
-			else{
-				payLoadObject.put(MODE, DELETE);
-				payLoadObject.put(ITEM_SEQUENCE,unit.getItemSequence());
-
+			} else if (action.equalsIgnoreCase(EDIT)) {
+				if (!classUids.isEmpty()) {
+					JSONArray classIds = new JSONArray();
+					classIds.addAll(classUids);
+					payLoadObject.put(CLASS_GOORU_IDS, classIds);
+					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+					payLoadObject.put(ITEM_TYPE, CLASS_COURSE_UNIT);
+				} else {
+					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_UNIT);
+				}
+				payLoadObject.put(ITEM_ID, unit.getCollectionItemId());
 			}
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();

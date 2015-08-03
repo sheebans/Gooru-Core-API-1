@@ -20,6 +20,8 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 	
 	public static final String CLASS_GOORU_IDS = "classGooruIds";
 	
+	public static final String CLASS_ITEM_EDIT = "class.item.edit";
+	
 	//lesson
 	public static final String SHELF_COURSE_LESSON = "shelf.course.unit.lesson";
 
