@@ -282,6 +282,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
 			userClass.setMemberCount(userClass.getMemberCount() - 1);
+			Identity identity = this.getUserRepository().findUserByGooruId(userUid);
+			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), classUid, ACTIVE);
+			if (inviteUser != null) {
+				this.getClassRepository().remove(inviteUser);
+			}
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
@@ -440,7 +445,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		content.remove(IMAGE_PATH);
 		return content;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateMemberCount(String classUid) {

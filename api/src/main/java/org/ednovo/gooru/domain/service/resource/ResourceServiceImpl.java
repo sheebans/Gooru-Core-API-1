@@ -289,6 +289,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		instance.put("taxonomySet", question.getTaxonomySet());
 		instance.put("typeName", question.getTypeName());
 		instance.put("answers", question.getAnswers());
+		instance.put("user", question.getUser());
 		instance.put("hints", question.getHints());
 		instance.put("explanation", question.getExplanation());
 		instance.put("questionText", question.getQuestionText());
