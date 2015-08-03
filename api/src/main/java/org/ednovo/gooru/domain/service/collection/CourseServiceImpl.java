@@ -1,6 +1,7 @@
 package org.ednovo.gooru.domain.service.collection;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, null, DELETE );
 		this.getCollectionDao().updateClassByCourse(course.getContent().getContentId());
 		this.resetSequence(parentCollection.getGooruOid(), course.getContent().getGooruOid(), user.getPartyUid(), COURSE);
+		course.getContent().setLastModified(new Date());
 		course.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
 	}
