@@ -6,7 +6,9 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ClassEventLogger {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(ClassEventLogger.class);
