@@ -32,25 +32,32 @@ public class LessonEventLog extends EventLog{
 			payLoadObject.put(LESSON_GOORU_ID, lesson.getContent().getGooruOid());
 			List<String> classUids = this.getClassRepository().getClassUid(courseId);
 			if (!classUids.isEmpty()) {
-				JSONArray newArray = new JSONArray();
-				newArray.addAll(classUids);
-				payLoadObject.put(CLASS_GOORU_IDS, newArray);
+				JSONArray classIds = new JSONArray();
+				classIds.addAll(classUids);
+				payLoadObject.put(CLASS_GOORU_IDS, classIds);
 				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:CLASS_ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, CLASS_COURSE_LESSON);
 			} else {
 				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_LESSON);
 			}
-			
+			payLoadObject.put(MODE, action);
+			payLoadObject.put(ITEM_SEQUENCE, lesson.getItemSequence());
 			if(action.equalsIgnoreCase(CREATE)){
-				payLoadObject.put(MODE, CREATE);
 				payLoadObject.put(DATA, data);
-				payLoadObject.put(ITEM_SEQUENCE,lesson.getItemSequence());
 				payLoadObject.put(ITEM_ID,lesson.getCollectionItemId());
-			}
-			else{
-				payLoadObject.put(MODE, DELETE);
-				payLoadObject.put(ITEM_SEQUENCE,lesson.getItemSequence());
+			} else if (action.equalsIgnoreCase(EDIT)) {
+				if (!classUids.isEmpty()) {
+					JSONArray classIds = new JSONArray();
+					classIds.addAll(classUids);
+					payLoadObject.put(CLASS_GOORU_IDS, classIds);
+					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+					payLoadObject.put(ITEM_TYPE, CLASS_COURSE_LESSON);
+				} else {
+					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_LESSON);
+				}
+				payLoadObject.put(ITEM_ID, lesson.getCollectionItemId());
 			}
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();

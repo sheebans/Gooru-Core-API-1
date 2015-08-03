@@ -202,8 +202,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		
-	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(collectionId);
-		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user, collection, EDIT);
+	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
+		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user, newCollection, EDIT);
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());

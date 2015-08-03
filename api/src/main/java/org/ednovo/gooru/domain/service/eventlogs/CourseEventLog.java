@@ -30,19 +30,19 @@ public class CourseEventLog extends EventLog{
 			payLoadObject.put(COURSE_GOORU_ID, course.getContent().getGooruOid());
 			List<String> classUids = this.getClassRepository().getClassUid(course.getContent().getGooruOid());
 			if (!classUids.isEmpty()) {
-				JSONArray newArray = new JSONArray();
-				newArray.addAll(classUids);
-				payLoadObject.put(CLASS_GOORU_IDS, newArray);
+				JSONArray classIds = new JSONArray();
+				classIds.addAll(classUids);
+				payLoadObject.put(CLASS_GOORU_IDS, classIds);
 				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:CLASS_ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, CLASS_COURSE);
 			} else {
 				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(CREATE)? ITEM_CREATE:ITEM_DELETE);
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE);
 			}
+			payLoadObject.put(MODE, action);
+			payLoadObject.put(ITEM_SEQUENCE,course.getItemSequence());
 			if(action.equalsIgnoreCase(CREATE)){
-				payLoadObject.put(MODE, CREATE);
 				payLoadObject.put(DATA, data);
-				payLoadObject.put(ITEM_SEQUENCE,course.getItemSequence());
 				payLoadObject.put(ITEM_ID,course.getCollectionItemId());
 			}
 			else if(action.equalsIgnoreCase(EDIT)){
@@ -56,13 +56,7 @@ public class CourseEventLog extends EventLog{
 					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE);
 				}
-				payLoadObject.put(MODE, EDIT);
-				payLoadObject.put(ITEM_SEQUENCE,course.getItemSequence());
 				payLoadObject.put(ITEM_ID,course.getCollectionItemId());		
-			}else {
-
-				payLoadObject.put(ITEM_SEQUENCE,course.getItemSequence());
-				payLoadObject.put(MODE, DELETE);		
 			}
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();

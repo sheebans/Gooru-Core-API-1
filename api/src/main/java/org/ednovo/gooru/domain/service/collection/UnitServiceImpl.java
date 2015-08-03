@@ -64,6 +64,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), UNIT);
 		}
 		this.updateCollection(collection, newCollection, user);
+		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId, user.getPartyUid());
+		getUnitEventLog().unitEventLogs(courseId, unit, user, newCollection, EDIT);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
