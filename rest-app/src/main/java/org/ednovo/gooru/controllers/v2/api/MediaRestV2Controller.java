@@ -111,7 +111,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/crop")
-	public void cropImage(@PathVariable(value = GOORU_IMAGE_ID) final String gooruImageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public void cropImage(@PathVariable(value = ID) final String gooruImageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		final File classplanDir = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER);
 
@@ -125,7 +125,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 				if (getValue(CROP_ENGINE, json).equalsIgnoreCase(IMG_MAGICK)) {
 					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), file.getPath());
 				} else {
-					getGooruImageUtil().cropImage(file.getPath(), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)));
+					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), file.getPath());
 				}
 			} catch (Exception exception) {
 				LOGGER.error("Cannot crop Image : " + exception.getMessage());

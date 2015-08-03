@@ -47,6 +47,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -122,7 +123,7 @@ public class GooruImageUtil implements ParameterProperties {
 		String resizeCommand = new String("/usr/bin/convert" + "@" + srcFilePath + "@-crop" + "@" + width + "x" + height + "+" + x + "+" + y + "@" + destFilePath);
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("command", resizeCommand);
-		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
+		RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
 	}
 
 	public static void scaleImageUsingResampleOp(String srcFilePath, int width, int height, String destFilePath) throws Exception {
