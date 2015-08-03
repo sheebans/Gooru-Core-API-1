@@ -38,7 +38,6 @@ import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -281,7 +280,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 							SESSION_TOKEN_KEY + userToken.getToken(),
 							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class)
 									.include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" })
-									.exclude(new String[] { "*.class", "*.school", "*.schoolDistrict", "*.status", "*.meta" }).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
+									.exclude(new String[] { "*.class", "*.school", "*.contentType", "*.schoolDistrict", "*.status", "*.meta" }).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server {}", e);
