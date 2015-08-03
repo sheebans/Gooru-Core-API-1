@@ -22,7 +22,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 			"*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.grade", "*.mediaType", "*.sourceReference" };
 
 	static final String RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
-			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
+			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails.defaultImage", "*.thumbnails.dimensions" , "*.thumbnails.url", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
 			"*.questionInfo", "*.TYPE", "*.type", "*.depthOfKnowledge", "*.educationalUse", "*.momentsOfLearning", "*.name", "*.questionText", "*.answers","*.user", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName",
 			"*.hints.*", "*.description", "*.explanation", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
@@ -946,7 +946,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	final static String INCLUDE_COLLECTION_ITEMS[] = { "*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning", "*.audience", "*.accessHazard", "*.mediaFeature", "*.taxonomyCourse", "*.subdomain" };
 
-	final static String EXCLUDE_COLLECTION_ITEMS[] = { "*.class", "*.answers.question", "*.hints.question", "*.resourceFormat.*" };
+	final static String EXCLUDE_COLLECTION_ITEMS[] = { "*.class", "*.answers.question", "*.hints.question", "*.resourceFormat.*","*.thumbnails.*" };
 
 	static final String CLASS_CONTENT[] = { "*.gooruOid", "*.title", "*.settings", "*.items" };
 
