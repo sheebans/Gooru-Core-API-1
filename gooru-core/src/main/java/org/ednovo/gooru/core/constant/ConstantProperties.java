@@ -24,7 +24,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	static final String RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
 			"*.questionInfo", "*.TYPE", "*.type", "*.depthOfKnowledge", "*.educationalUse", "*.momentsOfLearning", "*.name", "*.questionText", "*.answers","*.user", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName",
-			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
+			"*.hints.*", "*.description", "*.explanation", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description",
 			"*.course", "*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages", "*.host", "*.resourceTags.*", "*.typeName", "*.s3UploadFlag", "*.sourceReference", "*.skills", "*.attributes.*", "*.feedback.*", "*.misc.*", "*.hlType" };
@@ -946,7 +946,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	final static String INCLUDE_COLLECTION_ITEMS[] = { "*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning", "*.audience", "*.accessHazard", "*.mediaFeature", "*.taxonomyCourse", "*.subdomain" };
 
-	final static String EXCLUDE_COLLECTION_ITEMS[] = { "*.class", "*.answers.question", "*.hints.question" };
+	final static String EXCLUDE_COLLECTION_ITEMS[] = { "*.class", "*.answers.question", "*.hints.question", "*.resourceFormat.*" };
 
 	static final String CLASS_CONTENT[] = { "*.gooruOid", "*.title", "*.settings", "*.items" };
 
