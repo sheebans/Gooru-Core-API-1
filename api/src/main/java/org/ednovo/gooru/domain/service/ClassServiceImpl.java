@@ -24,6 +24,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.collection.LessonService;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLogger;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -287,6 +288,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			if (inviteUser != null) {
 				this.getClassRepository().remove(inviteUser);
 			}
+			ClassEventLogger.memberRemoveLog(user.getOrganization().getId(), classUid, userUid);
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
