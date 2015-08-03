@@ -68,6 +68,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private LessonService lessonService;
+	
+	@Autowired
+	private ClassEventLogger classEventLogger;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -288,7 +291,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			if (inviteUser != null) {
 				this.getClassRepository().remove(inviteUser);
 			}
-			ClassEventLogger.memberRemoveLog(user.getOrganization().getId(), classUid, userUid);
+			getClassEventLogger().memberRemoveLog(user.getOrganization().getId(), classUid, userUid);
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
@@ -497,6 +500,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	public LessonService getLessonService() {
 		return lessonService;
+	}
+
+	public ClassEventLogger getClassEventLogger() {
+		return classEventLogger;
 	}
 
 }

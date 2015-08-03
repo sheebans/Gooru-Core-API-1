@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 public class ClassEventLogger {
 
-	public static final Logger CLASS_EVENT_LOGGER = LoggerFactory.getLogger(ClassEventLogger.class);
+	public static final Logger LOGGER = LoggerFactory.getLogger(ClassEventLogger.class);
 	
-	public static void memberRemoveLog(String organizationUid, String classUid, String studentUid) {
+	public void memberRemoveLog(String organizationUid, String classUid, String studentUid) {
 		
 		try {
 			SessionContextSupport.getLog().put(ConstantProperties.EVENT_NAME, ParameterProperties.CLASS_USER_REMOVE);
@@ -27,7 +27,7 @@ public class ClassEventLogger {
 			payLoadLog.put(ConstantProperties.REMOVE_GOORU_UID, studentUid);
 			SessionContextSupport.getLog().put(ConstantProperties.PAY_LOAD_OBJECT, payLoadLog.toString());
 		} catch (Exception e) {
-			CLASS_EVENT_LOGGER.error(ParameterProperties._ERROR, e);
+			LOGGER.error(ParameterProperties._ERROR, e);
 		}
 	}
 }
