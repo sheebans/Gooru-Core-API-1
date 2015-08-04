@@ -15,21 +15,21 @@ public class ClassEventLogger extends EventLog{
 	public void memberRemoveLog(String organizationUid, String classUid, String studentUid) {
 		
 		try {
-			SessionContextSupport.getLog().put(ConstantProperties.EVENT_NAME, ParameterProperties.CLASS_USER_REMOVE);
-			insertValue(ParameterProperties.CONTEXT,ParameterProperties.CONTENT_GOORU_ID,classUid);
-			insertValue(ConstantProperties.PAY_LOAD_OBJECT,ConstantProperties.REMOVE_GOORU_UID,studentUid);
+			SessionContextSupport.getLog().put(EVENT_NAME, CLASS_USER_REMOVE);
+			putValue(CONTEXT, CONTENT_GOORU_ID, classUid);
+			putValue(PAY_LOAD_OBJECT, REMOVE_GOORU_UID, studentUid);
 		} catch (Exception e) {
-			LOGGER.error(ParameterProperties._ERROR, e);
+			LOGGER.error(_ERROR, e);
 		}
 	}
 	
 	public void memberJoinLog(String classUid) {
 		
 		try {
-			SessionContextSupport.getLog().put(ConstantProperties.EVENT_NAME,ParameterProperties.CLASS_USER_ADD);
-			insertValue(ParameterProperties.CONTEXT,ParameterProperties.CONTENT_GOORU_ID,classUid);
+			SessionContextSupport.getLog().put(EVENT_NAME, CLASS_USER_ADD);
+			putValue(CONTEXT, CONTENT_GOORU_ID, classUid);
 		} catch (Exception e) {
-			LOGGER.error(ParameterProperties._ERROR, e);
+			LOGGER.error(_ERROR, e);
 		}
 	}
 }

@@ -52,10 +52,10 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final String SHELF_COURSE_QUESTION = "shelf.course.unit.lesson.collection.question";
 
-	public void insertValue(String objectName, String name, String value) throws JSONException {
-		JSONObject log = getLogParameter(objectName);
-		log.put(name, value);
-		SessionContextSupport.getLog().put(objectName,log.toString());
+	public void putValue(String entityName, String key, String value) throws JSONException {
+		JSONObject log = getLogParameter(entityName);
+		log.put(key, value);
+		SessionContextSupport.getLog().put(entityName,log.toString());
 	}
 	
 	public JSONObject getLogParameter(String key) throws JSONException {
