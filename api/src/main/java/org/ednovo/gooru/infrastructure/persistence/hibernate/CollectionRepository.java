@@ -44,6 +44,8 @@ public interface CollectionRepository extends BaseRepository {
 
 	Collection getCollectionByGooruOid(String gooruOid, String gooruUid);
 
+	Collection getCollectionByGooruOid(String gooruOid, String gooruUid, boolean skipOrgCheck);
+
 	CollectionItem getCollectionItemById(String collectionItemId);
 
 	List<Collection> getCollectionsByResourceId(String resourceGooruOid);
