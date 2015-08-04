@@ -73,7 +73,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	@Override
 	public ColumnList<String> read(String rowKey) {
 		try {
-			OperationResult<ColumnList<String>> result = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).execute();
+			OperationResult<ColumnList<String>> result = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL).getKey(rowKey).execute();
 			ColumnList<String> record = result.getResult();
 			return record;
 		} catch (ConnectionException e) {

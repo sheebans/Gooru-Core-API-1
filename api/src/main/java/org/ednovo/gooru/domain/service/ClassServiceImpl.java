@@ -24,6 +24,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.collection.LessonService;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLogger;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -67,6 +68,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private LessonService lessonService;
+	
+	@Autowired
+	private ClassEventLogger classEventLogger;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -282,6 +286,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
 			userClass.setMemberCount(userClass.getMemberCount() - 1);
+			Identity identity = this.getUserRepository().findUserByGooruId(userUid);
+			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), classUid, ACTIVE);
+			if (inviteUser != null) {
+				this.getClassRepository().remove(inviteUser);
+			}
+			getClassEventLogger().memberRemoveLog(user.getOrganization().getId(), classUid, userUid);
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
@@ -440,7 +450,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		content.remove(IMAGE_PATH);
 		return content;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateMemberCount(String classUid) {
@@ -490,6 +500,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	public LessonService getLessonService() {
 		return lessonService;
+	}
+
+	public ClassEventLogger getClassEventLogger() {
+		return classEventLogger;
 	}
 
 }

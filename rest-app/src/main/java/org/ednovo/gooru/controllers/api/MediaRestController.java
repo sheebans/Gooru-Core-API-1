@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,10 +92,9 @@ public class MediaRestController extends BaseController {
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.PUT, value = "/{gooruImageId}/crop")
-	public void cropImage(@PathVariable(value = GOORU_IMAGE_ID) String gooruImageId, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height,
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/crop")
+	public void cropImage(@PathVariable(value = ID) String gooruImageId, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height,
 			@RequestParam(value = CROP_ENGINE, required = false, defaultValue = IMG_MAGICK) String cropEngine, HttpServletRequest request, HttpServletResponse response) {
-		request.setAttribute(PREDICATE, LEARNING_GUIDE_CROP_LEARNGUIDE_IMG);
 
 		File classplanDir = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER);
 
@@ -110,7 +108,7 @@ public class MediaRestController extends BaseController {
 				if (cropEngine.equalsIgnoreCase(IMG_MAGICK)) {
 					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), width, height, xPosition, yPosition, file.getPath());
 				} else {
-					getGooruImageUtil().cropImage(file.getPath(), xPosition, yPosition, width, height);
+					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), width, height, xPosition, yPosition, file.getPath());
 				}
 			} catch (Exception exception) {
 				logger.error("Cannot crop Image : " + exception.getMessage());

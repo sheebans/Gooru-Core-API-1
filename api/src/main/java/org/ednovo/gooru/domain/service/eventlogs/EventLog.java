@@ -1,15 +1,8 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
-import java.util.List;
-
-import net.sf.json.JSONArray;
-
-import org.ednovo.gooru.core.api.model.Collection;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +19,8 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 	public static final String CLASS_ITEM_DELETE = "class.item.delete";
 	
 	public static final String CLASS_GOORU_IDS = "classGooruIds";
+	
+	public static final String CLASS_ITEM_EDIT = "class.item.edit";
 	
 	//lesson
 	public static final String SHELF_COURSE_LESSON = "shelf.course.unit.lesson";
@@ -59,39 +54,4 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final String SHELF_COURSE_QUESTION = "shelf.course.unit.lesson.collection.question";
 
-
-	public JSONObject payLoadObject(String courseId,List<String> classUids, JSONObject payLoadObject, String action, Collection data){
-		
-		try{
-			payLoadObject.put(TYPE, COURSE);
-			payLoadObject.put(COURSE_GOORU_ID, courseId);
-			
-			
-			if (!classUids.isEmpty()) {
-				JSONArray newArray = new JSONArray();
-				newArray.addAll(classUids);
-				payLoadObject.put(CLASS_GOORU_IDS, newArray.toString());
-				SessionContextSupport.putLogParameter(EVENT_NAME, (action.equalsIgnoreCase(ADD)? ITEM_CREATE:CLASS_ITEM_DELETE));
-			} else {
-				SessionContextSupport.putLogParameter(EVENT_NAME, action.equalsIgnoreCase(ADD)? ITEM_CREATE:ITEM_DELETE);
-			}
-			
-			if(action.equalsIgnoreCase(ADD)){
-				payLoadObject.put(MODE, ADD);
-				payLoadObject.put(DATA, data);
-			}
-			else if(action.equalsIgnoreCase(DELETE)){
-				payLoadObject.put(MODE, DELETE);
-			}
-			
-			return payLoadObject;
-		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
-		}
-		return null;
-	}
-
-	public ClassRepository getClassRepository() {
-		return classRepository;
-	}
 }
