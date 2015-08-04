@@ -204,7 +204,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		
 	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
-		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user, newCollection, EDIT);
+		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user);
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
@@ -229,7 +229,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (newCollectionItem.getPosition() != null) {
 			this.resetSequence(collectionItem.getCollection(), collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
 		}
-		getCollectionEventLog().collectionUpdateEventLog(collectionId, collectionItem, user, newCollectionItem, EDIT);
+		getCollectionEventLog().collectionUpdateEventLog(collectionId, collectionItem, user);
 		this.getCollectionDao().save(collectionItem);
 	}
 

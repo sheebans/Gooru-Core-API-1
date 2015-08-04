@@ -171,7 +171,7 @@ public class CollectionEventLog extends EventLog {
 	                   LOGGER.error(_ERROR, e);
 	           }
 	   }
-		public void collectionUpdateEventLog(String lessonId, CollectionItem collection, User user, Object data, String action) {
+		public void collectionUpdateEventLog(String lessonId, CollectionItem collection, User user) {
 			try {
 				String collectionType = collection.getContent().getContentType().getName();
 				JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
@@ -181,27 +181,19 @@ public class CollectionEventLog extends EventLog {
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 				JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 				payLoadObject.put(LESSON_GOORU_ID, lessonId);
-				
-				if(action.equalsIgnoreCase(EDIT)){
-					payLoadObject.put(MODE, EDIT);
-					payLoadObject.put(ITEM_SEQUENCE,collection.getItemSequence());
-					payLoadObject.put(ITEM_ID,collection.getCollectionItemId());
-				}
-				
+				payLoadObject.put(MODE, EDIT);
+				payLoadObject.put(ITEM_SEQUENCE,collection.getItemSequence());
+				payLoadObject.put(ITEM_ID,collection.getCollectionItemId());
+				payLoadObject.put(TYPE, collectionType);
 				if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-					payLoadObject.put(TYPE, ASSESSMENT);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_ASSESSMENT);
 				} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-					payLoadObject.put(TYPE, COLLECTION);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_COLLECTION);
 				} else if(collectionType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())){
-					payLoadObject.put(TYPE, ASSESSMENT_URL);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_ASSESSMENT_URL);
 				} else if (collectionType.equalsIgnoreCase(QUESTION)) {
-					payLoadObject.put(TYPE, QUESTION);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_QUESTION);
 				} else if (collectionType.equalsIgnoreCase(RESOURCE)) {
-					payLoadObject.put(TYPE, RESOURCE);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 				}
 				
