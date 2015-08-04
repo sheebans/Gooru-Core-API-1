@@ -2930,4 +2930,6 @@ public interface ParameterProperties {
     
     String CLASS_USER_REMOVE = "classpage.user.remove";
     
+    String CLASS_USER_ADD = "classpage.user.add";
+    
 }

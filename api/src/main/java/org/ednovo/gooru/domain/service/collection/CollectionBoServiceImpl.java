@@ -2,6 +2,7 @@ package org.ednovo.gooru.domain.service.collection;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -417,12 +418,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson, GL0056, 404, LESSON);
-		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
+		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		rejectIfNull(unit, GL0056, 404, UNIT);
+		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
+		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
@@ -474,6 +475,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
 		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())), GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
+			lesson.getContent().setLastModified(new Date());
+			this.getCollectionDao().save(lesson);
 			updateContentMetaDataSummary(lesson.getCollection().getContentId(), collectionType, DELETE);
 		}
 		return targetCollection.getCollectionType();
