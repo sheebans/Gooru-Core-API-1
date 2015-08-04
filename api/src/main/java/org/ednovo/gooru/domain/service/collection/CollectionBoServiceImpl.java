@@ -229,8 +229,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (newCollectionItem.getPosition() != null) {
 			this.resetSequence(collectionItem.getCollection(), collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
 		}
-		Collection collection = getCollectionDao().getCollection(collectionId);
-		getCollectionEventLog().collectionUpdateEventLog(collectionId, collectionItem, user, collection, EDIT);
+		getCollectionEventLog().collectionUpdateEventLog(collectionId, collectionItem, user, newCollectionItem, EDIT);
 		this.getCollectionDao().save(collectionItem);
 	}
 

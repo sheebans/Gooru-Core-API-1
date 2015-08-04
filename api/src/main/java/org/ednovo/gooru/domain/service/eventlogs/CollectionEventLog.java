@@ -171,7 +171,7 @@ public class CollectionEventLog extends EventLog {
 	                   LOGGER.error(_ERROR, e);
 	           }
 	   }
-		public void collectionUpdateEventLog(String lessonId, CollectionItem collection, User user, Collection data, String action) {
+		public void collectionUpdateEventLog(String lessonId, CollectionItem collection, User user, Object data, String action) {
 			try {
 				String collectionType = collection.getContent().getContentType().getName();
 				JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
