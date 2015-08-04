@@ -1,6 +1,7 @@
 package org.ednovo.gooru.domain.service.collection;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateLesson(String unitId, String lessonId, Collection newCollection, User user) {
+	public void updateLesson(String courseId, String unitId, String lessonId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(lessonId);
 		rejectIfNull(collection, GL0056,404, LESSON);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
@@ -63,6 +64,8 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		if(newCollection.getPosition() != null){
 			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), LESSON);
 		}
+		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId, lessonId, user.getPartyUid());
+		getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, newCollection, EDIT);
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
@@ -84,6 +87,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, null, DELETE);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid(), LESSON);
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
+		lesson.getContent().setLastModified(new Date());
 		lesson.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(lesson);
 	}

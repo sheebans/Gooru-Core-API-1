@@ -2928,4 +2928,6 @@ public interface ParameterProperties {
     
     String LTI_RESULT_SOURCEID = "resultSourceId";
     
+    String CLASS_USER_REMOVE = "classpage.user.remove";
+    
 }

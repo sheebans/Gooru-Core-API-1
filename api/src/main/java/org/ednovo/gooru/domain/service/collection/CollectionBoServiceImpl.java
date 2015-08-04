@@ -197,10 +197,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		updateCollection(collection, newCollection, user);
 
+
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		
+	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
+		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user, newCollection, EDIT);
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
@@ -256,6 +259,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
 		Map<String, Object> data = generateResourceMetaData(collectionItem.getContent(), newCollectionItem.getResource(), user);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, collectionItem, EDIT);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
 			updateContentMeta(contentMeta, data);
@@ -287,6 +291,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		AssessmentQuestion newAssessmentQuestion = this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
 		Map<String, Object> metaData = generateQuestionMetaData(collectionItem.getContent(), newAssessmentQuestion, user);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), QUESTION, data, EDIT);
 		if (metaData != null && metaData.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
 			updateContentMeta(contentMeta, metaData);
