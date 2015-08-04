@@ -12,12 +12,12 @@ public class ClassEventLogger extends EventLog{
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(ClassEventLogger.class);
 	
-	public void memberRemoveLog(String organizationUid, String classUid, String studentUid) {
+	public void memberRemoveLog(String organizationUid, String classUid, String userUid) {
 		
 		try {
 			SessionContextSupport.getLog().put(EVENT_NAME, CLASS_USER_REMOVE);
 			putValue(CONTEXT, CONTENT_GOORU_ID, classUid);
-			putValue(PAY_LOAD_OBJECT, REMOVE_GOORU_UID, studentUid);
+			putValue(PAY_LOAD_OBJECT, REMOVE_GOORU_UID, userUid);
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
 		}
