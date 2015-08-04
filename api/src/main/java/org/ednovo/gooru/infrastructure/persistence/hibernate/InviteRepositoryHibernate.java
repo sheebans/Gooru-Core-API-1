@@ -55,7 +55,6 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 		if (status != null) {
 			hql += " and iu.status.value=:pending";
 		}
-		hql += " order by iu.createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("mailId", mailId);

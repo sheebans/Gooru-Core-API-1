@@ -329,6 +329,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 					inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
 					this.getInviteRepository().save(inviteUser);
 				}
+				getClassEventLogger().memberJoinLog(classUid);
 			}
 		}
 	}
