@@ -23,7 +23,7 @@ public class ScollectionCassandraServiceImpl extends ApiCrudEntityCassandraServi
 
         @Override
         protected Collection fetchSource(String gooruOid) {
-                return this.getCollectionRepository().getCollectionByGooruOid(gooruOid,null);
+                return this.getCollectionRepository().getCollectionByGooruOid(gooruOid,null,true);
         }
 
 
