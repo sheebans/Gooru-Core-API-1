@@ -53,6 +53,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.EventService;
 import org.ednovo.gooru.domain.service.ShareService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -89,7 +90,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	private CollectionRepository collectionRepository;
 	
 	@Autowired
-	private ResourceRepository resourceRepository; 
+	private CollectionDao collectionDao;
 
 	@Autowired
 	private PartyRepository partyRepository;
@@ -697,7 +698,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			Map<String, Object> map = new HashMap<String, Object>();
 			map = eventMapData(eventMapping);
 			map.put("serverpath",serverpath);
-			org.ednovo.gooru.core.api.model.Resource resource = this.getResourceRepository().findResourceByContent(content.getGooruOid());
+			Collection resource = this.getCollectionDao().getCollection(content.getGooruOid());
 			if(resource != null) {
 				map.put("collection-title", resource.getTitle());
 			}
@@ -818,8 +819,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	protected UserRepositoryHibernate getUserRepositoryHibernate() {
 		return userRepositoryHibernate;
 	}
-	
-	public ResourceRepository getResourceRepository() {
-		return resourceRepository;
+
+	public CollectionDao getCollectionDao() {
+		return collectionDao;
 	}
+	
 }
