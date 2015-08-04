@@ -197,6 +197,12 @@ public class CollectionEventLog extends EventLog {
 				} else if(collectionType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())){
 					payLoadObject.put(TYPE, ASSESSMENT_URL);
 					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_ASSESSMENT_URL);
+				} else if (collectionType.equalsIgnoreCase(QUESTION)) {
+					payLoadObject.put(TYPE, QUESTION);
+					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_QUESTION);
+				} else if (collectionType.equalsIgnoreCase(RESOURCE)) {
+					payLoadObject.put(TYPE, RESOURCE);
+					payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 				}
 				
 				SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
