@@ -466,10 +466,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	private String getParentCollection(Long collectionId, String collectionType, String gooruOid, Collection targetCollection) {
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
-		lesson.getContent().setLastModified(new Date());
-		this.getCollectionDao().save(lesson);
 		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())), GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
+			lesson.getContent().setLastModified(new Date());
+			this.getCollectionDao().save(lesson);
 			updateContentMetaDataSummary(lesson.getCollection().getContentId(), collectionType, DELETE);
 		}
 		return targetCollection.getCollectionType();
