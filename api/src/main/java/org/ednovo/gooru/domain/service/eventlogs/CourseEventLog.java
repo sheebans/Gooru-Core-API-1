@@ -47,9 +47,9 @@ public class CourseEventLog extends EventLog{
 			}
 			else if(action.equalsIgnoreCase(EDIT)){
 				if (!classUids.isEmpty()) {
-					JSONArray newArray = new JSONArray();
-					newArray.addAll(classUids);
-					payLoadObject.put(CLASS_GOORU_IDS, newArray);
+					JSONArray classIds = new JSONArray();
+					classIds.addAll(classUids);
+					payLoadObject.put(CLASS_GOORU_IDS, classIds);
 					SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 					payLoadObject.put(ITEM_TYPE, CLASS_COURSE);
 				} else {

@@ -1,17 +1,15 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class EventLog implements ConstantProperties, ParameterProperties{
 
-	@Autowired
-	private ClassRepository classRepository;
-	
 	public static final Logger LOGGER = LoggerFactory.getLogger(CourseEventLog.class);
 	
 	public final static String CLASS_ITEM_MOVE = "class.item.move";
@@ -54,4 +52,13 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final String SHELF_COURSE_QUESTION = "shelf.course.unit.lesson.collection.question";
 
+	public void putValue(String entityName, String key, String value) throws JSONException {
+		JSONObject log = getLogParameter(entityName);
+		log.put(key, value);
+		SessionContextSupport.getLog().put(entityName,log.toString());
+	}
+	
+	public JSONObject getLogParameter(String key) throws JSONException {
+		return SessionContextSupport.getLog().get(key) != null ? new JSONObject(SessionContextSupport.getLog().get(key).toString()) : new JSONObject();
+	}
 }

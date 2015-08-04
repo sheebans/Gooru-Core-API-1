@@ -121,7 +121,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		if (party != null && party.getOrganization() != null) {
-			session.put(ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
+			session.put(ORGANIZATION_UID, party.getOrganization().getPartyUid());
 		}
 		session.put(SESSIONTOKEN, request.getParameter(SESSIONTOKEN));
 		session.put(API_KEY, request.getAttribute(API_KEY));
