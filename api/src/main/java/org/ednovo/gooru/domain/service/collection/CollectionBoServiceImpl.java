@@ -188,7 +188,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
 			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
 		}
-		if (newCollection.getMediaFilename() != null) {
+		if (newCollection.getMediaFilename() != null && !newCollection.getMediaFilename().isEmpty()) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
 			StringBuilder basePath = new StringBuilder(folderPath);
@@ -587,7 +587,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
-		if (collection.getMediaFilename() != null) {
+		if (collection.getMediaFilename() != null && !collection.getMediaFilename().isEmpty()) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(collection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
 			StringBuilder basePath = new StringBuilder(folderPath);

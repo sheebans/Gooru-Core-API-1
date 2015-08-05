@@ -90,7 +90,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setUser(user);
 		question.setIsOer(1);
 		this.getQuestionRepository().save(question);
-		if (question.getMediaFilename() != null) {
+		if (question.getMediaFilename() != null && !question.getMediaFilename().isEmpty()) {
 			getGooruImageUtil().imageUpload(question.getMediaFilename(), question.getFolder(), QUESTION_IMAGE_DIMENSION);
 			question.setThumbnail(question.getMediaFilename());
 		}
@@ -147,7 +147,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			question.setRecordSource(newQuestion.getRecordSource());
 		}
 		
-		if (newQuestion.getMediaFilename() != null) {
+		if (newQuestion.getMediaFilename() != null && !newQuestion.getMediaFilename().isEmpty()) {
 			getGooruImageUtil().imageUpload(newQuestion.getMediaFilename(), question.getFolder(), QUESTION_IMAGE_DIMENSION);
 			question.setThumbnail(newQuestion.getMediaFilename());
 		}

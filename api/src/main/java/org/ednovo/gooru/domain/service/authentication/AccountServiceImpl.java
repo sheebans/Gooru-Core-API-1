@@ -280,7 +280,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 							SESSION_TOKEN_KEY + userToken.getToken(),
 							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class)
 									.include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" })
-									.exclude(new String[] { "*.class", "*.school", "*.customFields", "*.contentType", "*.schoolDistrict", "*.status", "*.meta" }).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
+									.exclude(new String[] { "*.class", "*.school", "*.customFields", "*.contentType", "*.schoolDistrict", "*.status", "*.meta", "*.resourceInfo"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server {}", e);
