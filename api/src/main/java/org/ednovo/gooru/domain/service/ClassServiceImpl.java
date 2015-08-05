@@ -445,7 +445,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateMemberCount(String classUid) {
+	public synchronized void updateMemberCount(String classUid) {
 		this.getClassRepository().updateMemberCount(classUid);
 	}
 
