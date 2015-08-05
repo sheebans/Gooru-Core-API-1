@@ -1271,7 +1271,22 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
 			if (partyPermissions.size() > 0) {
 				for (PartyPermission subPartyPermission : partyPermissions) {
-					getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+					//getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+					// TO DO FIX ME later
+					String subPartyUid = subPartyPermission.getParty().getPartyUid();
+					if (subPartyPermission.getValidFrom() != null && subPartyPermission.getPermission() != null && (!permittedParties.containsKey(subPartyUid) || !permittedParties.get(subPartyUid).equals(PermissionType.VIEW.getType()))) {
+						permittedParties.put(subPartyUid, subPartyPermission.getPermission());
+					}
+					if (subPartyPermission.getPermission() != null && !partyPriveliges.contains(subPartyPermission.getPermission())) {
+						partyPriveliges.add(subPartyPermission.getPermission());
+					}
+
+					if (!userParties.contains(subPartyUid)) {
+						userParties.add(subPartyUid);
+					}
+					if (!userOrgs.contains(subPartyUid)) {
+						userOrgs.add(subPartyUid);
+					}
 				}
 			}
 		}
