@@ -320,9 +320,6 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			if (userGroupAssociation == null) {
 				userGroupAssociation = new UserGroupAssociation(0, identity.getUser(), new Date(System.currentTimeMillis()), userClass);
 				this.getUserRepository().save(userGroupAssociation);
-				userClass.setMemberCount(userClass.getMemberCount() + 1);
-				userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
-				this.getClassRepository().save(userClass);
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), userClass.getPartyUid(), null);
 				if (inviteUser != null) {
 					inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
