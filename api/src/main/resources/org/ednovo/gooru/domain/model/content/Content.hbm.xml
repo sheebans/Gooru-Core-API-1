@@ -169,6 +169,8 @@
 			<property name="copiedCollectionId" column="copied_collection_id"
 				not-null="false" />
 			<property name="distinguish" column="distinguish" not-null="false" />
+			<property name="grade" column="grade" not-null="false" />
+			
 			<set name="collectionItems" inverse="true" cascade="none" lazy="true"
 				sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
 				<key column="collection_content_id" />

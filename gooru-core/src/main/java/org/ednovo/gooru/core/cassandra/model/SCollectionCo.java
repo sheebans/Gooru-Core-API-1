@@ -72,6 +72,8 @@ public class SCollectionCo {
 	@Column
 	private String type;
 	
+	@Column
+	private String grade;
 	
 	public String getType() {
 		return type;
@@ -247,6 +249,14 @@ public class SCollectionCo {
 
 	public void setIsCanonical(Integer isCanonical) {
 		this.isCanonical = isCanonical;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+	public String getGrade() {
+		return grade;
 	}
 	
 	
