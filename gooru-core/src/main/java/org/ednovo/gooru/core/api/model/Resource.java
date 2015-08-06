@@ -491,12 +491,23 @@ public class Resource extends Content implements Serializable {
 		this.addDate = addDate;
 	}
 
-	public Thumbnail getThumbnails() {
-		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(),
-				getAssetURI(), getFolder());
-	}
+    public Thumbnail getThumbnails() {
+      if (!hasValidThumbnailAttributes()) {
+        return null;
+      }else {
+        return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(),
+            getAssetURI(), getFolder());
+      }
+    }
 
-	public void setCustomFields(Map<String, String> customFields) {
+    public boolean hasValidThumbnailAttributes() {
+      if (getThumbnail() == null || getThumbnail().isEmpty()) {
+        return false;
+      }
+      return true;
+    }
+
+  public void setCustomFields(Map<String, String> customFields) {
 		this.customFields = customFields;
 	}
 
