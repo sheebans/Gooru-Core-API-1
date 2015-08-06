@@ -129,7 +129,7 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 			if (newResource.getAttach() != null) {
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
-			if (newResource.getMediaFilename() != null) {
+			if (newResource.getMediaFilename() != null && !newResource.getMediaFilename().isEmpty()) {
 				this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), resource.getFolder(), RESOURCE_IMAGE_DIMENSION);
 				resource.setThumbnail(newResource.getMediaFilename());
 			}
@@ -190,7 +190,7 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
 		}
 		
-		if (newResource.getMediaFilename() != null) {
+		if (newResource.getMediaFilename() != null && !newResource.getMediaFilename().isEmpty()) {
 			this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), resource.getFolder(), RESOURCE_IMAGE_DIMENSION);
 			resource.setThumbnail(newResource.getMediaFilename());
 		}

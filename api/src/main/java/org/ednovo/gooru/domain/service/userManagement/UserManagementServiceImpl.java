@@ -1278,6 +1278,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public void deleteUserImageProfile(final String userId) throws Exception {
 		final User user = findByGooruId(userId);
+		rejectIfNull(user, GL0056, 404, USER);
 		if (user != null) {
 			profileImageUtil.deleteS3Upload(this.getUserRepository().getProfile(user, false));
 		} else {
