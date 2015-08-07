@@ -149,6 +149,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		destCollection.setUser(user);
 		destCollection.setOrganization(sourceCollection.getOrganization());
 		destCollection.setCreator(sourceCollection.getCreator());
+		destCollection.setUrl(sourceCollection.getUrl());
 		this.getCollectionDao().save(destCollection);
 		// copy resource and question items to collection
 		copyCollectionItems(targetCollection, sourceCollection, destCollection, user);
