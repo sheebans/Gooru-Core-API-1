@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -134,7 +135,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 		if (partyCustomFieldTax != null) {
 			return partyCustomFieldTax.getOptionalValue();
 		}  else  {
-			return this.taxonomyRespository.getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+			return this.taxonomyRespository.getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, TaxonomyUtil.GOORU_ORG_UID));
  		}
 	}
 
