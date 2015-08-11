@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -116,14 +117,17 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, User user) {
 		//Need to check it with userGroupService to get rootNodeId
 		String root =  getRootNodeId(user);
-		String[] rootNodeId = root.split(COMMA);
-		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, rootNodeId);
-		if (codes != null) {
-			for (Map<String, Object> code : codes) {
-				code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue(), rootNodeId));
+		if(root != null){
+			String[] rootNodeId = root.split(COMMA);
+			List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, rootNodeId);
+			if (codes != null) {
+				for (Map<String, Object> code : codes) {
+					code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue(), rootNodeId));
+				}
 			}
+			return codes;
 		}
-		return codes;
+		return null;
 	}
 	
 	private String getRootNodeId(User user){
@@ -131,7 +135,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 		if (partyCustomFieldTax != null) {
 			return partyCustomFieldTax.getOptionalValue();
 		}  else  {
-			return this.taxonomyRespository.getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+			return this.taxonomyRespository.getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, TaxonomyUtil.GOORU_ORG_UID));
  		}
 	}
 

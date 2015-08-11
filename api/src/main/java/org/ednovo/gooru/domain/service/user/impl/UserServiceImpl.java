@@ -1403,7 +1403,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		userCredential.setSubOrganizationUids(userSuborgs);
 		userCredential.setOrganizationCdnDirectPath(user.getOrganization().getNfsStorageArea().getCdnDirectPath());
 		userCredential.setSharedSecretKey(sharedSecretKey);
-		userCredential.setProfileAssetURI(BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid())) + "/");
+		userCredential.setProfileAssetURI(BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/");
 		String storedSecret = settingService.getOrganizationSetting(ConstantProperties.SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID);
 		userCredential.setPartyPermissions(partyPermissionsMap);
 		userCredential.setStoredSecretKey(storedSecret);
@@ -1415,7 +1415,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
 		}  else  {
-			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, TaxonomyUtil.GOORU_ORG_UID));
  		}
 		return userCredential;
 
@@ -1772,7 +1772,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public String buildUserProfileImageUrl(User user) {
-		return BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid())) + "/" + user.getPartyUid() + ".png";
+		return BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + user.getPartyUid() + ".png";
 	}
 
 	@Override
