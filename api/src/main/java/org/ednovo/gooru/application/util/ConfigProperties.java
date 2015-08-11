@@ -71,23 +71,27 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 	public static Map<String, Map<String, String>> wsFedSSO;
 
 	private static Map<String, String> googleDrive;
-	
-	private static Map<String, Map<String,String>> insightsKafkaProperties;
-	
+
+	private static Map<String, Map<String, String>> insightsKafkaProperties;
+
 	private static String googleApiKey;
 
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private StorageRepository storageRepository;
 
-	private static String baseRepoUrl; 
-	
-	private static String nfsInternalPath; 
-	
+	private static String baseRepoUrl;
+
+	private static String nfsInternalPath;
+
+	private static String apiEndPoint;
+
+	private static String profileImageUrl;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
-	
+
 	@PostConstruct
 	public void init() {
 		String authSSOData = settingService.getConfigSetting(AUTHSSO_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
@@ -109,18 +113,18 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		String googleAnalyticsAccountIdData = settingService.getConfigSetting(GOOGLE_ANALYTICS_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
 
 		String settingUrl = settingService.getConfigSetting(ConfigConstants.GOORU_SETTING, 0, TaxonomyUtil.GOORU_ORG_UID);
-        
+
 		String callbackUri = settingService.getConfigSetting(ConfigConstants.CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String clientId = settingService.getConfigSetting(ConfigConstants.CLIENT_ID, 0, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String clientSecret = settingService.getConfigSetting(ConfigConstants.CLIENT_SECRET, 0, TaxonomyUtil.GOORU_ORG_UID);
-		        
+
 		String googleCallbackUri = settingService.getConfigSetting(ConfigConstants.OAUTH_CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
-		
-		googleApiKey = settingService.getConfigSetting(ConfigConstants.GOOGLE_API_KEY,1,TaxonomyUtil.GOORU_ORG_UID);
-		
-		try { 
+
+		googleApiKey = settingService.getConfigSetting(ConfigConstants.GOOGLE_API_KEY, 1, TaxonomyUtil.GOORU_ORG_UID);
+
+		try {
 			googleDrive = new HashMap<String, String>();
 			googleDrive.put("settingUrl", settingUrl);
 			googleDrive.put("callbackUri", callbackUri);
@@ -130,8 +134,7 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		} catch (Exception e) {
 			googleDrive = new HashMap<String, String>();
 		}
-		
-		
+
 		try {
 			wsFedSSO = settingService.getWsfedOrganizationSettings(WSFEDSSO_CONFIG, null);
 		} catch (Exception e) {
@@ -207,22 +210,24 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		final StorageArea storageArea = getStorageRepository().getStorageAreaByTypeName(NFS);
 		baseRepoUrl = storageArea.getCdnDirectPath();
 		nfsInternalPath = storageArea.getInternalPath();
+		apiEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
+		profileImageUrl = settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID);
 	}
-	
-	private void initInsightsKafkaProperties(){
-		
+
+	private void initInsightsKafkaProperties() {
+
 		String insightsKafkaPropertiesData = settingService.getConfigSetting(0, ConfigConstants.INSIGHTS_KAFKA_PROPERTIES, TaxonomyUtil.GOORU_ORG_UID);
 		try {
-			insightsKafkaProperties = JsonDeserializer.deserialize(insightsKafkaPropertiesData, new TypeReference<Map<String, Map<String,String>>>() {
+			insightsKafkaProperties = JsonDeserializer.deserialize(insightsKafkaPropertiesData, new TypeReference<Map<String, Map<String, String>>>() {
 			});
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize insightsKafkaProperties:" + e.getMessage());
-			insightsKafkaProperties = new HashMap<String, Map<String,String>>();
+			insightsKafkaProperties = new HashMap<String, Map<String, String>>();
 		}
 	}
 
-	public void clearInsightsKafkaProperties(){
-		insightsKafkaProperties = new HashMap<String, Map<String,String>>();
+	public void clearInsightsKafkaProperties() {
+		insightsKafkaProperties = new HashMap<String, Map<String, String>>();
 		initInsightsKafkaProperties();
 	}
 
@@ -270,11 +275,11 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		return wsFedSSO;
 	}
 
-	public  Map<String, String> getGoogleDrive() {
+	public Map<String, String> getGoogleDrive() {
 		return googleDrive;
 	}
-	
-	public  Map<String, Map<String,String>> getInsightsKafkaProperties() {
+
+	public Map<String, Map<String, String>> getInsightsKafkaProperties() {
 		return insightsKafkaProperties;
 	}
 
@@ -284,10 +289,18 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 
 	public static String getBaseRepoUrl() {
 		return baseRepoUrl;
-	}	
-	
+	}
+
 	public static String getNfsInternalPath() {
 		return nfsInternalPath;
+	}
+
+	public static String getApiEndPoint() {
+		return apiEndPoint;
+	}
+
+	public static String getProfileImageUrl() {
+		return profileImageUrl;
 	}
 
 }

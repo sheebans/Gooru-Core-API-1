@@ -246,7 +246,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, false, false, false, user, null, null, false, true, false, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
+		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, false, false, false, user, null, null, false, true, false, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
      
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
