@@ -400,9 +400,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 					}
 				} else {
-					if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
-						collection.put(COLLECTION_ITEMS, getCollectionItem(String.valueOf(collection.get(GOORU_OID)), sharing, String.valueOf(collection.get(SHARING)), itemLimit, fetchChildItem, orderBy, excludeType));
-					} else if (typeName.equalsIgnoreCase(FOLDER)) {
+					if (typeName.equalsIgnoreCase(FOLDER)) {
 						collection.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
 					}
 				}
