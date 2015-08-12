@@ -33,6 +33,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -47,7 +48,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 		setSessionFactory(sessionFactory);
 		setJdbcTemplate(jdbcTemplate);
 	}
-	
+
 	@Override
 	public UserToken findBySession(String sessionId) {
 		Session session = null;
@@ -59,41 +60,35 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = session.createQuery("from UserToken where sessionId = ? and scope = ?").setString(0, sessionId).setString(1, "session");
 		List<UserToken> userList = list(query);
 		return userList.size() == 0 ? null : userList.get(0);
-		
+
 	}
 
 	@Override
-	public UserToken findByScope(String gooruUserId,String scope) {
-		
-		List<UserToken> userTokenList = list(getSession().createQuery("from UserToken u where u.scope = ? and  u.user.partyUid = ?").setString(0, scope).setString(1,gooruUserId));
-		
+	public UserToken findByScope(String gooruUserId, String scope) {
+
+		List<UserToken> userTokenList = list(getSession().createQuery("from UserToken u where u.scope = ? and  u.user.partyUid = ?").setString(0, scope).setString(1, gooruUserId));
+
 		return userTokenList.size() == 0 ? null : userTokenList.get(0);
 	}
-	
-	@Override
-	public UserToken findByToken(String sessionToken)
-	 {
-	     @SuppressWarnings("rawtypes")
-		 List tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
-	     if(tokens.size() != 0){
-	         return (UserToken)tokens.get(0);
-	     }
-	     else{
-	         return null;
-	     }
-	 }
-	
-	
 
-	public JdbcTemplate getJdbcTemplate()
-	{
+	@Override
+	@Cacheable("persistent")
+	public UserToken findByToken(String sessionToken) {
+		@SuppressWarnings("rawtypes")
+		List tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
+		if (tokens.size() != 0) {
+			return (UserToken) tokens.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
-	
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate)
-	{
+
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
-
 
 }

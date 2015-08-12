@@ -191,11 +191,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			
 			// APIKEY domain white listing verification based on request referrer and host headers.
 			verifyApikeyDomains(request, application);
-			
-			Identity identity = new Identity();
-			identity.setExternalId(username);
-
-			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
+			Identity identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 			if (identity == null) {
 				throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 			}
@@ -205,7 +201,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				throw new UnauthorizedException(generateErrorMessage(GL0079), GL0079);
 			}
 			
-			final User user = this.getUserRepository().findByIdentityLogin(identity);
+			final User user = identity.getUser();
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) {
 					throw new UnauthorizedException(generateErrorMessage(GL0105, identity.getAccountCreatedType()), GL0105 + Constants.ACCOUNT_TYPES.get(identity.getAccountCreatedType()));
@@ -231,20 +227,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 
 			}
-
-			if (user.getConfirmStatus() == 0) {
-				final PartyCustomField userDevice = getPartyService().getPartyCustomeField(user.getPartyUid(), GOORU_USER_CREATED_DEVICE, null);
-				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
-				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
-					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage(GL0072), GL0072);
-					}
-				} else {
-					if (tokenCount >= Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_IPAD_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage(GL0072), GL0072);
-					}
-				}
-			}
 			
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
@@ -266,7 +248,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (user != null && user.getOrganization() != null) {
 				organization = user.getOrganization();
 			}
-			getAccountUtil().storeAccountLoginDetailsInRedis(userToken, user);
+			//getAccountUtil().storeAccountLoginDetailsInRedis(userToken, user);
 			redisService.addSessionEntry(userToken.getToken(), organization);
 
 			final User newUser = (User) BeanUtils.cloneBean(userToken.getUser());
@@ -290,7 +272,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
-
 		}
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
