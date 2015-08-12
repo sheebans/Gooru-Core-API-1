@@ -86,7 +86,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getFolderCount(String gooruOid, String gooruUid, String sharing, String collectionType, String excludeType);
 
-	List<Map<String, Object>> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder, boolean fetchAll, String excludeType);
+	List<Map<String, Object>> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, boolean fetchChildItem, String sequenceOrder, boolean fetchAll, String excludeType);
 
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType, String excludeType);
 
