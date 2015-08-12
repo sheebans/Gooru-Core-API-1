@@ -89,6 +89,8 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 	private static String apiEndPoint;
 
 	private static String profileImageUrl;
+	
+	private static String excludeTaxonomyPerferenceIds;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
 
@@ -212,6 +214,7 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		nfsInternalPath = storageArea.getInternalPath();
 		apiEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		profileImageUrl = settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID);
+		excludeTaxonomyPerferenceIds = settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, TaxonomyUtil.GOORU_ORG_UID);
 	}
 
 	private void initInsightsKafkaProperties() {
@@ -301,6 +304,14 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 
 	public static String getProfileImageUrl() {
 		return profileImageUrl;
+	}
+
+	public static String getExcludeTaxonomyPerferenceIds() {
+		return excludeTaxonomyPerferenceIds;
+	}
+
+	public static void setExcludeTaxonomyPerferenceIds(String excludeTaxonomyPerferenceIds) {
+		ConfigProperties.excludeTaxonomyPerferenceIds = excludeTaxonomyPerferenceIds;
 	}
 
 }

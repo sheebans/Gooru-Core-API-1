@@ -94,6 +94,7 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.RoleRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
@@ -182,6 +183,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private IndexHandler indexHandler;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -1329,16 +1333,19 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	private UserCredential getUserCredential(User user, final String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
-		if (user != null && user.getUserRoleSet() != null && user.getUserRoleSet().size() > 0) {
-			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
-				for (RoleEntityOperation roleEntityOperation : userRoleAssoc.getRole().getRoleOperations()) {
-					EntityOperation entityOperation = roleEntityOperation.getEntityOperation();
-					String authority = entityOperation.getEntityName() + GooruOperationConstants.ENTITY_ACTION_SEPARATOR + entityOperation.getOperationName();
-					if (!authorities.contains(authority)) {
-						authorities.add(authority);
+		if (user != null) {
+			List<Integer> userRoleIds = this.getRoleRepository().getUserRoles(user.getPartyUid());
+			if (userRoleIds != null) {
+				for (Integer userRoleId : userRoleIds) {
+					List<String> roleAuthorities = getRoleRepository().getEntityRoleAuthority(userRoleId);
+					for (String roleAuthority : roleAuthorities) {
+						if (!authorities.contains(roleAuthority)) {
+							authorities.add(roleAuthority);
+						}
 					}
 				}
 			}
+
 		}
 		List<String> userParties = new ArrayList<String>();
 		List<String> partyPrivileges = new ArrayList<String>();
@@ -1419,7 +1426,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
 		} else {
-			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, TaxonomyUtil.GOORU_ORG_UID));
+			this.getTaxonomyRespository().getFindTaxonomyList(ConfigProperties.getExcludeTaxonomyPerferenceIds());
 		}
 		return userCredential;
 
@@ -2123,6 +2130,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public RoleRepository getRoleRepository() {
+		return roleRepository;
 	}
 
 }

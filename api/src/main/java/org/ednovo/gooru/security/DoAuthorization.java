@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.ednovo.gooru.application.util.AccountUtil;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Organization;
@@ -78,9 +79,11 @@ public class DoAuthorization {
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
-	
+
+	@Autowired
+	private AccountUtil accountUtil;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 
@@ -196,20 +199,9 @@ public class DoAuthorization {
 		if (user != null) {
 			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				userCredential = userService.getUserCredential(user, sessionToken, skipCache, request.getParameter("sharedSecretKey"));
-				authentication.setUserCredential(userCredential);
-			} else {
-				userCredential = authentication.getUserCredential();
+				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(authentication.getUserToken(), user);
 			}
-			try {
-				if (key != null) {
-					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities","*.userRoleSet","*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.customFields",  "*.contentType" , "*.school","*.schoolDistrict","*.status","*.meta", "*.resourceInfo"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
-				}
-			} catch (Exception e) {
-				if(LOGGER.isErrorEnabled()) {
-				LOGGER.error("Failed to  put  value from redis server {} ", e);
-				}
-			}
+			userCredential = authentication.getUserCredential();
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
 			}
@@ -221,7 +213,7 @@ public class DoAuthorization {
 	}
 
 	private boolean hasRoleChanged(Authentication auth, User user) {
-		boolean  hasRoleChanged = false; 
+		boolean hasRoleChanged = false;
 		if (!user.getPartyUid().equals((String) auth.getPrincipal())) {
 			hasRoleChanged = true;
 		}
@@ -235,8 +227,12 @@ public class DoAuthorization {
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
 	}
-	
+
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public AccountUtil getAccountUtil() {
+		return accountUtil;
 	}
 }

@@ -138,6 +138,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				}
 			}
 			createCollection(user, collection, targetCollection);
+			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
+			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
+			createContentMeta(collection, data);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
