@@ -47,6 +47,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.FolderService;
+import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -76,6 +77,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@Autowired
 	private FolderService folderService;
 
+	@Autowired
+	private CollectionBoService collectionBoService;
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ADD })
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
 	public ModelAndView createFolder(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -97,7 +101,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView updateFolder(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
-		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json), user, data);
+		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json),
+				user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -190,8 +195,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
-			@RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = TOP_LEVEL_COLLECTION_TYPE, required = false) String topLevelCollectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
 			@RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletResponse resHttpServletResponse) {
@@ -224,9 +229,10 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/toc" }, method = RequestMethod.GET)
-	public ModelAndView getMyCollectionsToc(@PathVariable(value = ID) String gooruUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") final Integer limit,
-			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) final String collectionType, @RequestParam(value = ORDER_BY, required = false) final String orderBy,
-			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, final HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getMyCollectionsToc(@PathVariable(value = ID) String gooruUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") final Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) final String collectionType,
+			@RequestParam(value = ORDER_BY, required = false) final String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType,
+			final HttpServletResponse resHttpServletResponse) {
 		if (gooruUid.equalsIgnoreCase(MY)) {
 			final User user = (User) request.getAttribute(Constants.USER);
 			gooruUid = user.getPartyUid();
@@ -236,26 +242,26 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/item/toc" }, method = RequestMethod.GET)
-	public ModelAndView getFolderTocItems(@PathVariable(value = ID) final String gooruOid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") final Integer limit,
-			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) final String collectionType, @RequestParam(value = ORDER_BY, required = false) final String orderBy,
-			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getFolderTocItems(@PathVariable(value = ID) final String gooruOid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") final Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) final String collectionType,
+			@RequestParam(value = ORDER_BY, required = false) final String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType,
+			HttpServletResponse resHttpServletResponse) {
 		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, limit, offset, sharing, collectionType, orderBy, excludeType, clearCache));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
-		final User user = (User) request.getAttribute(Constants.USER);
-		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, false, false, false, user, null, null, false, true, false, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	public ModelAndView getFolder(@PathVariable(value = ID) final String folderId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollection(folderId, CollectionType.FOLDER.getCollectionType()), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
-     
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/item/{id}/next" }, method = RequestMethod.GET)
-	public ModelAndView getNextCollectionItem(@RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) final String sharing, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = EXCLUDE_COLLABORATOR_COLLECTION, required = false, defaultValue = TRUE) boolean excludeCollaboratorCollection) {
+	public ModelAndView getNextCollectionItem(@RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, @RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @PathVariable(value = ID) final String collectionItemId,
+			final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = EXCLUDE_COLLABORATOR_COLLECTION, required = false, defaultValue = TRUE) boolean excludeCollaboratorCollection) {
 		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId, excludeType, sharing, excludeCollaboratorCollection), RESPONSE_FORMAT_JSON, _NEXT_COLLECTION_EXCLUDES);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/node" }, method = RequestMethod.GET)
 	public ModelAndView getFolderNode(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
@@ -302,6 +308,10 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	public FolderService getFolderService() {
 		return folderService;
+	}
+
+	public CollectionBoService getCollectionBoService() {
+		return collectionBoService;
 	}
 
 }
