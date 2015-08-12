@@ -69,6 +69,7 @@ public interface FeedbackRepository extends BaseRepository {
 	
 	List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruOid,   String feedbackCategoryId, Boolean flag);
 		
-	Map<String, Object> getContentFlags(Integer limit,Integer offset,String category,String type,String status,String getContentFlags, String startDate, String endDate, String searchQuery, String description, String reportQuery);
+	Map<String, Object> getCollectionFlags(Integer limit,Integer offset,String category,String type,String status,String getContentFlags, String startDate, String endDate, String searchQuery, String description, String reportQuery);
 
+	Map<String, Object> getResourceFlags(Integer limit,Integer offset,String category,String type,String status,String getContentFlags, String startDate, String endDate, String searchQuery, String description, String reportQuery);
 }

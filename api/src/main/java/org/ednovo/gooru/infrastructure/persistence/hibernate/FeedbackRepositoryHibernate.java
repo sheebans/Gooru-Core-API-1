@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,10 +252,69 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return rating;
 	}
 	
-
 	@Override
-	public Map<String, Object> getContentFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
-		String sql = "";
+	public Map<String, Object> getCollectionFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
+
+		String statusType = "";
+		String flagType = "";
+		if (status != null) {
+			if (status.contains(",")) {
+				status = status.replace(",", "','");
+			}
+			statusType = " and  cs.value in ('" + status + "') ";
+		}
+		if (reportedFlagType != null) {
+			if (reportedFlagType.contains(",")) {
+				reportedFlagType = reportedFlagType.replace(",", "','");
+			}
+			flagType = " and  ft.value in ('" + reportedFlagType + "') ";
+		}
+		String sql = "select  cl.title,cl.image_path as thumbnail,  cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes,cl.url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
+				+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection', 'assessment')" + flagType + statusType + "";
+		if (startDate != null && endDate != null) {
+			sql += "and DATE(f.created_date) BETWEEN '" + startDate + "' and '" + endDate + "'";
+		} else if (startDate != null) {
+			sql += " and DATE(f.created_date) = '" + startDate + "'";
+		} else if (endDate != null) {
+			sql += " and DATE(f.created_date) = '" + endDate + "'";
+		}
+
+		if (searchQuery != null) {
+			sql += " and gooru_oid = '" + searchQuery + "' or title = '" + searchQuery + "' or f.feedback_text = '" + searchQuery + "' or f.notes = '" + searchQuery + "'";
+		}
+
+		if (description != null && type.equalsIgnoreCase("collection")) {
+			sql += " and cl.goals = '" + description + "'";
+		} else if (description != null && type.equalsIgnoreCase("resource")) {
+			sql += " and r.description = '" + description + "'";
+		}
+
+		if (reportQuery != null) {
+			sql += " and f.creator_uid = '" + reportQuery + "' or u.username = '" + reportQuery + "'";
+		}
+
+		sql += " group by f.creator_uid, f.assoc_gooru_oid order by f.created_date desc";
+		Query query= getSession().createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
+				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
+				.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
+				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
+				.addScalar("lastModifiedOn", StandardBasicTypes.STRING).addScalar("thumbnail", StandardBasicTypes.STRING);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String,Object>> result = list(query);
+		List<Map<String, Object>> listFlag = new ArrayList<Map<String, Object>>();
+		listFlag.addAll(result);
+		sql = "select count(1) as totalCount from (" + sql + ") as flag";
+		Query count = getSession().createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
+		Map<String, Object> result1 = new HashMap<String, Object>();
+		result1.put("searchResult", listFlag);
+		result1.put("totalCount", (Integer) count.list().get(0));
+		return result1;
+	}
+	
+	@Override
+	public Map<String, Object> getResourceFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 		String statusType = "";
 		String flagType = "";
 		if (status != null) {
@@ -270,14 +330,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			flagType = " and  ft.value in ('" + reportedFlagType + "') ";
 		}
 
-		if (type.equalsIgnoreCase("collection")) {
-			sql = "select  cl.title,cl.image_path as thumbnail,  cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes,cl.url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
-					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection', 'assessment')" + flagType + statusType + "";
-		} else {
-
-			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker , r.media_type as mediaType, r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ct.gooru_oid)) , '!#' , group_concat(distinct(ct.gooru_oid)), '~' ,group_concat(rc.title)) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id) inner join content as ct on (ci.collection_content_id = ct.content_id)  where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
+		String sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker , r.media_type as mediaType, r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ct.gooru_oid)) , '!#' , group_concat(distinct(ct.gooru_oid)), '~' ,group_concat(rc.title)) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id) inner join content as ct on (ci.collection_content_id = ct.content_id)  where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
  					+ feedbackCategory + "' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') " + statusType + "" + flagType + "  "; 
-		}
 
 		if (startDate != null && endDate != null) {
 
@@ -303,89 +357,42 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 
 		sql += " group by f.creator_uid, f.assoc_gooru_oid order by f.created_date desc";
-		Query query;
-		if(type.equalsIgnoreCase(COLLECTION)){
-			query = getSession().createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
-				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
-				.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
-				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
-				.addScalar("lastModifiedOn", StandardBasicTypes.STRING).addScalar("thumbnail", StandardBasicTypes.STRING);
-		}
-		else{
-			query = getSession().createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
+		Query query = getSession().createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
 					.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
 					.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
 					.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
 					.addScalar("thumbnail", StandardBasicTypes.STRING).addScalar("hasFrameBreaker", StandardBasicTypes.BOOLEAN).addScalar("mediaType", StandardBasicTypes.STRING).addScalar("lastModifiedOn", StandardBasicTypes.STRING);
-		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-
-		return getFlags(arrayList(query), sql, type);
-	}
-
-	private Map<String, Object> getFlags(List<Object[]> results, String sql, String type) {
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> result = list(query);
 		List<Map<String, Object>> listFlag = new ArrayList<Map<String, Object>>();
-		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(StorageAccount.Type.NFS.getType());
-		for (Object[] object : results) {
-			Map<String, Object> flag = new HashMap<String, Object>();
-			flag.put("title", object[0]);
-			flag.put("description", object[1]);
-			flag.put("gooruOid", object[2]);
-			flag.put("category", object[3]);
-			flag.put("createdOn", object[4]);
-			flag.put("value", object[5]);
-			flag.put("reportedFlag", object[6]);
-			flag.put("userUid", object[7]);
-			flag.put("product", object[8]);
-			flag.put("reportId", object[9]);
-			flag.put("reportCreator", object[10]);
-			flag.put("reportCreatedOn", object[11]);
-			flag.put("reportDescription", object[12]);
-			flag.put("url", object[13]);
-			flag.put("browserUrl", object[14]);
-			flag.put("sharing", object[16]);
-			flag.put("notes", object[17]);
-			flag.put("reporterName", object[18]);
-			flag.put("resourceCreatorName", object[19]);
-			if(type.equalsIgnoreCase(COLLECTION)){
-				flag.put("thumbnail", object[20]);
-				flag.put("lastModifiedOn", object[21]);
+		for (Map<String, Object> object : result) {
+			System.out.println(object);
+		if (type == RESOURCE) {
+			
+			String temp = (String) object.get("scount");
+			if (temp != null) {
+				String[] scollection = temp.split("!#");
+				String scollectionList = scollection[1];
+				String[] scollectionInfo = scollectionList.split("~");
+				object.put("scollectionCount", scollection[0]);
+				object.put("collectionId", scollectionInfo[0]);
+				object.put("scollectionTitle", scollectionInfo[1]);
+			} else {
+				object.put("collectionId", null);
+				object.put("scollectionCount", null);
+				object.put("scollectionTitle", null);
 			}
-			else{
-				flag.put("thumbnail", object[20]);
-				flag.put("hasFrameBreaker", object[21]);
-				flag.put("mediaType", object[22]);
-				flag.put("lastModifiedOn", object[23]);
-			}
-			if (type == RESOURCE) {
-				String temp = (String) object[15];
-				if (temp != null) {
-					String[] scollection = temp.split("!#");
-					String scollectionList = scollection[1];
-					String[] scollectionInfo = scollectionList.split("~");
-					flag.put("scollectionCount", scollection[0]);
-					flag.put("collectionId", scollectionInfo[0]);
-					flag.put("scollectionTitle", scollectionInfo[1]);
-				} else {
-					flag.put("collectionId", null);
-					flag.put("scollectionCount", null);
-					flag.put("scollectionTitle", null);
-				}
-			}
-			if (flag.get("thumbnail") != null) {
-				flag.put("thumbnail", storageArea.getAreaPath().concat(flag.get("thumbnail").toString()));
-			}
-
-			listFlag.add(flag);
 		}
-
+			listFlag.add(object);
+		}
 		sql = "select count(1) as totalCount from (" + sql + ") as flag";
-		Query query = getSession().createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("searchResult", listFlag);
-		result.put("totalCount", (Integer) query.list().get(0));
-		return result;
+		Query count = getSession().createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
+		Map<String, Object> result1 = new HashMap<String, Object>();
+		result1.put("searchResult", listFlag);
+		result1.put("totalCount", (Integer) count.list().get(0));
+		return result1;	
 	}
 
 	@Override
