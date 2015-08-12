@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.user.impl;
 
-
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -42,6 +42,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -178,10 +179,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
-	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -317,7 +317,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					this.getUser(userParentId).setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
 					user.setParentUser(this.getUser(userParentId));
 				}
-			} 
+			}
 		} else {
 			user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 		}
@@ -445,7 +445,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(email, user);
 		}
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 
 		/*
 		 * if (identity.getIdp() != null) {
@@ -534,7 +534,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			user.setEmailId(pearsonEmailId);
 			userRepository.save(user);
 		}
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null, false, false);		
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null, false, false);
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
@@ -656,7 +656,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			throw new BadRequestException("User Id cannot be null or empty");
 		}
 
-		if (isDisableUser  && ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller)))) {
+		if (isDisableUser && ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller)))) {
 			throw new AccessDeniedException("You are not authorized to perform this action");
 		}
 
@@ -883,7 +883,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				List<UserRoleAssoc> userRoleAssoc = this.getUserRepository().getUserRoleByName(roles, gooruUId);
 				userRepository.removeAll(userRoleAssoc);
 				user = userRepository.findByGooruId(gooruUId);
-				indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);						
+				indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 			} else {
 				throw new BadRequestException("You are not authorized to perform this action");
 			}
@@ -918,7 +918,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			}
 			user.setUserRoleSet(currentRoles);
 			userRepository.save(user);
-			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 			return user;
 		} else {
 			throw new BadRequestException("You are not authorized to perform this action");
@@ -1024,9 +1024,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public User updateUserRole(String gooruUid, UserRoleType role) {
 
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		rejectIfNull(user,GL0056,404,USER);
+		rejectIfNull(user, GL0056, 404, USER);
 		Profile profile = this.getUserRepository().getProfile(user, false);
-		rejectIfNull(user,GL0056,404,PROFILE);
+		rejectIfNull(user, GL0056, 404, PROFILE);
 		profile.setIsPublisherRequestPending(0);
 		UserRoleAssoc usrRoleAssoc = new UserRoleAssoc();
 		Set<UserRoleAssoc> existingUserRoleAssoc = user.getUserRoleSet();
@@ -1048,7 +1048,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		user.setUserRoleSet(existingUserRoleAssoc);
 		this.getUserRepository().save(user);
 		this.getUserRepository().save(profile);
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 		return user;
 	}
 
@@ -1071,7 +1071,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
 		Application application = this.getApplicationRepository().getApplication(apikeyId);
-		rejectIfNull(application,GL0056,404,APPLICATION);
+		rejectIfNull(application, GL0056, 404, APPLICATION);
 		if (username == null) {
 			throw new BadRequestException("error:Username cannot be null or empty.");
 		}
@@ -1271,7 +1271,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
 			if (partyPermissions.size() > 0) {
 				for (PartyPermission subPartyPermission : partyPermissions) {
-					//getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+					// getUserParties(subPartyPermission, permittedParties,
+					// userParties, userOrgs, partyPriveliges);
 					// TO DO FIX ME later
 					String subPartyUid = subPartyPermission.getParty().getPartyUid();
 					if (subPartyPermission.getValidFrom() != null && subPartyPermission.getPermission() != null && (!permittedParties.containsKey(subPartyUid) || !permittedParties.get(subPartyUid).equals(PermissionType.VIEW.getType()))) {
@@ -1324,6 +1325,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	private UserCredential getUserCredential(User user, final String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
@@ -1382,7 +1384,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				Set<String> permissions = partyPermissionsMap.get(subPartyPermission.getParty().getPartyUid()) == null ? new HashSet<String>() : partyPermissionsMap.get(subPartyPermission.getParty().getPartyUid());
 				permissions.add(subPartyPermission.getPermission());
 				partyPermissionsMap.put(subPartyPermission.getParty().getPartyUid(), permissions);
-				
+
 			}
 		}
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
@@ -1403,7 +1405,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		userCredential.setSubOrganizationUids(userSuborgs);
 		userCredential.setOrganizationCdnDirectPath(user.getOrganization().getNfsStorageArea().getCdnDirectPath());
 		userCredential.setSharedSecretKey(sharedSecretKey);
-		userCredential.setProfileAssetURI(BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/");
+		StringBuilder profileAssetURI = new StringBuilder(BaseUtil.changeHttpsProtocolByHeader(ConfigProperties.getProfileImageUrl()));
+		profileAssetURI.append(File.separator);
+		userCredential.setProfileAssetURI(profileAssetURI.toString());
 		String storedSecret = settingService.getOrganizationSetting(ConstantProperties.SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID);
 		userCredential.setPartyPermissions(partyPermissionsMap);
 		userCredential.setStoredSecretKey(storedSecret);
@@ -1414,9 +1418,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-		}  else  {
-			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, TaxonomyUtil.GOORU_ORG_UID));
- 		}
+		} else {
+			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, TaxonomyUtil.GOORU_ORG_UID));
+		}
 		return userCredential;
 
 	}
@@ -1455,7 +1459,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (user != null) {
 			userRepository.remove(User.class, user.getPartyUid());
 			userDeleteMsg = "deleted successfully";
-			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.DELETE, USER, null, false, false);					
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.DELETE, USER, null, false, false);
 		} else {
 			rejectIfNull(user, GL0056, 404, "User ");
 		}
@@ -1504,7 +1508,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				if(entityOperation != null){
+				if (entityOperation != null) {
 					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation == null) {
 						roleEntityOperation = new RoleEntityOperation();
@@ -1514,8 +1518,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					}
 				}
 			}
-			if(roleEntityOperations.size() > 0 ){
-				userRepository.saveAll(roleEntityOperations);				
+			if (roleEntityOperations.size() > 0) {
+				userRepository.saveAll(roleEntityOperations);
 			}
 		}
 		return roleEntityOperations;
@@ -1536,14 +1540,14 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				if(entityOperation != null){	
+				if (entityOperation != null) {
 					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
 						roleEntityOperations.add(roleEntityOperation);
 					}
 				}
 			}
-			if(roleEntityOperations.size() > 0 ){
+			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
 			}
 		}
@@ -1637,7 +1641,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		Boolean hasPermission = false;
 		if (resourceId != null) {
 			List<PartyPermission> collaboratorPermissions = groupRepository.getUserPartyPermissions(collaborator.getPartyUid());
-			 if (contentType.equalsIgnoreCase(SCOLLECTION)) {
+			if (contentType.equalsIgnoreCase(SCOLLECTION)) {
 				Collection collection = collectionRepository.getCollectionByGooruOid(resourceId, null);
 				for (CollectionItem collectionItem : collection.getCollectionItems()) {
 					if (collectionItem.getCollection() != null) {
@@ -1658,7 +1662,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 						}
 					}
 				}
-			} 
+			}
 		}
 		return hasPermission;
 	}
@@ -1752,7 +1756,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			User user = userRepository.findByGooruId(gooruUserId);
 			user.setConfirmStatus(confirmStatus);
 			userRepository.save(user);
-			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 			return user;
 		} else {
 			throw new Exception("You are not permitted to do this action.");
@@ -1765,14 +1769,16 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (user != null) {
 			user.setViewFlag(viewFlag);
 			userRepository.save(user);
-			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 		}
 		return user;
 	}
 
 	@Override
 	public String buildUserProfileImageUrl(User user) {
-		return BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + user.getPartyUid() + ".png";
+		StringBuilder profileImageUrl = new StringBuilder(BaseUtil.changeHttpsProtocolByHeader(ConfigProperties.getProfileImageUrl()));
+		profileImageUrl.append(File.separator).append(user.getPartyUid()).append(DOT_PNG);
+		return profileImageUrl.toString();
 	}
 
 	@Override
@@ -1786,7 +1792,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		identity.setActive(Short.parseShort(ZERO));
 		identity.getUser().setConfirmStatus(0);
 		this.getUserRepository().save(identity);
-		indexHandler.setReIndexRequest(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 	}
 
 	@Override
@@ -1794,7 +1800,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
 			Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
-			rejectIfNull(application,GL0056,404,APPLICATION);
+			rejectIfNull(application, GL0056, 404, APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl, null, null, null);
 		}
@@ -2114,7 +2120,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
 	}
-	
+
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
