@@ -394,15 +394,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (fetchChildItem) {
 					if (count == 0) {
 						if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
-							collection.put(COLLECTION_ITEMS, getCollectionItem(String.valueOf(collection.get(GOORU_OID)), sharing, String.valueOf(collection.get(SHARING)), itemLimit, fetchChildItem, orderBy, excludeType));
+							collection.put(COLLECTION_ITEMS, getCollectionItem(String.valueOf(collection.get(GOORU_OID)), sharing, itemLimit, fetchChildItem, orderBy, excludeType));
 						} else if (typeName.equalsIgnoreCase(FOLDER)) {
 							collection.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
 						}
 					}
 				} else {
-					if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
-						collection.put(COLLECTION_ITEMS, getCollectionItem(String.valueOf(collection.get(GOORU_OID)), sharing, String.valueOf(collection.get(SHARING)), itemLimit, fetchChildItem, orderBy, excludeType));
-					} else if (typeName.equalsIgnoreCase(FOLDER)) {
+					if (typeName.equalsIgnoreCase(FOLDER)) {
 						collection.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
 					}
 				}
@@ -420,8 +418,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return folderItems;
 	}
 
-	public List<Map<String, Object>> getCollectionItem(final String gooruOid, final String sharing, final String collectionType, Integer itemLimit, final boolean fetchChildItem, final String orderBy, final String excludeType) {
-		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
+	public List<Map<String, Object>> getCollectionItem(final String gooruOid, final String sharing, Integer itemLimit, final boolean fetchChildItem, final String orderBy, final String excludeType) {
+		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, fetchChildItem, ASC, false, excludeType);
 		List<Map<String, Object>> folderItems = new ArrayList<Map<String, Object>>();
 		if (collectionItems != null && collectionItems.size() > 0) {
 			for (Map<String, Object> collectionItem : collectionItems) {
@@ -502,7 +500,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 		if (fetchChildItem) {
 			if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
-				folderItem.put(COLLECTION_ITEMS, getCollectionItem(collectionGooruOid, sharing, collectionType, 4, fetchChildItem, orderBy, excludeType));
+				folderItem.put(COLLECTION_ITEMS, getCollectionItem(collectionGooruOid, sharing, 4, fetchChildItem, orderBy, excludeType));
 				folderItem.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(collectionGooruOid, sharing, collectionType, excludeType));
 			} else if (typeName.equalsIgnoreCase(FOLDER)) {
 				folderItem.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
@@ -523,7 +521,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(final String gooruOid, final Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final Integer itemLimit, final boolean fetchChildItem, final String sortOrder, final String excludeType) {
 		List<Map<String, Object>> folderItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, fetchChildItem, orderBy, excludeType);
 		if (folderItems == null || folderItems.size() == 0) {
-			folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, null, fetchChildItem, ASC, false, excludeType);
+			folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, fetchChildItem, ASC, false, excludeType);
 		}
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (folderItems != null) {
@@ -755,4 +753,5 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public PartyService getPartyService() {
 		return partyService;
 	}
+
 }
