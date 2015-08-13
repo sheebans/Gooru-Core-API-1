@@ -949,7 +949,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			hql += " and collectionItem.collection.collectionType not in ('" + excludeType.replace(",", "','") + "')";
 		}
 		if (sharing != null) {
-			hql += " and collectionItem.resource.sharing in  ('" + sharing.replace(",", "','") + "')";
+			hql += " and collectionItem.content.sharing in  ('" + sharing.replace(",", "','") + "')";
 		}
 		if (excludeCollaboratorCollection) {
 			hql += " and collectionItem.itemType != 'collaborator'";
