@@ -277,7 +277,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Map<String, Object> summary = feedbackService.getContentFeedbackStarRating(gooruOid);
 		if(summary!= null){
 			Long reviewSummary = feedbackService.getContentFeedbackReviewCount(gooruOid);
-			summary.put("reviewCount", reviewSummary);
+			summary.put(REVIEW_COUNT, reviewSummary);
 		}
 		return summary;
 	}
