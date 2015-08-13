@@ -253,7 +253,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
 			Map<String, Object> questionModel = initializeWithModel(question);
-			questionModel.put("ratings",resource.getRatings());
+			questionModel.put(RATINGS,resource.getRatings());
 			if (question.isQuestionNewGen()) { 
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
 				if (json != null) {
