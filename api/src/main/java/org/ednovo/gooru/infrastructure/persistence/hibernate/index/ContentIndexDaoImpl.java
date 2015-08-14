@@ -107,8 +107,6 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	private static final String OWNER_ID = "ownerUId";
 	
-	private static final String CREATOR_ID = "creatorUId";
-	
 	private static final String TYPE_COLLECTION = "collection";
 	
 	private static final String TYPE_RESOURCE = "resource";
