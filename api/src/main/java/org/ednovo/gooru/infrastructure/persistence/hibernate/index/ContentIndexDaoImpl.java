@@ -101,6 +101,18 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	private static final String UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_resource_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id in (100, 101, 102, 103, 105, 106) group by c.content_id order by count(ci.resource_content_id) desc limit 1";
 	
+	private static final String GET_COLLECTION_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join collection cc on c.content_id=cc.content_id where cc.collection_type in('scollection','assessment') and (c.user_uid=:ownerUId or c.creator_uid=:creatorUId)";
+	
+	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and (c.user_uid=:ownerUId or c.creator_uid=:creatorUId)";
+	
+	private static final String OWNER_ID = "ownerUId";
+	
+	private static final String CREATOR_ID = "creatorUId";
+	
+	private static final String TYPE_COLLECTION = "collection";
+	
+	private static final String TYPE_RESOURCE = "resource";
+	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
 		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_SEGMENTS_SQL).setParameter(CONTENT_ID, contentId));
@@ -295,5 +307,33 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 		Session session = getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION).addScalar("upperbound_resource_count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
+	}
+
+	@Override
+	public List<Object[]> getCollectionIdsByUserId(String gooruUId) {
+		return executeQuery(gooruUId, TYPE_COLLECTION);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Object[]> executeQuery(String gooruUId, String type){
+		String sqlQuery = null;
+		
+		if(type.equalsIgnoreCase(TYPE_COLLECTION)){
+			sqlQuery = GET_COLLECTION_IDS_BY_USERID;
+		}
+		else if(type.equalsIgnoreCase(TYPE_RESOURCE)){
+			sqlQuery = GET_RESOURCE_IDS_BY_USERID;
+		}
+		
+		Session session = getSessionFactory().getCurrentSession();
+		SQLQuery query = session.createSQLQuery(sqlQuery);
+		query.setParameter(OWNER_ID, gooruUId);
+		query.setParameter(CREATOR_ID, gooruUId);
+		return query.list();
+	}
+	
+	@Override
+	public List<Object[]> getResourceIdsByUserId(String gooruUId) {
+		return executeQuery(gooruUId, TYPE_RESOURCE);
 	}
 }
