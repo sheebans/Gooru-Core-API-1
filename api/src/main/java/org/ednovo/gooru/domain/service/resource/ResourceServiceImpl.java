@@ -82,6 +82,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
@@ -129,6 +130,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
+	@Autowired
+	private FeedbackService feedbackService;
+	
 	@Autowired
 	private ResourceRepository resourceRepository;
 
@@ -226,7 +230,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException("resource not found ", GL0056);
 		}
-		resource.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(gooruContentId)));
+		resource.setRatings(getFeedbackRating(gooruContentId));
 		setContentProvider(resource);
 		return resource;
 	}
@@ -249,6 +253,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
 			Map<String, Object> questionModel = initializeWithModel(question);
+			questionModel.put(RATINGS,resource.getRatings());
 			if (question.isQuestionNewGen()) { 
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
 				if (json != null) {
@@ -266,6 +271,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
 		setContentProvider(resource);
 		return resourceObject;
+	}
+	
+	private Map<String, Object>  getFeedbackRating(String gooruOid){
+		Map<String, Object> summary = feedbackService.getContentFeedbackStarRating(gooruOid);
+		if(summary!= null){
+			Long reviewSummary = feedbackService.getContentFeedbackReviewCount(gooruOid);
+			summary.put(REVIEW_COUNT, reviewSummary);
+		}
+		return summary;
 	}
 	
 	private Map<String, Object> initializeWithModel(AssessmentQuestion question) {
