@@ -103,7 +103,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	private static final String GET_COLLECTION_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join collection cc on c.content_id=cc.content_id where cc.collection_type in('collection','assessment') and c.user_uid=:ownerUId limit 2000 ";
 	
-	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and c.user_uid=:ownerUId limit 2000";
+	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('scollection', 'classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and c.user_uid=:ownerUId limit 2000";
 	
 	private static final String OWNER_ID = "ownerUId";
 	
@@ -242,7 +242,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
+		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('scollection', 'classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
@@ -309,11 +309,11 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public List<Object[]> getCollectionIdsByUserId(String gooruUId) {
-		return executeQuery(gooruUId, TYPE_COLLECTION);
+		return getIds(gooruUId, TYPE_COLLECTION);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Object[]> executeQuery(String gooruUId, String type){
+	private List<Object[]> getIds(String gooruUId, String type){
 		String sqlQuery = null;
 		
 		if(type.equalsIgnoreCase(TYPE_COLLECTION)){
@@ -331,6 +331,6 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	@Override
 	public List<Object[]> getResourceIdsByUserId(String gooruUId) {
-		return executeQuery(gooruUId, TYPE_RESOURCE);
+		return getIds(gooruUId, TYPE_RESOURCE);
 	}
 }
