@@ -94,4 +94,9 @@ public interface ContentIndexDao {
 	Integer getUpperboundResourceCountInCollection();
 	
 	Integer getUpperboundQuestionCountInCollection();
+	
+	List<Object[]> getCollectionIdsByUserId(String gooruUId);
+	
+	List<Object[]> getResourceIdsByUserId(String gooruUId);
+
 }
