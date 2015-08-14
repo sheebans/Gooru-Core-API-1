@@ -39,7 +39,7 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
+import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -239,7 +239,15 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				firstLogin = true;
 			}
 			userToken.setFirstLogin(firstLogin);
+			userToken.getUser().setMeta(this.getUserManagementService().userMeta(user));
+			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
 
+			if (profile.getUserType() != null) {
+				userToken.setUserRole(profile.getUserType());
+			}
+			if (profile != null && profile.getDateOfBirth() != null) {
+				userToken.setDateOfBirth(profile.getDateOfBirth().toString());
+			}
 			identity.setLastLogin(new Date(System.currentTimeMillis()));
 			this.getUserRepository().save(identity);
 			this.getUserTokenRepository().save(userToken);
@@ -248,7 +256,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (user != null && user.getOrganization() != null) {
 				organization = user.getOrganization();
 			}
-			//getAccountUtil().storeAccountLoginDetailsInRedis(userToken, user);
+			getAccountUtil().storeAccountLoginDetailsInRedis(userToken, user);
 			redisService.addSessionEntry(userToken.getToken(), organization);
 
 			final User newUser = (User) BeanUtils.cloneBean(userToken.getUser());

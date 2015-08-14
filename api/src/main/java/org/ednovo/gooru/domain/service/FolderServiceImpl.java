@@ -188,23 +188,23 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {
 		Map<String, Object> nextCollection = null;
 		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType, sharing, excludeCollaboratorCollection);
-		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getContentType().getName().equalsIgnoreCase(FOLDER)) {
-			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
+		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getContent().getContentType().getName().equalsIgnoreCase(FOLDER)) {
+			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getContent().getGooruOid(), null);
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
 			nextCollection.put(TITLE, collection.getTitle());
-			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
+			nextCollection.put(GOORU_OID, nextCollectionItem.getContent().getGooruOid());
 			nextCollection.put(THUMBNAILS, collection.getThumbnails());
 			nextCollection.put(COLLECTION_TYPE, collection.getCollectionType());
-			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			final Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
+			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getContent().getGooruOid(), null, null, null);
+			final Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getContent().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
 			nextCollection.put(RESOURCE_COUNT, itemCount - questionCount);
 			nextCollection.put(QUESTION_COUNT, questionCount);
 			return nextCollection;
 
-		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getContentType().getName().equalsIgnoreCase(FOLDER)) {
-			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number) (itemCount + 1)).intValue(), excludeType, sharing, excludeCollaboratorCollection);
+		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getContent().getContentType().getName().equalsIgnoreCase(FOLDER)) {
+			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getContent().getGooruOid(), null, null, null);
+			return getCollection(nextCollectionItem.getContent().getGooruOid(), ((Number) (itemCount + 1)).intValue(), excludeType, sharing, excludeCollaboratorCollection);
 		} else if (nextCollection == null && nextCollectionItem == null) {
 			final CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
 			if (parentCollectionItem != null) {
