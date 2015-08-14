@@ -101,9 +101,9 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	private static final String UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_resource_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id in (100, 101, 102, 103, 105, 106) group by c.content_id order by count(ci.resource_content_id) desc limit 1";
 	
-	private static final String GET_COLLECTION_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join collection cc on c.content_id=cc.content_id where cc.collection_type in('scollection','assessment') and (c.user_uid=:ownerUId or c.creator_uid=:creatorUId)";
+	private static final String GET_COLLECTION_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join collection cc on c.content_id=cc.content_id where cc.collection_type in('collection','assessment') and c.user_uid=:ownerUId limit 2000 ";
 	
-	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and (c.user_uid=:ownerUId or c.creator_uid=:creatorUId)";
+	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and c.user_uid=:ownerUId limit 2000";
 	
 	private static final String OWNER_ID = "ownerUId";
 	
@@ -328,7 +328,6 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 		Session session = getSessionFactory().getCurrentSession();
 		SQLQuery query = session.createSQLQuery(sqlQuery);
 		query.setParameter(OWNER_ID, gooruUId);
-		query.setParameter(CREATOR_ID, gooruUId);
 		return query.list();
 	}
 	
