@@ -368,9 +368,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Map<String, Object>> result = list(query);
 		List<Map<String, Object>> listFlag = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> object : result) {
-			System.out.println(object);
 		if (type == RESOURCE) {
-			
 			String temp = (String) object.get("scount");
 			if (temp != null) {
 				String[] scollection = temp.split("!#");
