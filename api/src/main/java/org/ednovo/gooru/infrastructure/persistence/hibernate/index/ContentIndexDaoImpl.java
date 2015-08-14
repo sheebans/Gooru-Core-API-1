@@ -309,11 +309,11 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public List<Object[]> getCollectionIdsByUserId(String gooruUId) {
-		return executeQuery(gooruUId, TYPE_COLLECTION);
+		return getIds(gooruUId, TYPE_COLLECTION);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Object[]> executeQuery(String gooruUId, String type){
+	private List<Object[]> getIds(String gooruUId, String type){
 		String sqlQuery = null;
 		
 		if(type.equalsIgnoreCase(TYPE_COLLECTION)){
@@ -331,6 +331,6 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	@Override
 	public List<Object[]> getResourceIdsByUserId(String gooruUId) {
-		return executeQuery(gooruUId, TYPE_RESOURCE);
+		return getIds(gooruUId, TYPE_RESOURCE);
 	}
 }
