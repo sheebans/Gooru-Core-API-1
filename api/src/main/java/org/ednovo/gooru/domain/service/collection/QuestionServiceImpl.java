@@ -265,7 +265,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		copyQuestion.setContentType(question.getContentType());
 		copyQuestion.setConcept(question.getConcept());
 		copyQuestion.setLicense(question.getLicense());
-		copyQuestion.setCopiedResourceId(question.getAssessmentGooruId());
+		copyQuestion.setCopiedResourceId(question.getGooruOid());
 		copyQuestion.setLabel(question.getLabel());
 		copyQuestion.setTitle(question.getTitle());
 		copyQuestion.setResourceType(question.getResourceType());
