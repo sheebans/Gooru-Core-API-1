@@ -75,6 +75,7 @@ public class CollectionEventLog extends EventLog {
 		try {
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 			context.put(CONTENT_GOORU_ID, resource.getContent().getGooruOid());
+			context.put(SOURCE_GOORU_ID, resource.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, collectionId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
