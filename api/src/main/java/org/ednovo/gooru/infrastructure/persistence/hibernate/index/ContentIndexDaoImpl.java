@@ -45,7 +45,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	private final String GET_COLLECTION_INFO_FOR_RESOURCE = "SELECT c.content_id, c.gooru_oid, l.lesson, l.goals, l.vocabulary, l.narration, l.notes, r.distinguish FROM learnguide l INNER JOIN resource r ON r.content_id = l.content_id  INNER JOIN content c on c.content_id = l.content_id WHERE c.content_id = :contentId";
 
-	private final String GET_SCOLLECTION_INFO_FOR_RESOURCE = "SELECT distinct c.content_id, c.gooru_oid, r.title FROM collection_item  ci INNER JOIN content c ON c.content_id=ci.collection_content_id INNER JOIN resource r ON r.content_id=c.content_id  WHERE  ci.resource_content_id = :contentId and c.sharing='public'";
+	private final String GET_SCOLLECTION_INFO_FOR_RESOURCE = "SELECT distinct c.content_id, c.gooru_oid, col.title FROM collection_item ci INNER JOIN content c ON c.content_id = ci.collection_content_id INNER JOIN collection col ON col.content_id = c.content_id  WHERE  ci.resource_content_id = :contentId and c.sharing='public'";
 
 	private final String GET_COLLECTION_TAXONOMY_CODE_ID = "SELECT cc.code_id FROM content_classification cc WHERE cc.content_id = :contentId";
 
@@ -100,6 +100,16 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	private static final String UPPERBOUND_QUESTION_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_question_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id = 104 group by c.content_id order by count(ci.resource_content_id) desc limit 1";
 	
 	private static final String UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_resource_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id in (100, 101, 102, 103, 105, 106) group by c.content_id order by count(ci.resource_content_id) desc limit 1";
+	
+	private static final String GET_COLLECTION_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join collection cc on c.content_id=cc.content_id where cc.collection_type in('collection','assessment') and c.user_uid=:ownerUId limit 2000 ";
+	
+	private static final String GET_RESOURCE_IDS_BY_USERID = "select c.gooru_oid,c.type_name from content c inner join resource r on c.content_id=r.content_id where r.type_name not in('scollection', 'classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam') and c.user_uid=:ownerUId limit 2000";
+	
+	private static final String OWNER_ID = "ownerUId";
+	
+	private static final String TYPE_COLLECTION = "collection";
+	
+	private static final String TYPE_RESOURCE = "resource";
 	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
@@ -232,7 +242,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
+		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('scollection', 'classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
@@ -295,5 +305,32 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 		Session session = getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION).addScalar("upperbound_resource_count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
+	}
+
+	@Override
+	public List<Object[]> getCollectionIdsByUserId(String gooruUId) {
+		return getIds(gooruUId, TYPE_COLLECTION);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Object[]> getIds(String gooruUId, String type){
+		String sqlQuery = null;
+		
+		if(type.equalsIgnoreCase(TYPE_COLLECTION)){
+			sqlQuery = GET_COLLECTION_IDS_BY_USERID;
+		}
+		else if(type.equalsIgnoreCase(TYPE_RESOURCE)){
+			sqlQuery = GET_RESOURCE_IDS_BY_USERID;
+		}
+		
+		Session session = getSessionFactory().getCurrentSession();
+		SQLQuery query = session.createSQLQuery(sqlQuery);
+		query.setParameter(OWNER_ID, gooruUId);
+		return query.list();
+	}
+	
+	@Override
+	public List<Object[]> getResourceIdsByUserId(String gooruUId) {
+		return getIds(gooruUId, TYPE_RESOURCE);
 	}
 }
