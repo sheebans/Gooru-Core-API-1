@@ -114,7 +114,7 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	public void deleteFeedback(@PathVariable(value = ID) final String feedbackId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public void deleteFeedback(@PathVariable(value = ID) final String feedbackId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getFeedbackService().deleteFeedback(feedbackId, user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
