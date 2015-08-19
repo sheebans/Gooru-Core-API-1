@@ -1,6 +1,8 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.json.JSONArray;
 
@@ -172,19 +174,19 @@ public class CollectionEventLog extends EventLog {
 		}
 	}
 
-	public void collectionUpdateEventLog(String lessonId, CollectionItem collection, User user) {
+	public void collectionUpdateEventLog(String lessonId, CollectionItem collectionItem, String collectionOldSharing, User user) {
 		try {
-			String collectionType = collection.getContent().getContentType().getName();
+			String collectionType = collectionItem.getContent().getContentType().getName();
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, collection.getContent().getGooruOid());
+			context.put(CONTENT_GOORU_ID, collectionItem.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, lessonId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 			payLoadObject.put(LESSON_GOORU_ID, lessonId);
 			payLoadObject.put(MODE, EDIT);
-			payLoadObject.put(ITEM_SEQUENCE, collection.getItemSequence());
-			payLoadObject.put(ITEM_ID, collection.getCollectionItemId());
+			payLoadObject.put(ITEM_SEQUENCE, collectionItem.getItemSequence());
+			payLoadObject.put(ITEM_ID, collectionItem.getCollectionItemId());
 			payLoadObject.put(TYPE, collectionType);
 			if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_ASSESSMENT);
@@ -197,6 +199,21 @@ public class CollectionEventLog extends EventLog {
 			} else if (collectionType.equalsIgnoreCase(RESOURCE)) {
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 			}
+			
+			if(collectionType.matches(COLLECTION_TYPES_FOR_EVENT)) {
+				payLoadObject.put(PREVIOUS_SHARING, StringUtils.trimToEmpty(collectionOldSharing));
+				Set<CollectionItem> collectionItems = collectionItem.getCollection().getCollectionItems();
+				StringBuffer collectionItemIds = new StringBuffer();
+				if(collectionItems != null && collectionItems.size() > 0) {
+					Iterator<CollectionItem> collectionItemIterator = collectionItems.iterator();
+					collectionItemIds.append(collectionItemIterator.next().getContent().getGooruOid());
+					while(collectionItemIterator.hasNext()) {
+						collectionItemIds.append(COMMA).append(collectionItemIterator.next().getContent().getGooruOid());
+					}
+				}
+				payLoadObject.put(COLLECTION_ITEM_IDS, collectionItemIds);
+			}
+			payLoadObject.put(CONTENT_SHARING, collectionItem.getContent().getSharing());
 
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
@@ -217,6 +234,10 @@ public class CollectionEventLog extends EventLog {
 
 	public void collectionItemEventLog(String collectionId, CollectionItem collectionItem, String user, String contentType, Object data, String action) {
 		this.collectionItemEventLog(collectionId, collectionItem, null, user, contentType, data, action);
+	}
+	
+	public void collectionUpdateEventLog(String lessonId, CollectionItem collectionItem, User user) {
+		this.collectionUpdateEventLog(lessonId, collectionItem, null, user);
 	}
 
 }

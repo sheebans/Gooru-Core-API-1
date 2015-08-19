@@ -2931,5 +2931,12 @@ public interface ParameterProperties {
     String CLASS_USER_REMOVE = "classpage.user.remove";
     
     String CLASS_USER_ADD = "classpage.user.add";
+
+    String PREVIOUS_SHARING = "previousSharing";
     
+    String CONTENT_SHARING = "contentSharing";
+    
+    String COLLECTION_TYPES_FOR_EVENT = "collection|assessment";
+    
+    String COLLECTION_ITEM_IDS = "collectionItemIds";
 }
