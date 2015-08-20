@@ -74,4 +74,6 @@ public interface ColumnFamilyConstant {
 	String ORGANIZATION = "organization";
 	
 	String SCOLLECTION = "scollection";
+	
+	String REINDEX_FAILIOURS= "reindexFailiours";
 }

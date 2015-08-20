@@ -33,7 +33,7 @@ public class UserSearchResult {
 	private Map<String,String> district;
     private Map<String,String> stateProvince;
 	private Map<String,String> organization;
-	
+	private String userType;
 	
 	public String getConfirmStatus() {
 		return confirmStatus;
@@ -266,4 +266,15 @@ public class UserSearchResult {
 	public void setOrganization(Map<String, String> organization) {
 		this.organization = organization;
 	}
+
+	public void setUserType(String userType) {
+		this.userType= userType;		
+	}
+	
+	public String getUserType(){
+		return userType;
+	}
+
+	
+
 }
