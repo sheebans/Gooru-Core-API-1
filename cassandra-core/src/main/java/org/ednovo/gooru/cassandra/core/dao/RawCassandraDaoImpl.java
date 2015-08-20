@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
+import org.ednovo.gooru.core.cassandra.model.ReIndexCo;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 import com.netflix.astyanax.ColumnListMutation;
@@ -53,6 +54,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	public void init() {
 		super.init();
 		coreCassandraDaos.put(getCF().getColumnFamilyName(), this);
+		
 	}
 
 	@Override
@@ -157,6 +159,23 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		}	
 		try {
 			mutationBatch.execute();
+		} catch (Exception ex) {
+			getLog().error("Error saving to cassandra", ex);
+		}
+  }
+	
+	@Override
+	public void addIndexFailedEntry(String key, String type,String message,String date) {
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
+		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
+		mutation.putColumn("Gooru_oid", key);
+		mutation.putColumn("Type", type);
+		mutation.putColumn("Message", message);
+		mutation.putColumn("date", date);
+			
+		try {
+			mutationBatch.execute();
+			
 		} catch (Exception ex) {
 			getLog().error("Error saving to cassandra", ex);
 		}

@@ -88,6 +88,11 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	public void updateIndexQueue(List<String> gooruOids, String rowKey, String prefix) {
 		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, prefix, gooruOids);
 	}
+	
+	@Override
+	public void updateFailedIndexEntry(String id,String type,String message,String date) {
+		getDao(ColumnFamilyConstant.REINDEX_FAILIOURS).addIndexFailedEntry(id, type, message,date);
+	}
 
 	@Override
 	public void updateQueueStatus(String columnName, String rowKey, String prefix) {
