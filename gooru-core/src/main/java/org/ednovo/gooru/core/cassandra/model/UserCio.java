@@ -138,6 +138,10 @@ public class UserCio implements IsEntityCassandraIndexable {
     private String countryName;
     
     @Column
+    private String userType;
+    
+    
+	@Column
     private Map<String,String> school;
     
     @Column
@@ -471,6 +475,14 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setUserPublishedCollectionCount(Long userPublishedCollectionCount) {
 		this.userPublishedCollectionCount = userPublishedCollectionCount;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getUserType() {
+		return userType;
 	}
 
 

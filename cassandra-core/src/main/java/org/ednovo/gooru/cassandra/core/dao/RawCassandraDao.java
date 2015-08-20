@@ -43,4 +43,6 @@ public interface RawCassandraDao extends CassandraDao {
 
 	void updateQueueStatus(String columnName, String rowKey, String prefix);
 
+	void addIndexFailedEntry(String id, String type, String message, String date);
+
 }
