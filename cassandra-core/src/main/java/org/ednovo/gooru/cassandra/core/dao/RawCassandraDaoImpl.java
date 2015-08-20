@@ -168,9 +168,9 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	public void addIndexFailedEntry(String key, String type,String message,String date) {
 		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
-		mutation.putColumn("Gooru_oid", key);
-		mutation.putColumn("Type", type);
-		mutation.putColumn("Message", message);
+		mutation.putColumn("gooruOid", key);
+		mutation.putColumn("type", type);
+		mutation.putColumn("message", message);
 		mutation.putColumn("date", date);
 			
 		try {

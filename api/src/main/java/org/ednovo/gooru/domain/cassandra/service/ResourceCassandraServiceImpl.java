@@ -91,7 +91,7 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	
 	@Override
 	public void updateFailedIndexEntry(String id,String type,String message,String date) {
-		getDao(ColumnFamilyConstant.REINDEX_FAILIOURS).addIndexFailedEntry(id, type, message,date);
+		getDao(ColumnFamilyConstant.REINDEX_FAILIURE).addIndexFailedEntry(id, type, message,date);
 	}
 
 	@Override

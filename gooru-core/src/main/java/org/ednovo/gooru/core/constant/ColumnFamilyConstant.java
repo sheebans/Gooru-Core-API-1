@@ -75,5 +75,5 @@ public interface ColumnFamilyConstant {
 	
 	String SCOLLECTION = "scollection";
 	
-	String REINDEX_FAILIOURS= "reindexFailiours";
+	String REINDEX_FAILIURE= "reindexfailure";
 }

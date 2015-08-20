@@ -70,7 +70,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.LIVE_DASHBOARD));
-		register(new CassandraColumnFamily(ColumnFamilyConstant.REINDEX_FAILIOURS));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.REINDEX_FAILIURE));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<RevisionHistory>(RevisionHistory.class, new ReverseIndexColumnSetting().putField("entity", "entityName")));
@@ -93,7 +93,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.INDEX_QUEUE));
-		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.REINDEX_FAILIOURS));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.REINDEX_FAILIURE));
 		
 	}
 
