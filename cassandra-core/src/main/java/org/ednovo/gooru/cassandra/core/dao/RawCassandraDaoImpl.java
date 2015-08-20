@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
-import org.ednovo.gooru.core.cassandra.model.ReIndexCo;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 import com.netflix.astyanax.ColumnListMutation;
@@ -168,10 +167,10 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	public void addIndexFailedEntry(String key, String type,String message,String date) {
 		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
-		mutation.putColumn("gooruOid", key);
-		mutation.putColumn("type", type);
-		mutation.putColumn("message", message);
-		mutation.putColumn("date", date);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_GOORU_OID, key);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_TYPE, type);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_MESSAGE, message);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_DATE, date);
 			
 		try {
 			mutationBatch.execute();
