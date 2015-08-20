@@ -247,6 +247,8 @@ public interface ParameterProperties {
 	String OFFSET_FIELD = "offset";
 
 	String LIMIT_FIELD = "limit";
+	
+	String FETCH_PREMIUM_ORG = "fetchPremiumOrg";
 
 	String CREATE_RATING = "Create rating";
 

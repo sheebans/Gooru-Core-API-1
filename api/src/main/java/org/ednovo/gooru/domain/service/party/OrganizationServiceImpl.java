@@ -127,11 +127,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit) {
-		List<Organization> organization = this.getOrganizationRepository().getOrganizations(null, null, null, offset, limit);
+	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit, Boolean fetchPremiumOrg) {
+		List<Organization> organization = this.getOrganizationRepository().getOrganizations(null, null, null, offset, limit, fetchPremiumOrg);
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(organization);
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(null, null, null));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(null, null, null, fetchPremiumOrg));
 		return result;
 	}
 
@@ -312,8 +312,8 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		SearchResults<Organization> result = new SearchResults<Organization>();
-		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit));
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId));
+		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit, false));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, false));
 		return result;
 	}
 
