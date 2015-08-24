@@ -56,7 +56,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, Boolean fetchPremiumOrg) {
-		String hql = "SELECT o FROM Organization o  where 1 = 1";
+		String hql = "SELECT o FROM Organization o  where o.is_premium=:fetchPremiumOrg";
 		
 		if (stateProvinceUid != null) {
 			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
@@ -66,9 +66,6 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		}
 		if (parentOrganizationUid != null) { 
 			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
-		}
-		if(fetchPremiumOrg){
-			hql += " AND o.is_premium=:fetchPremiumOrg";
 		}
 
 		Query query = getSession().createQuery(hql);
@@ -82,12 +79,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (parentOrganizationUid != null) { 
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);
 		}
-		if(fetchPremiumOrg){
-			query.setParameter("fetchPremiumOrg", true);
-		}
-		else{
-			query.setParameter("fetchPremiumOrg", false);
-		}
+		query.setParameter("fetchPremiumOrg", fetchPremiumOrg);
 		query.setFirstResult(offset);
         query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
         return list(query);
@@ -111,12 +103,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (stateProvinceId != null){
 			sql += " AND sp.state_province_uid = '" + stateProvinceId + "'";
 		}
-		if(fetchPremiumOrg){
-			sql += " AND o.is_premium = '" + fetchPremiumOrg + "'";
-		}
-		else{
-			sql += " AND o.is_premium = '" + false + "'";
-		}
+		sql += " AND o.is_premium ="+ fetchPremiumOrg ;
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
         return (Long) query.list().get(0);
 	}
