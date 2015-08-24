@@ -74,4 +74,14 @@ public interface ColumnFamilyConstant {
 	String ORGANIZATION = "organization";
 	
 	String SCOLLECTION = "scollection";
+	
+	String REINDEX_FAILURE_STACK= "reindex_failure_stack";
+	
+	String COLUMN_NAME_GOORU_OID = "failed_gooruOid";
+	
+	String COLUMN_NAME_TYPE = "type";
+	
+	String COLUMN_NAME_MESSAGE = "message" ;
+	
+	String COLUMN_NAME_DATE = "date";
 }

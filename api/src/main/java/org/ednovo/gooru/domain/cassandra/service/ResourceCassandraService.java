@@ -52,4 +52,6 @@ public interface ResourceCassandraService extends EntityCassandraService<String,
 
 	void updateQueueStatus(String columnName, String rowKey, String prefix);
 
+	void updateFailedIndexEntry(String id, String type, String message, String date);
+
 }
