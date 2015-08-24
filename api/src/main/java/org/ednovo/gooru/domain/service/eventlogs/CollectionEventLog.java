@@ -1,5 +1,6 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,15 @@ public class CollectionEventLog extends EventLog {
 
 	@Autowired
 	private CollectionDao collectionDao;
-
+	
+	private static final String PREVIOUS_SHARING = "previousSharing";
+    
+	private static final String CONTENT_SHARING = "contentSharing";
+    
+	private static final String COLLECTION_TYPES_FOR_EVENT = "collection|assessment";
+    
+	private static final String COLLECTION_ITEM_IDS = "collectionItemIds";
+	
 	public void collectionEventLog(String courseId, String unitId, String lessonId, CollectionItem collection, User user, Collection data, String action) {
 		try {
 			String collectionType = collection.getContent().getContentType().getName();
@@ -199,22 +208,15 @@ public class CollectionEventLog extends EventLog {
 			} else if (collectionType.equalsIgnoreCase(RESOURCE)) {
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 			}
-			
-			if(collectionType.matches(COLLECTION_TYPES_FOR_EVENT)) {
-				payLoadObject.put(PREVIOUS_SHARING, StringUtils.trimToEmpty(collectionOldSharing));
-				Set<CollectionItem> collectionItems = collectionItem.getCollection().getCollectionItems();
-				StringBuffer collectionItemIds = new StringBuffer();
-				if(collectionItems != null && collectionItems.size() > 0) {
-					Iterator<CollectionItem> collectionItemIterator = collectionItems.iterator();
-					collectionItemIds.append(collectionItemIterator.next().getContent().getGooruOid());
-					while(collectionItemIterator.hasNext()) {
-						collectionItemIds.append(COMMA).append(collectionItemIterator.next().getContent().getGooruOid());
-					}
-				}
-				payLoadObject.put(COLLECTION_ITEM_IDS, collectionItemIds);
-			}
-			payLoadObject.put(CONTENT_SHARING, collectionItem.getContent().getSharing());
 
+			if(collectionType.matches(COLLECTION_TYPES_FOR_EVENT) && !StringUtils.trimToEmpty(collectionOldSharing).equalsIgnoreCase(collectionItem.getContent().getSharing())) {
+				payLoadObject.put(PREVIOUS_SHARING, StringUtils.trimToEmpty(collectionOldSharing));
+				payLoadObject.put(CONTENT_SHARING, collectionItem.getContent().getSharing());
+				List<String> collectionItemIds = getCollectionDao().getCollectionItemIds(collectionItem.getContent().getGooruOid());
+				if (collectionItemIds != null) {
+					payLoadObject.put(COLLECTION_ITEM_IDS, collectionItemIds.toString());
+				}
+			}
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 			session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);

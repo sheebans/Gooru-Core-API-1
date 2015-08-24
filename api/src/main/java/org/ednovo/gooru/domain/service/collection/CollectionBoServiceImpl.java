@@ -205,9 +205,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
-		
-	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
-		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, collectionOldSharing, user);
+		if(parentId != null) {
+			CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
+			getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, collectionOldSharing, user);
+		}
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
