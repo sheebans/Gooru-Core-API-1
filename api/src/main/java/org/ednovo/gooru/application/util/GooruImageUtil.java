@@ -146,38 +146,39 @@ public class GooruImageUtil implements ParameterProperties {
 	}
 
 	public static String downloadWebResourceToFile(String srcUrl, String outputFolderPath, String fileNamePrefix, String fileExtension) {
+		if (srcUrl != null && (srcUrl.startsWith("http://") || srcUrl.startsWith("https://"))) {
+			try {
 
-		try {
+				File outputFolder = new File(outputFolderPath);
+				URL url = new URL(srcUrl);
+				URLConnection urlCon = url.openConnection();
+				InputStream inputStream = urlCon.getInputStream();
+				if (!outputFolder.exists()) {
+					outputFolder.mkdirs();
+				}
 
-			File outputFolder = new File(outputFolderPath);
-			URL url = new URL(srcUrl);
-			URLConnection urlCon = url.openConnection();
-			InputStream inputStream = urlCon.getInputStream();
-			if (!outputFolder.exists()) {
-				outputFolder.mkdirs();
+				if (fileExtension == null) {
+					fileExtension = getWebFileExtenstion(urlCon.getContentType());
+				}
+
+				String destFilePath = outputFolderPath + fileNamePrefix + "_" + UUID.randomUUID().toString() + "." + fileExtension;
+				File outputFile = new File(destFilePath);
+				if (outputFile.exists()) {
+					outputFile.delete();
+				}
+				OutputStream out = new FileOutputStream(outputFile);
+				byte buf[] = new byte[1024];
+				int len;
+				while ((len = inputStream.read(buf)) > 0)
+					out.write(buf, 0, len);
+				out.close();
+				inputStream.close();
+				return destFilePath;
+			} catch (Exception e) {
+				LOGGER.error("DownloadImage failed:exception:", e);
 			}
-
-			if (fileExtension == null) {
-				fileExtension = getWebFileExtenstion(urlCon.getContentType());
-			}
-
-			String destFilePath = outputFolderPath + fileNamePrefix + "_" + UUID.randomUUID().toString() + "." + fileExtension;
-			File outputFile = new File(destFilePath);
-			if (outputFile.exists()) {
-				outputFile.delete();
-			}
-			OutputStream out = new FileOutputStream(outputFile);
-			byte buf[] = new byte[1024];
-			int len;
-			while ((len = inputStream.read(buf)) > 0)
-				out.write(buf, 0, len);
-			out.close();
-			inputStream.close();
-			return destFilePath;
-		} catch (Exception e) {
-			LOGGER.error("DownloadImage failed:exception:", e);
-			return null;
 		}
+		return null;
 	}
 
 	public static ByteArrayInputStream getByteArrayInputStream(String srcFilePath) throws Exception {
