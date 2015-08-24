@@ -248,7 +248,7 @@ public interface ParameterProperties {
 
 	String LIMIT_FIELD = "limit";
 	
-	String FETCH_PREMIUM_ORG = "flt.fetchPremiumOrg";
+	String FETCH_PREMIUM_ORG = "flt.premiumOrg";
 
 	String CREATE_RATING = "Create rating";
 

@@ -55,8 +55,8 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, Boolean fetchPremiumOrg) {
-		String hql = "SELECT o FROM Organization o  where o.is_premium=:fetchPremiumOrg";
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, boolean fetchPremiumOrg) {
+		String hql = "SELECT o FROM Organization o  where o.isPremiumOrg=:fetchPremiumOrg";
 		
 		if (stateProvinceUid != null) {
 			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
@@ -92,7 +92,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 	
 	@Override
-	public Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceId, Boolean fetchPremiumOrg) {
+	public Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceId, boolean fetchPremiumOrg) {
 		String sql = " select count(1) as count from organization o left join state_province sp on o.state_province_uid = sp.state_province_uid  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
 		if (type != null) { 
 			sql += " AND ct.key_value = '" + type + "'";

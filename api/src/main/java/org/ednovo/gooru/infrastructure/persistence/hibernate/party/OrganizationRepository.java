@@ -34,13 +34,13 @@ public interface OrganizationRepository extends BaseRepository {
 
 	Organization getOrganizationByCode(String organizationCode);
 	
-	List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, Boolean fetchPremiumOrg);
+	List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, boolean fetchPremiumOrg);
 
 	Organization getOrganizationByUid(String organizationUid);
 	
 	Organization getOrganizationByIdpName(String idpDomainName);
 	
-	Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceUid, Boolean fetchPremiumOrg);
+	Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceUid, boolean fetchPremiumOrg);
 	
 	List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid,String stateProvinceUid);
 }

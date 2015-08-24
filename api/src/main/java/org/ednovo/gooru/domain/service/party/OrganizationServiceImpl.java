@@ -127,7 +127,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit, Boolean fetchPremiumOrg) {
+	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit, boolean fetchPremiumOrg) {
 		List<Organization> organization = this.getOrganizationRepository().getOrganizations(null, null, null, offset, limit, fetchPremiumOrg);
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(organization);
