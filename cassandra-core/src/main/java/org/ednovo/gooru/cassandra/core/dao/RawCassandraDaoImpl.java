@@ -53,6 +53,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	public void init() {
 		super.init();
 		coreCassandraDaos.put(getCF().getColumnFamilyName(), this);
+		
 	}
 
 	@Override
@@ -157,6 +158,23 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		}	
 		try {
 			mutationBatch.execute();
+		} catch (Exception ex) {
+			getLog().error("Error saving to cassandra", ex);
+		}
+  }
+	
+	@Override
+	public void addIndexFailedEntry(String key, String type,String message,String date) {
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
+		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_GOORU_OID, key);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_TYPE, type);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_MESSAGE, message);
+		mutation.putColumn(ColumnFamilyConstant.COLUMN_NAME_DATE, date);
+			
+		try {
+			mutationBatch.execute();
+			
 		} catch (Exception ex) {
 			getLog().error("Error saving to cassandra", ex);
 		}
