@@ -55,6 +55,8 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String COLLECTION_LIST = "FROM Collection where gooruOid in (:collectionId)";
 
 	private static final String UPDATE_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
+	
+	private static final String GET_COLLECTION_ITEM_IDS = "SELECT rc.gooru_oid FROM content c INNER JOIN collection_item ci ON (ci.collection_content_id = c.content_id) INNER JOIN content rc ON (rc.content_id = ci.resource_content_id) WHERE c.gooru_oid = :collectionId";
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -263,4 +265,10 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		return list(query);
 	}
 
+	@Override
+	public List<String> getCollectionItemIds(String collectionId) {
+		Query query = getSession().createSQLQuery(GET_COLLECTION_ITEM_IDS);
+		query.setParameter(COLLECTION_ID, collectionId);
+		return list(query);
+	}
 }
