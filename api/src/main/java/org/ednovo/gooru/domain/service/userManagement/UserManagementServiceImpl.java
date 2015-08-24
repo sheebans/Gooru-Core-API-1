@@ -1066,7 +1066,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		Credential creds = identity.getCredential();
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			throw new BadRequestException(generateErrorMessage("GL0073", identity.getUser().getEmailId(), "GL0073"));
+			throw new BadRequestException(generateErrorMessage("GL0073",emailId),"GL0073");
 		}
 		if (creds == null) {
 			creds = new Credential();
@@ -1079,7 +1079,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().save(creds);
 		identity.setCredential(creds);
 		user.setEmailId(emailId);
-		//this.getMailHandler().sendMailToResetPassword(user.getGooruUId(), null, false, gooruBaseUrl, mailConfirmationUrl);
+		this.getMailHandler().sendMailToResetPassword(user.getGooruUId(), null, false, gooruBaseUrl, mailConfirmationUrl);
 		return user;
 	}
 
