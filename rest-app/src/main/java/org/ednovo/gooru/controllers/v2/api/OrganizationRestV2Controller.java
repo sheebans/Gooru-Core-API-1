@@ -93,7 +93,7 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	public ModelAndView getOrganizations(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam (value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-	        @RequestParam (value = FETCH_PREMIUM_ORG, required = false, defaultValue = "false") Boolean fetchPremiumOrg)throws Exception {
+	        @RequestParam (value = FETCH_PREMIUM_ORG, required = false, defaultValue = "false") boolean fetchPremiumOrg)throws Exception {
 		return toModelAndViewWithIoFilter(getOrganizationService().listAllOrganizations( offset, limit, fetchPremiumOrg), FORMAT_JSON, EXCLUDE_ALL, true, ORGANIZATION_INCLUDES);
 	}
 	
