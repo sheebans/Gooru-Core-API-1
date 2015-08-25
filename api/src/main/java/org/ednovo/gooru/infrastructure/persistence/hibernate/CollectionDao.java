@@ -45,6 +45,6 @@ public interface CollectionDao extends BaseRepository {
 	
 	void updateClassByCourse(Long contentId);
 
-	List<String> getCollectionItemIds(String collectionId);
+	List<String> getCollectionItemIds(Long collectionId);
 
 }

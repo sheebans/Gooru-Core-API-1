@@ -212,7 +212,7 @@ public class CollectionEventLog extends EventLog {
 			if(collectionType.matches(COLLECTION_TYPES_FOR_EVENT) && !StringUtils.trimToEmpty(collectionOldSharing).equalsIgnoreCase(collectionItem.getContent().getSharing())) {
 				payLoadObject.put(PREVIOUS_SHARING, StringUtils.trimToEmpty(collectionOldSharing));
 				payLoadObject.put(CONTENT_SHARING, collectionItem.getContent().getSharing());
-				List<String> collectionItemIds = getCollectionDao().getCollectionItemIds(collectionItem.getContent().getGooruOid());
+				List<String> collectionItemIds = getCollectionDao().getCollectionItemIds(collectionItem.getContent().getContentId());
 				if (collectionItemIds != null) {
 					payLoadObject.put(COLLECTION_ITEM_IDS, collectionItemIds.toString());
 				}
