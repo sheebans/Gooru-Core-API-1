@@ -37,6 +37,9 @@ public class Organization extends Party  implements IsCassandraIndexable {
     
 	@Column
     private CustomTableValue type;
+	
+	@Column 
+	private Boolean isPremiumOrg;
 
 	public String getOrganizationCode() {
 		return organizationCode;
@@ -106,5 +109,13 @@ public class Organization extends Party  implements IsCassandraIndexable {
 	public void setIndexType(String indexType) {
 		this.indexType = indexType;
 		
+	}
+
+	public void setIsPremiumOrg(Boolean isPremiumOrg) {
+		this.isPremiumOrg = isPremiumOrg;
+	}
+
+	public Boolean getIsPremiumOrg() {
+		return isPremiumOrg;
 	}	
  }
