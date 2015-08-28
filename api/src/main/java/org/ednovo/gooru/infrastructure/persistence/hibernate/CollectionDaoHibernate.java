@@ -56,9 +56,19 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String UPDATE_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
 
+	private static final String GET_COLLECTION_WITHOUT_DELETE_CHECK = "FROM Collection where gooruOid=:collectionId";
+
 	@Override
 	public Collection getCollection(String collectionId) {
 		Query query = getSession().createQuery(GET_COLLECTION);
+		query.setParameter(COLLECTION_ID, collectionId);
+		List<Collection> collection = list(query);
+		return (collection != null && collection.size() > 0) ? collection.get(0) : null;
+	}
+
+	@Override
+	public Collection getCollectionWithoutDeleteCheck(String collectionId) {
+		Query query = getSession().createQuery(GET_COLLECTION_WITHOUT_DELETE_CHECK);
 		query.setParameter(COLLECTION_ID, collectionId);
 		List<Collection> collection = list(query);
 		return (collection != null && collection.size() > 0) ? collection.get(0) : null;
@@ -262,5 +272,4 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameterList(COLLECTION_ID, collectionIds);
 		return list(query);
 	}
-
 }

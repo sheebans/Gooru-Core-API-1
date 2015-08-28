@@ -19,6 +19,7 @@ import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -91,6 +92,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collection.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(collection);
 		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collection, user, null, DELETE);
+		SessionContextSupport.putDeleteContentMeta(collection.getContent());
 	}
 
 	@Override
