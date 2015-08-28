@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.domain.service.CollectionDeleteHandler;
+import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class CollectionDeleteProcessor {
 	private CollectionDeleteHandler collectionDeleteHandler;
 
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
+	
 
 	@PostConstruct
 	public void init() {

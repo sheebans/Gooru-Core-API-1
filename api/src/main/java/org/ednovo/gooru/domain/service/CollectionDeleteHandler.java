@@ -8,6 +8,7 @@ import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -31,6 +32,9 @@ public class CollectionDeleteHandler implements ParameterProperties {
 
 	@javax.annotation.Resource(name = "transactionManager")
 	private HibernateTransactionManager transactionManager;
+
+	@Autowired
+	protected IndexProcessor indexProcessor;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionDeleteHandler.class);
 
@@ -101,6 +105,7 @@ public class CollectionDeleteHandler implements ParameterProperties {
 					}
 				}
 			}
+			getIndexProcessor().indexByKafkaQueue(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, false, false);
 			getCollectionDao().remove(collection);
 		}
 	}
@@ -141,5 +146,9 @@ public class CollectionDeleteHandler implements ParameterProperties {
 
 	public HibernateTransactionManager getTransactionManager() {
 		return transactionManager;
+	}
+
+	public IndexProcessor getIndexProcessor() {
+		return indexProcessor;
 	}
 }
