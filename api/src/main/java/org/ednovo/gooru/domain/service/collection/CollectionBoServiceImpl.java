@@ -27,10 +27,13 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -65,6 +68,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Autowired
 	private CollectionEventLog collectionEventLog;
@@ -72,6 +78,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String LAST_USER_MODIFIED = "lastUserModified";
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionBoServiceImpl.class);
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -653,6 +661,17 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			getCollectionDao().remove(resource);
 		} else {
 			getCollectionDao().remove(collectionItem);
+		}
+		
+		try {
+			if (collectionItem.getContent() != null && !collectionItem.getContent().getSharing().equalsIgnoreCase(PUBLIC)) {
+				indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
+			}
+			indexHandler.setReIndexRequest(collectionItem.getCollection().getContentId().toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
 		}
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
 	}
