@@ -77,7 +77,7 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 		if (resonseData == null) {
 			Map<String, String> shortenUrl = new HashMap<String, String>();
 			try{
-				Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
+				Url bitly = Bitly.as(BaseUtil.changeHttpsProtocolByHeader(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID)), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
 				shortenUrl.put(SHORTEN_URL, bitly.getShortUrl());
 				shortenUrl.put(RAW_URL, bitly.getLongUrl());
 			}catch(BitlyException ex){
