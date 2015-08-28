@@ -66,8 +66,8 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public String getShortenUrl(final String fullUrl, boolean clearCache) {
-		
+	public String getShortenUrl( String fullUrl, boolean clearCache) {
+		fullUrl = BaseUtil.changeHttpsProtocolByHeader(fullUrl);
 		String cacheKey = fullUrl + HYPHEN + TaxonomyUtil.GOORU_ORG_UID;
 		String resonseData = null;
 		if (!clearCache) {
