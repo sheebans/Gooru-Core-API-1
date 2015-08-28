@@ -37,7 +37,7 @@ public interface OrganizationService {
 	
 	Organization getOrganizationByCode(String organizationCode);
 
-	SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit);
+	SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit, boolean fetchPremiumOrg);
 
 	Organization getOrganizationByName(String partyName);
 

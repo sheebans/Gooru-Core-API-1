@@ -55,8 +55,9 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit) {
-		String hql = "SELECT o FROM Organization o  where 1 = 1";
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit, boolean fetchPremiumOrg) {
+		String hql = "SELECT o FROM Organization o  where o.isPremiumOrg=:fetchPremiumOrg";
+		
 		if (stateProvinceUid != null) {
 			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
 		}
@@ -66,6 +67,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (parentOrganizationUid != null) { 
 			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
 		}
+
 		Query query = getSession().createQuery(hql);
 		
 		if (stateProvinceUid != null) {
@@ -77,6 +79,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (parentOrganizationUid != null) { 
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);
 		}
+		query.setParameter("fetchPremiumOrg", fetchPremiumOrg);
 		query.setFirstResult(offset);
         query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
         return list(query);
@@ -89,7 +92,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 	
 	@Override
-	public Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceId) {
+	public Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceId, boolean fetchPremiumOrg) {
 		String sql = " select count(1) as count from organization o left join state_province sp on o.state_province_uid = sp.state_province_uid  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
 		if (type != null) { 
 			sql += " AND ct.key_value = '" + type + "'";
@@ -100,6 +103,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (stateProvinceId != null){
 			sql += " AND sp.state_province_uid = '" + stateProvinceId + "'";
 		}
+		sql += " AND o.is_premium ="+ fetchPremiumOrg ;
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
         return (Long) query.list().get(0);
 	}
@@ -130,7 +134,6 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	
 		return list(query);
 	}
-	
 
 
 }

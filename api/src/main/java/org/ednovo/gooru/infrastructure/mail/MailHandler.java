@@ -718,7 +718,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
 		
-		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty(SERVERPATH));
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
 			Map<String, Object> map = eventMapData(eventMapping);
 			map.put("serverpath",serverpath);
@@ -739,7 +739,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	}
 
 	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
-		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty(SERVERPATH));
 		StringBuilder url =  new StringBuilder(serverpath);
 		url.append("#student-view&id=").append(gooruOid).append("&c-id=").append(courseId).append("&userEmailId=").append(email);
 		String shortenUrl = this.shareService.getShortenUrl(url.toString(), true);

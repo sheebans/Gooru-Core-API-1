@@ -46,4 +46,6 @@ public interface CollectionDao extends BaseRepository {
 	
 	Collection getCollectionWithoutDeleteCheck(String collectionId);
 
+	List<String> getCollectionItemIds(Long collectionId);
+
 }

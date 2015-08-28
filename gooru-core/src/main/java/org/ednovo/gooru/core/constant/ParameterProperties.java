@@ -247,6 +247,8 @@ public interface ParameterProperties {
 	String OFFSET_FIELD = "offset";
 
 	String LIMIT_FIELD = "limit";
+	
+	String FETCH_PREMIUM_ORG = "flt.premiumOrg";
 
 	String CREATE_RATING = "Create rating";
 
@@ -2931,5 +2933,5 @@ public interface ParameterProperties {
     String CLASS_USER_REMOVE = "classpage.user.remove";
     
     String CLASS_USER_ADD = "classpage.user.add";
-    
+
 }

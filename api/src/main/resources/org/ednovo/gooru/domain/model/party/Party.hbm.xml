@@ -79,6 +79,9 @@
 			table="organization" lazy="true">
 			<key column="organization_uid" />
 
+			<property name="isPremiumOrg" column="is_premium"
+				not-null="false" />
+				
 			<property name="organizationCode" column="organization_code"
 				not-null="true" />
 

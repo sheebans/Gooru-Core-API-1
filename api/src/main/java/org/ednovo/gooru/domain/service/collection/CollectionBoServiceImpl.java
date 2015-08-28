@@ -154,6 +154,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
 		Collection collection = getCollectionDao().getCollection(collectionId);
+		String collectionOldSharing = collection.getSharing(); 
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
@@ -203,13 +204,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		updateCollection(collection, newCollection, user);
 
-
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
-		
-	    CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
-		getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, user);
+		if(parentId != null) {
+			CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
+			getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, collectionOldSharing, user);
+		}
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
@@ -332,7 +333,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), QUESTION, null, ADD);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, question.getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
 		createContentMeta(copyQuestion, metaData);

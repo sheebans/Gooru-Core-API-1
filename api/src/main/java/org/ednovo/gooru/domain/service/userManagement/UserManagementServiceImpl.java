@@ -1066,7 +1066,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		Credential creds = identity.getCredential();
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			throw new BadRequestException(generateErrorMessage("GL0073"), "GL0073");
+			throw new BadRequestException(generateErrorMessage("GL0073",emailId),"GL0073");
 		}
 		if (creds == null) {
 			creds = new Credential();

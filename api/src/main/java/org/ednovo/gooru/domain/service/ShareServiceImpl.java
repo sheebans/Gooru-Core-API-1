@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rosaloves.bitlyj.Bitly;
+import com.rosaloves.bitlyj.BitlyException;
 import com.rosaloves.bitlyj.Url;
 
 @Service
@@ -66,6 +67,7 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String getShortenUrl(final String fullUrl, boolean clearCache) {
+		
 		String cacheKey = fullUrl + HYPHEN + TaxonomyUtil.GOORU_ORG_UID;
 		String resonseData = null;
 		if (!clearCache) {
@@ -73,13 +75,17 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 		}
 		if (resonseData == null) {
 			Map<String, String> shortenUrl = new HashMap<String, String>();
-			Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
-			shortenUrl.put(SHORTEN_URL, bitly.getShortUrl());
-			shortenUrl.put(RAW_URL, bitly.getLongUrl());
+			try{
+				Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
+				shortenUrl.put(SHORTEN_URL, bitly.getShortUrl());
+				shortenUrl.put(RAW_URL, bitly.getLongUrl());
+			}catch(BitlyException ex){
+				shortenUrl.put(SHORTEN_URL, fullUrl);
+				shortenUrl.put(RAW_URL, fullUrl);
+			}
 			resonseData = JsonSerializer.serializeToJson(shortenUrl, true);
 			getRedisService().putValue(cacheKey, resonseData, RedisService.DEFAULT_PROFILE_EXP);
 		}
-
 		return resonseData;
 	}
 
