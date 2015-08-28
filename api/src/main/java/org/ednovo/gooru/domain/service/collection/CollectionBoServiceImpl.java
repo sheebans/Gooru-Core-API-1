@@ -653,17 +653,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
-		if (contentType.equalsIgnoreCase(QUESTION)) {
+		if (contentType.equalsIgnoreCase(QUESTION) || !resource.getSharing().equalsIgnoreCase(PUBLIC)) {
 			getCollectionDao().remove(resource);
+			indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
-			if (collectionItem.getContent() != null && !collectionItem.getContent().getSharing().equalsIgnoreCase(PUBLIC)) {
-				indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-			}
-			indexHandler.setReIndexRequest(collectionItem.getCollection().getContentId().toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
-			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		
+		indexHandler.setReIndexRequest(collectionContentId.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
 	}
 
