@@ -105,7 +105,11 @@ public class CollectionDeleteHandler implements ParameterProperties {
 					}
 				}
 			}
-			getIndexProcessor().indexByKafkaQueue(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, false, false);
+			try {
+				getIndexProcessor().indexByKafkaQueue(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, false, false);
+			} catch(Exception e) { 
+				LOGGER.debug("Failed to push the  deleted content details to kafka queue.");
+			}
 			getCollectionDao().remove(collection);
 		}
 	}
