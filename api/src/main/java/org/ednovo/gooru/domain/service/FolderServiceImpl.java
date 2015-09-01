@@ -97,7 +97,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
 		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, true, orderBy, excludeType);
 		if (collectionItems == null || collectionItems.size() == 0) {
-			collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 30, 0, sharing, orderBy, true, ASC, false, excludeType);
+			collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 50, 0, sharing, orderBy, true, ASC, false, excludeType);
 		}
 		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 		if (collectionItems != null && collectionItems.size() > 0) {
