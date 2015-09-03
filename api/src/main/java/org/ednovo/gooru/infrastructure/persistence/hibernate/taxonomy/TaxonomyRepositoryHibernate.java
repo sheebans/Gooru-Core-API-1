@@ -857,7 +857,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "From Code code where code.codeId =:codeId and code.activeFlag=1 and " + generateOrgAuthQueryWithData("code.");
 		Query query = getSession().createQuery(hql);
 		query.setParameter("codeId", codeId);
-		return (Code) query.list().get(0);
+		return (Code) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@SuppressWarnings("unchecked")
