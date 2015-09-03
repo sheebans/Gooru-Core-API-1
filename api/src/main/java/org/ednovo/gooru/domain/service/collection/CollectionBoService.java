@@ -46,4 +46,10 @@ public interface CollectionBoService extends AbstractCollectionService {
 	
 	void moveCollection(String folderId, String collectionId, User user);
 	
+	List<Map<String, String>> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
+	
+	void resetFolderVisibility(final String gooruOid, final String gooruUid);
+	
+	void updateFolderSharing(final String gooruOid);
+	
 }

@@ -281,4 +281,25 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ID, collectionId);
 		return list(query);
 	}
+	
+	@Override
+	public Object[] getParentCollection(final String collectionGooruOid, final String gooruUid) {
+		String hql = "select cc.gooru_oid as gooruOid, cor.title from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id inner join resource cor on cor.content_id = co.content_id   where cr.gooru_oid='"
+				+ collectionGooruOid + "'and co.collection_type = 'folder'  and ci.item_type != 'collaborator' ";
+		if (gooruUid != null) {
+			hql += "and  cc.user_uid ='" + gooruUid + "'";
+		}
+		final Query query = getSession().createSQLQuery(hql);
+		return (Object[]) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public Long getPublicCollectionCount(final String gooruOid, final String sharing) {
+		final String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"
+				+ sharing + "') and (r.type_name = 'folder' or r.type_name = 'scollection') and ci.item_type != 'collaborator' ";
+		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		query.setParameter(GOORU_OID, gooruOid);
+		return (Long) query.list().get(0);
+	}
+
 }

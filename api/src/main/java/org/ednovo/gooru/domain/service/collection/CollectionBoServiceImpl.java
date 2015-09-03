@@ -41,6 +41,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 
 import flexjson.JSONSerializer;
 
@@ -153,6 +154,56 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
+	public void resetFolderVisibility(final String gooruOid, final String gooruUid) {
+		final List<Map<String, String>> parenFolders = this.getParentCollection(gooruOid, gooruUid, false);
+		for (Map<String, String> folder : parenFolders) {
+			updateFolderSharing(folder.get(GOORU_OID));
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, String>> getParentCollection(final String collectionGooruOid, final String gooruUid, final boolean reverse) {
+		final List<Map<String, String>> parentNode = new ArrayList<Map<String, String>>();
+		getCollection(collectionGooruOid, gooruUid, parentNode);
+		if (reverse) {
+			return parentNode.size() > 0 ? Lists.reverse(parentNode) : parentNode;
+		} else {
+			return parentNode;
+		}
+	}
+
+	private List<Map<String, String>> getCollection(final String collectionGooruOid, final String gooruUid, final List<Map<String, String>> parentNode) {
+		final Object[] result = getCollectionDao().getParentCollection(collectionGooruOid, gooruUid);
+		if (result != null) {
+			final Map<String, String> node = new HashMap<String, String>();
+			node.put(GOORU_OID, String.valueOf(result[0]));
+			node.put(TITLE, String.valueOf(result[1]));
+			parentNode.add(node);
+			getCollection(String.valueOf(result[0]), gooruUid, parentNode);
+		}
+		return parentNode;
+
+	}
+
+	@Override
+	public void updateFolderSharing(final String gooruOid) {
+		final Collection collection = getCollectionDao().getCollection(gooruOid);
+		if (collection != null) {
+			if (getCollectionDao().getPublicCollectionCount(collection.getGooruOid(), PUBLIC) > 0) {
+				collection.setSharing(Sharing.PUBLIC.getSharing());
+			} else if (getCollectionDao().getPublicCollectionCount(collection.getGooruOid(), Sharing.ANYONEWITHLINK.getSharing()) > 0) {
+				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+			} else {
+				collection.setSharing(Sharing.PRIVATE.getSharing());
+			}
+			this.getCollectionDao().save(collection);
+		}
+
+	}
+
+	
+	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String parentId, String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
@@ -195,6 +246,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
 			if (parentId == null) {
 				parentId = parentCollectionItem.getCollection().getGooruOid();
+			}
+			if(parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)){
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
 			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);

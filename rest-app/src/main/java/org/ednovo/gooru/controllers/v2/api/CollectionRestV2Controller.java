@@ -49,6 +49,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
@@ -92,6 +93,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private IndexHandler indexHandler;
+	
+	@Autowired
+	private CollectionBoService collectionBoService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
@@ -415,7 +419,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionParent(final HttpServletRequest request, @PathVariable(value = ID) final String gooruOid, final HttpServletResponse resHttpServletResponse) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid(), true), true);
+		return toJsonModelAndView(collectionBoService.getParentCollection(gooruOid, user.getPartyUid(), true), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })

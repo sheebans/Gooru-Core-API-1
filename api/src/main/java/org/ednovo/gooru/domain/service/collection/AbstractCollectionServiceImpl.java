@@ -280,6 +280,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	@Override
 	public CollectionItem createCollectionItem(CollectionItem collectionItem, Collection parentContent, Content content, User user) {
 		int sequence = getCollectionDao().getCollectionItemMaxSequence(parentContent.getContentId()) + 1;
+		content.setCreatedOn(new Date());
 		collectionItem.setCollection(parentContent);
 		collectionItem.setContent(content);
 		collectionItem.setAssociatedUser(user);
