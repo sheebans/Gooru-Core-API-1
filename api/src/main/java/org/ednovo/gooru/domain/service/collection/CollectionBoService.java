@@ -36,9 +36,9 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	Map<String, Object> getCollectionItem(String collectionId, String collectionItemId);
 
-	CollectionItem addResource(String collectionId, String resourceId, User user);
+	CollectionItem addResource(String collectionId, String resourceId, String collectionItemId, User user);
 
-	CollectionItem addQuestion(String collectionId, String questionId, User user);
+	CollectionItem addQuestion(String collectionId, String questionId, String collectionItemId, User user);
 
 	void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user);
 	

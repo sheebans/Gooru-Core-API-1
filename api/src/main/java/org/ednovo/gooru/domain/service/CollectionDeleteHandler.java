@@ -93,7 +93,7 @@ public class CollectionDeleteHandler implements ParameterProperties {
 
 	public void deleteCollection(final String collectionId) {
 		Collection collection = getCollectionDao().getCollectionWithoutDeleteCheck(collectionId);
-		if (collection != null) {
+		if (collection != null && !collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
 			List<CollectionItem> collectionItems = getCollectionDao().getCollectionItems(collectionId);
 			if (collectionItems != null) {
 				for (CollectionItem collectionItem : collectionItems) {
