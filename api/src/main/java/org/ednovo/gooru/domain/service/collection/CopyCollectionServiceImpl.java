@@ -141,6 +141,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		destCollection.setContentType(sourceCollection.getContentType());
 		destCollection.setLastModified(new Date(System.currentTimeMillis()));
 		destCollection.setCreatedOn(new Date(System.currentTimeMillis()));
+		destCollection.setIsRepresentative(0);
 		if (newCollection != null && newCollection.getSharing() != null) {
 			destCollection.setSharing(newCollection.getSharing());
 		} else {
