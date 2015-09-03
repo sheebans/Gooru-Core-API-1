@@ -661,6 +661,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
+		collectionItem.getCollection().setLastModified(new Date());
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
