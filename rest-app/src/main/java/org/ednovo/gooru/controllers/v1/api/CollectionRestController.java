@@ -103,9 +103,9 @@ public class CollectionRestController extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_RESOURCE_ID }, method = RequestMethod.POST)
 	public ModelAndView addResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
+			@PathVariable(value = ID) final String resourceId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, collectionItemId, user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -134,9 +134,9 @@ public class CollectionRestController extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_QUESTION_ID }, method = RequestMethod.POST)
 	public ModelAndView addQuestion(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String questionId, final HttpServletRequest request, final HttpServletResponse response) {
+			@PathVariable(value = ID) final String questionId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId,collectionItemId,  user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);

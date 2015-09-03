@@ -279,6 +279,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		copyQuestion.setUser(user);
 		copyQuestion.setCreator(question.getCreator());
 		copyQuestion.setType(question.getType());
+		copyQuestion.setCreatedOn(new Date(System.currentTimeMillis()));
+		copyQuestion.setOrganization(question.getOrganization());
 		if (question.getHints() != null) {
 			Set<AssessmentHint> copyHints = new TreeSet<AssessmentHint>();
 			for (AssessmentHint hint : question.getHints()) {
