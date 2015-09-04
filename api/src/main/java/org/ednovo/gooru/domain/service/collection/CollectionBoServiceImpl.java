@@ -208,7 +208,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
 		Collection collection = getCollectionDao().getCollection(collectionId);
-		String collectionOldSharing = collection.getSharing(); 
+		String collectionOldSharing = collection.getSharing();
+		CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, collection.getUser());
+		if (newCollection.getPosition() != null) {
+			this.resetSequence(parentCollectionItem.getCollection(), parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
+		}
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
@@ -221,7 +225,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
-			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, collection.getUser());
 			if(parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)){
 				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
@@ -245,14 +248,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
-		if (newCollection.getPosition() != null) {
-			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
-			if (parentId == null) {
-				parentId = parentCollectionItem.getCollection().getGooruOid();
-			}
-			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
-			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
-		}
+		
 		if (newCollection.getMediaFilename() != null && !newCollection.getMediaFilename().isEmpty()) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
@@ -266,8 +262,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		if(parentId != null) {
-			CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
-			getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, collectionOldSharing, user);
+			getCollectionEventLog().collectionUpdateEventLog(parentId, parentCollectionItem, collectionOldSharing, user);
 		}
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
