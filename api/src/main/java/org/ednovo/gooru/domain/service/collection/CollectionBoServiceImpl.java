@@ -144,10 +144,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 					super.createCollection(targetCollection, user);
 				}
 			}
-			createCollection(user, collection, targetCollection);
+			CollectionItem newCollectionItem = createCollection(user, collection, targetCollection);
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
+			indexHandler.setReIndexRequest(newCollectionItem.getContent().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -308,7 +309,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
 			createContentMeta(resource, data);
-
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
+			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -342,6 +344,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
 		createContentMeta(question, metaData);
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		return collectionItem;
 	}
 
@@ -371,6 +375,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, null, ADD);
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		getIndexHandler().setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		return collectionItem;
 	}
@@ -389,6 +395,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, question.getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);		
+		getIndexHandler().setReIndexRequest(copyQuestion.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
 	}
