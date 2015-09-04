@@ -17,6 +17,8 @@ import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,9 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 
 	@Autowired
 	private QuestionService questionService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -169,7 +174,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		CollectionItem newCollectionItem = new CollectionItem();
 		newCollectionItem.setItemType(ADDED);
 		createCollectionItem(newCollectionItem, targetCollection, destCollection, user);
-
+		indexHandler.setReIndexRequest(newCollectionItem.getContent().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		return destCollection;
 	}
 
