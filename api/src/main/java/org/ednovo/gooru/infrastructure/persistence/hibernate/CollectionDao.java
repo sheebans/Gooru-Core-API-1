@@ -47,5 +47,9 @@ public interface CollectionDao extends BaseRepository {
 	Collection getCollectionWithoutDeleteCheck(String collectionId);
 
 	List<String> getCollectionItemIds(Long collectionId);
+	
+	Object[] getParentCollection(final String collectionGooruOid, final String gooruUid);
+	
+	Long getPublicCollectionCount(final String gooruOid, final String sharing);
 
 }
