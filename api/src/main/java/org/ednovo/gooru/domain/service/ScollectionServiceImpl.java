@@ -1502,17 +1502,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
 			}
-			
-			 if (newCollection.getBuildTypeId() != null && newCollection.getBuildTypeId() != null) { 
-				 if(newCollection.getBuildTypeId().equals(Constants.BUILD_WEB_TYPE_ID) ||newCollection.getBuildTypeId().equals(Constants.BUILD_IPAD_TYPE_ID)) {
-					 collection.setBuildTypeId(newCollection.getBuildTypeId());
-					 }
-				 }
-			 if(newCollection.getPublishStatusId() != null && newCollection.getPublishStatusId() != null) { 
-				 if(newCollection.getPublishStatusId().equals(Constants.PUBLISH_REVIEWED_STATUS_ID)) {
-					 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
-					 }
-				 }
 
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
@@ -1938,48 +1927,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collection.put(TITLE, collectionObj.getTitle());
 		return collection;
 	}
-
-	/*@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, String>> getParentCollection(final String collectionGooruOid, final String gooruUid, final boolean reverse) {
-		final List<Map<String, String>> parentNode = new ArrayList<Map<String, String>>();
-		getCollection(collectionGooruOid, gooruUid, parentNode);
-		if (reverse) {
-			return parentNode.size() > 0 ? Lists.reverse(parentNode) : parentNode;
-		} else {
-			return parentNode
-		}
-	}
-
-	private List<Map<String, String>> getCollection(final String collectionGooruOid, final String gooruUid, final List<Map<String, String>> parentNode) {
-		final Object[] result = this.getCollectionRepository().getParentCollection(collectionGooruOid, gooruUid);
-		if (result != null) {
-			final Map<String, String> node = new HashMap<String, String>();
-			node.put(GOORU_OID, String.valueOf(result[0]));
-			node.put(TITLE, String.valueOf(result[1]));
-			parentNode.add(node);
-			getCollection(String.valueOf(result[0]), gooruUid, parentNode);
-		}
-		return parentNode
-
-	}
-
-	@Override
-	public void updateFolderSharing(final String gooruOid) {
-		final Collection collection = this.getCollectionByGooruOid(gooruOid, null);
-		if (collection != null) {
-			if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid(), PUBLIC) > 0) {
-				collection.setSharing(Sharing.PUBLIC.getSharing())
-			} else if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid(), Sharing.ANYONEWITHLINK.getSharing()) > 0) {
-				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
-			} else {
-				collection.setSharing(Sharing.PRIVATE.getSharing());
-			}
-			this.getCollectionRepository().save(collection);
-		}
-
-	}*/
-
+	
 	private ResourceMetaInfo setMetaData(final Collection collection, final boolean ignoreUserTaxonomyPreference, final String rootNodeId) {
 		ResourceMetaInfo collectionMetaInfo = null;
 		if (collection != null && collection.getTaxonomySet() != null) {
@@ -2022,13 +1970,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.collectionRepository.removeAll(collections);
 		indexHandler.setReIndexRequest(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);
 	}
-
-	/*public void resetFolderVisibility(final String gooruOid, final String gooruUid) {
-		final List<Map<String, String>> parenFolders = this.getParentCollection(gooruOid, gooruUid, false)
-		for (Map<String, String> folder : parenFolders) {
-			updateFolderSharing(folder.get(GOORU_OID));
-		}
-	}*/
 
 	public boolean isResourceType(final Resource resource) {
 		boolean isResourceType = false;

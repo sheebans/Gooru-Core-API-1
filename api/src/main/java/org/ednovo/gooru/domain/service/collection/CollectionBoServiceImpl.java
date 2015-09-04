@@ -221,6 +221,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
+			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, collection.getUser());
+			if(parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)){
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
+			}
 		}
 		if (newCollection.getSettings() != null) {
 			updateCollectionSettings(collection, newCollection);
@@ -245,9 +249,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
 			if (parentId == null) {
 				parentId = parentCollectionItem.getCollection().getGooruOid();
-			}
-			if(parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)){
-				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
 			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
