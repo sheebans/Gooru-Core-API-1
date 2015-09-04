@@ -201,7 +201,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 
 	}
-
 	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

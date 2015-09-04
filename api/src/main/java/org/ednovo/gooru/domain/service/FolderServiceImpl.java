@@ -178,7 +178,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public List<Map<String, String>> getFolderNode(final String collectionId) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
-		return collectionBoService.getParentCollection(collectionId, null, true);
+		return getCollectionBoService().getParentCollection(collectionId, null, true);
 	}
 
 	@Override
@@ -234,4 +234,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
+	
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
+	}
+	
 }

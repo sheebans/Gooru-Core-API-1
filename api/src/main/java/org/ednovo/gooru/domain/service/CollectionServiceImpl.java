@@ -298,8 +298,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
-			collectionBoService.updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
-			collectionBoService.resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
+			getCollectionBoService().updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
+			getCollectionBoService().resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
@@ -629,7 +629,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							this.getUserRepository().save(userSummary);
 						}
 						scollection.setSharing(PUBLIC);
-						collectionBoService.resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
+						getCollectionBoService().resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(PUBLIC, scollection);
 						try {
 							final String mailId = scollection.getUser().getIdentities().iterator().next().getExternalId();
@@ -685,7 +685,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							collectionIds.append(",");
 						}
 						scollection.setSharing(ANYONE_WITH_LINK);
-						collectionBoService.resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
+						getCollectionBoService().resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
 						throw new BadRequestException(generateErrorMessage(GL0091));
@@ -758,4 +758,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return partyService;
 	}
 
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
+	}
 }

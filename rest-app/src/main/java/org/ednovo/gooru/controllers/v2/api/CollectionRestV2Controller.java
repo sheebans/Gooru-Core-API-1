@@ -419,7 +419,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionParent(final HttpServletRequest request, @PathVariable(value = ID) final String gooruOid, final HttpServletResponse resHttpServletResponse) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		return toJsonModelAndView(collectionBoService.getParentCollection(gooruOid, user.getPartyUid(), true), true);
+		return toJsonModelAndView(getCollectionBoService().getParentCollection(gooruOid, user.getPartyUid(), true), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -534,6 +534,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	public RedisService getRedisService() {
 		return redisService;
+	}
+	
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
 	}
 
 	private String getCollectionType(final HttpServletRequest request) {

@@ -265,7 +265,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (collection.getCollectionItem() != null) {
 				collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
 			}
-			collectionBoService.resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
+			getCollectionBoService().resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
 			try {
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
@@ -439,7 +439,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(newCollection.getSharing());
 
 				this.getCollectionRepository().save(collection);
-				collectionBoService.resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
+				getCollectionBoService().resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
 				updateResourceSharing(newCollection.getSharing(), collection);
 			}
 
@@ -515,8 +515,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				final Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
-					collectionBoService.updateFolderSharing(parentCollection.getGooruOid());
-					collectionBoService.resetFolderVisibility(parentCollection.getGooruOid(), collection.getUser().getPartyUid());
+					getCollectionBoService().updateFolderSharing(parentCollection.getGooruOid());
+					getCollectionBoService().resetFolderVisibility(parentCollection.getGooruOid(), collection.getUser().getPartyUid());
 				}
 				this.deleteCollectionItem(item.getCollectionItemId());
 			}
@@ -574,7 +574,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(_ERROR, e);
 			}
-			collectionBoService.resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
+			getCollectionBoService().resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			if ((collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(ASSESSMENT) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(ASSESSMENT_URL))
 					&& collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
 				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
@@ -1198,7 +1198,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (isNotEmptyString(sharing)) {
 			collection.setSharing(sharing);
 			this.getCollectionRepository().save(collection);
-			collectionBoService.resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
+			getCollectionBoService().resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
 			updateResourceSharing(sharing, collection);
 		}
 
@@ -1616,7 +1616,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(newCollection.getSharing());
 
 				updateResourceSharing(newCollection.getSharing(), collection);
-				collectionBoService.resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
+				getCollectionBoService().resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
@@ -2121,4 +2121,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public PartyService getPartyService() {
 		return partyService;
 	}
+	
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
+	}
+	
 }
