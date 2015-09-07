@@ -284,7 +284,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	
 	@Override
 	public Object[] getParentCollection(final String collectionGooruOid, final String gooruUid) {
-		String hql = "select cc.gooru_oid as gooruOid, cor.title from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id inner join resource cor on cor.content_id = co.content_id   where cr.gooru_oid='"
+		String hql = "select cc.gooru_oid as gooruOid, cor.title from collection_item ci inner join collection r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id inner join collection cor on cor.content_id = co.content_id   where cr.gooru_oid='"
 				+ collectionGooruOid + "'and co.collection_type = 'folder'  and ci.item_type != 'collaborator' ";
 		if (gooruUid != null) {
 			hql += "and  cc.user_uid ='" + gooruUid + "'";
@@ -295,8 +295,8 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	
 	@Override
 	public Long getPublicCollectionCount(final String gooruOid, final String sharing) {
-		final String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"
-				+ sharing + "') and (r.type_name = 'folder' or r.type_name = 'scollection') and ci.item_type != 'collaborator' ";
+		final String sql = "select count(1) as count  from collection_item  ci inner join collection r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"
+				+ sharing + "') and (r.collection_type = 'folder' or r.collection_type = 'collection') and ci.item_type != 'collaborator' ";
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter(GOORU_OID, gooruOid);
 		return (Long) query.list().get(0);

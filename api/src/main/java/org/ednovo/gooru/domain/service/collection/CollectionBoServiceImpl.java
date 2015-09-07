@@ -161,6 +161,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void resetFolderVisibility(final String gooruOid, final String gooruUid) {
 		final List<Map<String, String>> parenFolders = this.getParentCollection(gooruOid, gooruUid, false);
 		for (Map<String, String> folder : parenFolders) {
@@ -194,6 +195,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateFolderSharing(final String gooruOid) {
 		final Collection collection = getCollectionDao().getCollection(gooruOid);
 		if (collection != null) {
@@ -232,7 +234,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
-			if (parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+			if (parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
 				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 		}
@@ -550,11 +552,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getCollectionItemId(), user.getPartyUid(), COLLECTION);
-		if (sourceCollectionItem != null) {
-			getCollectionDao().remove(sourceCollectionItem);
-			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
-			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
+		SessionContextSupport.getMoveContentMeta().put(USER_UID, user.getPartyUid());
+		if (sourceCollectionItem != null && sourceCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
+			SessionContextSupport.getMoveContentMeta().put(SOURCE_ID, sourceCollectionItem.getCollection().getGooruOid());
 		}
+		if (targetCollection.getCollectionType().equalsIgnoreCase(FOLDER)) {
+			SessionContextSupport.getMoveContentMeta().put(TARGET_ID, targetCollection.getGooruOid());
+		}
+		getCollectionDao().remove(sourceCollectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
 	}

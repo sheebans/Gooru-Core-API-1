@@ -12,6 +12,7 @@ public class RequestSupport {
 	public RequestSupport() {
 		log = new HashMap<String, Object>();
 		searchIndexMeta = new ArrayList<SearchIndexMeta>();
+		moveContentMeta = new HashMap<String, Object>();
 	}
 
 	public static RequestSupport getSessionContext() {
@@ -23,6 +24,8 @@ public class RequestSupport {
 	private List<SearchIndexMeta> searchIndexMeta;
 
 	private Content deleteContentMeta;
+	
+	private Map<String, Object> moveContentMeta;
 
 	public Map<String, Object> getLog() {
 		return log;
@@ -46,5 +49,13 @@ public class RequestSupport {
 
 	public void setDeleteContentMeta(Content deleteContentMeta) {
 		this.deleteContentMeta = deleteContentMeta;
+	}
+
+	public Map<String, Object> getMoveContentMeta() {
+		return moveContentMeta;
+	}
+
+	public void setMoveContentMeta(Map<String, Object> moveContentMeta) {
+		this.moveContentMeta = moveContentMeta;
 	}
 }
