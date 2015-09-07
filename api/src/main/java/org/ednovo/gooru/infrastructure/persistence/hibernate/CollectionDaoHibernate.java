@@ -296,7 +296,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	@Override
 	public Long getPublicCollectionCount(final String gooruOid, final String sharing) {
 		final String sql = "select count(1) as count  from collection_item  ci inner join collection r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"
-				+ sharing + "') and (r.collection_type = 'folder' or r.collection_type = 'collection') and ci.item_type != 'collaborator' ";
+				+ sharing + "') and (r.collection_type in ('folder', 'collection', 'assessment/url', 'assessment')) and ci.item_type != 'collaborator' ";
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter(GOORU_OID, gooruOid);
 		return (Long) query.list().get(0);
