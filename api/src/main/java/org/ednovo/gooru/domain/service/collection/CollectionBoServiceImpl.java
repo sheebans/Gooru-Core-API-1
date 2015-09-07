@@ -68,7 +68,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
@@ -78,7 +78,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String LAST_USER_MODIFIED = "lastUserModified";
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -372,13 +372,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		reject(!resource.getContentType().getName().equalsIgnoreCase(QUESTION), GL0056, 404, RESOURCE);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		if (collectionItemId != null) { 
-			CollectionItem addCollectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
-			if (addCollectionItem != null) { 
-				collectionItem.setNarration(addCollectionItem.getNarration());
-				collectionItem.setStart(addCollectionItem.getStart());
-				collectionItem.setStop(addCollectionItem.getStop());
-			}
+		if (collectionItemId != null) {
+			copyCollectionItem(collectionItemId, collectionItem);
 		}
 		collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, null, ADD);
@@ -389,7 +384,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public CollectionItem addQuestion(String collectionId, String questionId,String collectionItemId, User user) {
+	public CollectionItem addQuestion(String collectionId, String questionId, String collectionItemId, User user) {
 		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		AssessmentQuestion question = this.getQuestionService().getQuestion(questionId);
@@ -397,11 +392,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		AssessmentQuestion copyQuestion = this.getQuestionService().copyQuestion(question, user);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		if (collectionItemId != null) { 
-			CollectionItem addCollectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
-			if (addCollectionItem != null) { 
-				collectionItem.setNarration(addCollectionItem.getNarration());
-			}
+		if (collectionItemId != null) {
+			copyCollectionItem(collectionItemId, collectionItem);
 		}
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, question.getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
@@ -427,7 +419,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Object lastModifiedUserUid = collection.get(LAST_MODIFIED_USER_UID);
 			if (lastModifiedUserUid != null) {
 				Long collaborator = getCollaboratorRepository().getCollaboratorsCountById(collectionId);
-				if (collaborator != null && collaborator > 0) { 
+				if (collaborator != null && collaborator > 0) {
 					collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
 				}
 			}
@@ -544,7 +536,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getCollectionItemId(), user.getPartyUid(), COLLECTION);
-		getCollectionDao().remove(sourceCollectionItem);
+		if (sourceCollectionItem != null) {
+			getCollectionDao().remove(sourceCollectionItem);
+			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
+			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
+		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
 	}
@@ -734,6 +730,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
+	}
+
+	private void copyCollectionItem(String collectionItemId, CollectionItem collectionItem) {
+		CollectionItem addCollectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
+		if (addCollectionItem != null) {
+			collectionItem.setNarration(addCollectionItem.getNarration());
+			collectionItem.setStart(addCollectionItem.getStart());
+			collectionItem.setStop(addCollectionItem.getStop());
+		}
 	}
 
 	private Errors validateResource(final Resource resource) {
