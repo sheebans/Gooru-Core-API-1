@@ -536,7 +536,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getCollectionItemId(), user.getPartyUid(), COLLECTION);
-		getCollectionDao().remove(sourceCollectionItem);
+		if (sourceCollectionItem != null) {
+			getCollectionDao().remove(sourceCollectionItem);
+			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
+			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
+		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
 	}
