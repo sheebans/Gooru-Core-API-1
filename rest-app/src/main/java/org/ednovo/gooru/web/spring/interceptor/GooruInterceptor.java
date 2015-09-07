@@ -32,14 +32,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
-import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.application.util.PostHandler;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.domain.service.CollectionDeleteHandler;
-import org.ednovo.gooru.infrastructure.messenger.CollectionDeleteProcessor;
-import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.kafka.producer.KafkaHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,10 +73,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private ConfigProperties configProperties;
 
 	@Autowired
-	protected IndexProcessor indexProcessor;
-
-	@Autowired
-	protected CollectionDeleteProcessor collectionDeleteProcessor;
+	private PostHandler postHandler;
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -143,24 +137,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-
-		// Read re-index request from session context and sent re-index request
-		// via Java HTTP client to index server
-		try {
-			indexProcessor.index(SessionContextSupport.getIndexMeta());
-		} catch (Exception ex) {
-			LOGGER.error("Re-index API trigger failed " + ex);
-		}
-		
-		try {
-			Content content = SessionContextSupport.getDeleteContentMeta();
-			if (content != null) {
-				getCollectionDeleteProcessor().deleteContent(content.getGooruOid(), content.getContentType().getName());
-			}
-		} catch (Exception ex) {
-			LOGGER.error("Bulk content(CULCA) sub items deletion failed ", ex);
-		}
-
+		getPostHandler().initialize();
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
 		Long startTime = SessionContextSupport.getLog() != null ? (Long) SessionContextSupport.getLog().get("startTime") : 0;
@@ -206,8 +183,8 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		}
 	}
 
-	public CollectionDeleteProcessor getCollectionDeleteProcessor() {
-		return collectionDeleteProcessor;
+	public PostHandler getPostHandler() {
+		return postHandler;
 	}
 
 }

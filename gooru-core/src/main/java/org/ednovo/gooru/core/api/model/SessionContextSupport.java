@@ -41,7 +41,7 @@ public class SessionContextSupport {
 		try {
 			RequestSupport.getSessionContext().getLog().put(field, value);
 		} catch (Exception ex) {
-			LOGGER.error("Error in put log parameter : " + ex);
+			LOGGER.error("Error in put log parameter : ", ex);
 		}
 	}
 
@@ -49,7 +49,7 @@ public class SessionContextSupport {
 		try {
 			RequestSupport.getSessionContext().getSearchIndexMeta().add(searchIndexMeta);
 		} catch (Exception ex) {
-			LOGGER.error("Error in put index request : " + ex);
+			LOGGER.error("Error in put index request : ", ex);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class SessionContextSupport {
 		try {
 			return RequestSupport.getSessionContext().getSearchIndexMeta();
 		} catch (Exception ex) {
-			LOGGER.error("Error in get index meta data : " + ex);
+			LOGGER.error("Error in get index meta data : ", ex);
 			return null;
 		}
 	}
@@ -75,6 +75,22 @@ public class SessionContextSupport {
 			RequestSupport.getSessionContext().setDeleteContentMeta(content);
 		} catch (Exception ex) {
 			LOGGER.error("Error in put value inside delete content meta object : ", ex);
+		}
+	}
+
+	public static Map<String, Object> getMoveContentMeta() {
+		try {
+			return RequestSupport.getSessionContext().getMoveContentMeta();
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	public static void putMoveContentMeta(String field, Object value) {
+		try {
+			RequestSupport.getSessionContext().getMoveContentMeta().put(field, value);
+		} catch (Exception ex) {
+			LOGGER.error("Error in put move meta content parameter : ", ex);
 		}
 	}
 
