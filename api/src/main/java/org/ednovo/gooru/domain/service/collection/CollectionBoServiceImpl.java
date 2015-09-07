@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -32,6 +33,7 @@ import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,9 +77,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Autowired
 	private CollectionEventLog collectionEventLog;
 
+	@Autowired
+	private PartyRepository partyRepository;
+
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String LAST_USER_MODIFIED = "lastUserModified";
+
+	private final static String SHOWPROFILEPAGE = "showProfilePage";
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -160,7 +167,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			updateFolderSharing(folder.get(GOORU_OID));
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, String>> getParentCollection(final String collectionGooruOid, final String gooruUid, final boolean reverse) {
@@ -201,7 +208,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String parentId, String collectionId, Collection newCollection, User user) {
@@ -225,7 +232,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
-			if(parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)){
+			if (parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 		}
@@ -248,7 +255,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
-		
+
 		if (newCollection.getMediaFilename() != null && !newCollection.getMediaFilename().isEmpty()) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
@@ -261,7 +268,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
-		if(parentId != null) {
+		if (parentId != null) {
 			getCollectionEventLog().collectionUpdateEventLog(parentId, parentCollectionItem, collectionOldSharing, user);
 		}
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
@@ -399,7 +406,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, question.getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
-		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);		
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getIndexHandler().setReIndexRequest(copyQuestion.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
@@ -428,6 +435,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
+		final PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(String.valueOf(collection.get(GOORU_UID)), SHOW_PROFILE_PAGE);
+		if (partyCustomField != null) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> creator = (Map<String, Object>) collection.get(USER);
+			creator.put(SHOWPROFILEPAGE, partyCustomField.getOptionalValue());
+			collection.put(USER, creator);
+		}
 		return collection;
 	}
 
@@ -787,6 +801,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public CollectionEventLog getCollectionEventLog() {
 		return collectionEventLog;
+	}
+
+	public PartyRepository getPartyRepository() {
+		return partyRepository;
 	}
 
 }
