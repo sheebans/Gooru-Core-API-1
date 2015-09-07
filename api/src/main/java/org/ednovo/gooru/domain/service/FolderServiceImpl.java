@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -63,6 +64,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	@Autowired
 	private CollectionService collectionService;
 
+	@Autowired
+	private CollectionBoService collectionBoService;
+	
 	@Override
 	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, final Integer limit, final Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType) {
 		if (!BaseUtil.isUuid(gooruUid)) {
@@ -174,7 +178,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public List<Map<String, String>> getFolderNode(final String collectionId) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
-		return this.getCollectionService().getParentCollection(collectionId, null, true);
+		return getCollectionBoService().getParentCollection(collectionId, null, true);
 	}
 
 	@Override
@@ -230,4 +234,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
+	
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
+	}
+	
 }

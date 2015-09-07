@@ -121,10 +121,6 @@ public interface ScollectionService extends BaseService {
 
 	Map<String, Object> getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId);
 
-	void updateFolderSharing(String collection);
-
-	List<Map<String, String>> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
-
 	void deleteBulkCollections(List<String> gooruOids);
 
 	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
