@@ -212,4 +212,6 @@ public interface UserRepository extends BaseRepository {
 	boolean findEntityByEntityName(String entityName);
 	
 	void deleteUserClassificationByGrade(String partyId, String deleteGrades);
+	
+	Map<String, Object> getProfile(String userUid);
 }
