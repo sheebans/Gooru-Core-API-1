@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.Resource;
@@ -239,14 +240,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				firstLogin = true;
 			}
 			userToken.setFirstLogin(firstLogin);
-			userToken.getUser().setMeta(this.getUserManagementService().userMeta(user));
-			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
-
-			if (profile.getUserType() != null) {
-				userToken.setUserRole(profile.getUserType());
-			}
-			if (profile != null && profile.getDateOfBirth() != null) {
-				userToken.setDateOfBirth(profile.getDateOfBirth().toString());
+			Map<String, Object> profile = this.getUserRepository().getProfile(user.getPartyUid());
+			if (profile != null) {
+				Object dateOfBrith = profile.get(DATEOFBIRTH);
+				userToken.setDateOfBirth(dateOfBrith != null ? String.valueOf(dateOfBrith) : null);
 			}
 			identity.setLastLogin(new Date(System.currentTimeMillis()));
 			this.getUserRepository().save(identity);
@@ -256,7 +253,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (user != null && user.getOrganization() != null) {
 				organization = user.getOrganization();
 			}
-			getAccountUtil().storeAccountLoginDetailsInRedis(userToken, user);
 			redisService.addSessionEntry(userToken.getToken(), organization);
 
 			final User newUser = (User) BeanUtils.cloneBean(userToken.getUser());

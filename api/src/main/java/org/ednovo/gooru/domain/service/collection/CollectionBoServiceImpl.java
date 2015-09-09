@@ -437,11 +437,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
-		final PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(String.valueOf(collection.get(GOORU_UID)), SHOW_PROFILE_PAGE);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> creator = (Map<String, Object>) collection.get(USER);
+		creator.put(SHOWPROFILEPAGE, false);
+		final PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(String.valueOf(creator.get(GOORU_UID)), SHOW_PROFILE_PAGE);
 		if (partyCustomField != null) {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> creator = (Map<String, Object>) collection.get(USER);
-			creator.put(SHOWPROFILEPAGE, partyCustomField.getOptionalValue());
+			creator.put(SHOWPROFILEPAGE, Boolean.parseBoolean(partyCustomField.getOptionalValue()));
 			collection.put(USER, creator);
 		}
 		return collection;
