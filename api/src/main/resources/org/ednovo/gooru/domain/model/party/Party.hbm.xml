@@ -166,14 +166,6 @@
 				<key column="user_uid" />
 				<one-to-many class="org.ednovo.gooru.core.api.model.UserRoleAssoc" />
 			</set>
-			<set name="customFields" inverse="true" table="party_custom_field">
-				<key>
-					<column name="party_uid" not-null="true" />
-				</key>
-				<one-to-many class="org.ednovo.gooru.core.api.model.PartyCustomField" />
-				<filter name="customFieldFilter" condition="optional_key in (:customFieldFilterParam)" />
-			</set>
-
 			<many-to-one name="userGroup"
 				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
 				not-null="false" lazy="proxy" cascade="none" />
