@@ -168,7 +168,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		}
 		if (!hasPermission && content != null && content.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
 			hasPermission = true;
-		} else if (comment.getCommentorUid().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
+		} else if (comment.getCommentorUid().getPartyUid().equalsIgnoreCase(content.getUser().getPartyUid())) { 
 			hasPermission = true;
 		}
 		
