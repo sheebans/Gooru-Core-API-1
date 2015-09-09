@@ -157,8 +157,8 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	public void deleteComment(String commentUid, User user, Boolean softdelete) {
 		Comment comment = this.getCommentRepository().getComment(commentUid);
 		rejectIfNull(comment, GL0057, 404, COMMENT);
-		Content content = this.getResourceRepository().findResourceByContent(comment.getGooruOid());
-		List<String> contentPermissions = contentService.getContentPermission(content, user);
+		Content content = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(),null);
+		List<String> contentPermissions = contentService.getContentPermission(content.getGooruOid(), user);
 		boolean hasPermission = false;
 		for (String contentPermission : contentPermissions) {
 			if (contentPermission.equalsIgnoreCase(EDIT)) {
@@ -168,7 +168,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		}
 		if (!hasPermission && content != null && content.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
 			hasPermission = true;
-		} else if (comment.getCommentorUid().getPartyUid().equalsIgnoreCase(content.getUser().getPartyUid())) { 
+		} else if (comment.getCommentorUid().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
 			hasPermission = true;
 		}
 		
