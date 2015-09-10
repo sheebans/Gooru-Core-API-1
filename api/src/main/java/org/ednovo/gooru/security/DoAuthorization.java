@@ -93,10 +93,11 @@ public class DoAuthorization {
 		AuthenticationDo authentication = null;
 		UserToken userToken = null;
 		String key = null;
-		
+		String loginToken = null;
 		final String skipCache = request.getParameter("skipCache");
 
 		if (oAuthToken != null) {
+			loginToken = oAuthToken;
 			authentication = getAuthenticationDoFromCache(oAuthToken);
 			if (authentication == null || authentication.getUserToken() == null) {
 				try {
@@ -116,6 +117,7 @@ public class DoAuthorization {
 			}
 			request.setAttribute(Constants.OAUTH_ACCESS_TOKEN, oAuthToken);
 		} else if (sessionToken != null) {
+			loginToken = sessionToken;
 			authentication = getAuthenticationDoFromCache(sessionToken);
 			if (authentication == null || authentication.getUserToken() == null) {
 				userToken = userTokenRepository.findByToken(sessionToken);
@@ -140,6 +142,7 @@ public class DoAuthorization {
 				redisService.addSessionEntry(sessionToken, organization);
 			}
 		} else if (apiKeyToken != null) {
+			loginToken = apiKeyToken;
 			authentication = getAuthenticationDoFromCache(apiKeyToken);
 			if (authentication == null) {
 				final Application application = this.getApplicationRepository().getApplication(apiKeyToken);
@@ -164,7 +167,7 @@ public class DoAuthorization {
 		}
 		// check token expires
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
-			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
+			doAuthentication(request, response, authentication.getUserToken().getUser(), loginToken, skipCache, authentication, key);
 		}
 
 		// set to request so that controllers can read it.
