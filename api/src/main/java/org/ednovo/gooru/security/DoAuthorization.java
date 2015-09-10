@@ -196,14 +196,14 @@ public class DoAuthorization {
 		if (user != null) {
 			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(authentication.getUserToken(), user);
+				//authentication = getAccountUtil().storeAccountLoginDetailsInRedis(authentication.getUserToken(), user);
 			}
 			userCredential = authentication.getUserCredential();
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
 			}
-			auth = new GooruAuthenticationToken(user.getPartyUid(), null, userCredential);
-			SecurityContextHolder.getContext().setAuthentication(auth);
+			//auth = new GooruAuthenticationToken(user.getPartyUid(), null, userCredential);
+			//SecurityContextHolder.getContext().setAuthentication(auth);
 
 		}
 		return auth;

@@ -74,7 +74,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		System.out.print("time cousming start  c :" + System.currentTimeMillis());
+		System.out.println("time cousming start  c :" + System.currentTimeMillis());
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
 		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json), false, request);
@@ -91,7 +91,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			return null;
 		} else {
 			String responsedata = serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
-			System.out.print("time cousming end c :" + System.currentTimeMillis());
+			System.out.println("time cousming end c :" + System.currentTimeMillis());
 			return toModelAndView(responsedata);
 		}
 
