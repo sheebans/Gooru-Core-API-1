@@ -40,7 +40,6 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -276,6 +275,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
+			this.getAccountUtil().storeAccountLoginDetailsInRedis(userToken, newUser);
 		}
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
