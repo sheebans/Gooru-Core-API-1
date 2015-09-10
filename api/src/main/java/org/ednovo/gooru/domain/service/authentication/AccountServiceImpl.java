@@ -169,6 +169,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
+		System.out.print("time cousming start  s :" + System.currentTimeMillis());
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);		
 		if (!errors.hasErrors()) {
@@ -277,6 +278,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
 			this.getAccountUtil().storeAccountLoginDetailsInRedis(userToken, newUser);
 		}
+		System.out.print("time cousming end  s :" + System.currentTimeMillis());
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
 
