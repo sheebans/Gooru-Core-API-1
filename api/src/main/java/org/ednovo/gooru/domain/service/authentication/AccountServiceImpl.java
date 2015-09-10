@@ -276,7 +276,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
-			this.getAccountUtil().storeAccountLoginDetailsInRedis(userToken, newUser);
+			this.getAccountUtil().storeAccountLoginDetailsInRedis(userToken.getToken(), userToken, newUser);
 		}
 		System.out.println("time cousming end  s :" + System.currentTimeMillis());
 		return new ActionResponseDTO<UserToken>(userToken, errors);

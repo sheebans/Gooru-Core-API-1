@@ -184,7 +184,7 @@ public class DoAuthorization {
 		if (user != null) {
 			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(authentication.getUserToken(), user);
+				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(sessionToken, authentication.getUserToken(), user);
 			}
 			userCredential = authentication.getUserCredential();
 			if (LOGGER.isDebugEnabled()) {
