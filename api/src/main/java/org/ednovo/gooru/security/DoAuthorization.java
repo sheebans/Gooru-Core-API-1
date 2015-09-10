@@ -44,7 +44,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import flexjson.JSONSerializer;
 
 @Component
 public class DoAuthorization {
@@ -80,7 +77,7 @@ public class DoAuthorization {
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-	private static final String SESSION_TOKEN_KEY = "authenticate_";
+	private static final String SESSION_TOKEN_KEY = "authenticate1_";
 
 	@Autowired
 	private AccountUtil accountUtil;
