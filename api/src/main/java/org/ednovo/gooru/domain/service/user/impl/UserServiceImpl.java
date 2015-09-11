@@ -1328,7 +1328,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	private UserCredential getUserCredential(User user, final String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();

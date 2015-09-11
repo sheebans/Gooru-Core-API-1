@@ -72,7 +72,6 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 
 	@Override
-	@Cacheable("persistent")
 	public UserToken findByToken(String sessionToken) {
 		@SuppressWarnings("rawtypes")
 		List tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
