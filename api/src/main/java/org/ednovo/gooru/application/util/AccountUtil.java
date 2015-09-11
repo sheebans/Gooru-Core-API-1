@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import flexjson.JSONSerializer;
 
@@ -40,7 +42,7 @@ public class AccountUtil {
 				getRedisService().put(SESSION_TOKEN_KEY + key, new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(INCLUDE_USER_DETAILS).exclude(EXCLUDE_USER_DETAILS).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Failed to  put  value in redis server", e);
+			LOGGER.error("Failed to  put  value in redis server");
 		}
 		return authentication;
 	}
