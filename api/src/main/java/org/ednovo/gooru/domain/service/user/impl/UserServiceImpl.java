@@ -78,7 +78,6 @@ import org.ednovo.gooru.core.application.util.GooruMd5Util;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
@@ -1329,7 +1328,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	private UserCredential getUserCredential(User user, final String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
