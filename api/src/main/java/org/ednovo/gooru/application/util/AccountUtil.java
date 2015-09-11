@@ -23,7 +23,7 @@ public class AccountUtil {
 	@Autowired
 	private RedisService redisService;
 
-	private static final String SESSION_TOKEN_KEY = "authenticate1_";
+	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	private static final String[] INCLUDE_USER_DETAILS = { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.identities", "*.partyPermissions.*" };
 

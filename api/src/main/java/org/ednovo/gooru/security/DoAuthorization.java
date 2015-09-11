@@ -77,7 +77,7 @@ public class DoAuthorization {
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-	private static final String SESSION_TOKEN_KEY = "authenticate1_";
+	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	@Autowired
 	private AccountUtil accountUtil;
