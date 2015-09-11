@@ -131,9 +131,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Autowired
 	private IndexHandler indexHandler;
 
-	@Autowired
-	private AccountProcessor accountProcessor;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	private final String SESSION_TOKEN = "sessionToken";
@@ -276,7 +273,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
-			this.getAccountProcessor().storeAccountLoginDetailsInRedis(userToken.getToken(), userToken, newUser);
 		}
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
@@ -518,9 +514,4 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public static Logger getLogger() {
 		return LOGGER;
 	}
-
-	public AccountProcessor getAccountProcessor() {
-		return accountProcessor;
-	}
-
 }
