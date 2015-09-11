@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.AccountUtil;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -60,6 +59,7 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.userToken.UserTokenService;
+import org.ednovo.gooru.infrastructure.messenger.AccountProcessor;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
@@ -132,7 +132,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private IndexHandler indexHandler;
 	
 	@Autowired
-	private AccountUtil accountUtil;
+	private AccountProcessor accountProcessor;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
@@ -276,7 +276,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
-			this.getAccountUtil().storeAccountLoginDetailsInRedis(userToken.getToken(), userToken, newUser);
+			this.getAccountProcessor().storeAccountLoginDetailsInRedis(userToken.getToken(), userToken, newUser);
 		}
 		System.out.println("time cousming end  s :" + System.currentTimeMillis());
 		return new ActionResponseDTO<UserToken>(userToken, errors);
@@ -518,8 +518,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public static Logger getLogger() {
 		return LOGGER;
 	}
-	
-	public AccountUtil getAccountUtil() {
-		return accountUtil;
+
+	public AccountProcessor getAccountProcessor() {
+		return accountProcessor;
 	}
+	
 }

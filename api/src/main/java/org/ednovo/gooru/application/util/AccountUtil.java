@@ -27,7 +27,7 @@ public class AccountUtil {
 
 	private static final String[] INCLUDE_USER_DETAILS = { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.identities", "*.partyPermissions.*" };
 
-	private static final String[] EXCLUDE_USER_DETAILS = { "*.class", "*.school", "*.customFields", "*.contentType", "*.schoolDistrict", "*.status", "*.meta", "*.resourceInfo" };
+	private static final String[] EXCLUDE_USER_DETAILS = { "*.class", "*.idp", "*.school", "*.customFields", "*.contentType", "*.schoolDistrict", "*.status", "*.meta", "*.resourceInfo" };
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountUtil.class);
 

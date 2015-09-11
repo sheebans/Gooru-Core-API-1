@@ -78,7 +78,6 @@ import org.ednovo.gooru.core.application.util.GooruMd5Util;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
