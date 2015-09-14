@@ -168,7 +168,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath);
 		Map<String,String> jsonres = new HashMap<String,String>();
 		jsonres.put("madiaFileName", fileName);
-		jsonres.put("url", destPath);
+		jsonres.put("url", UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName);
 		return toModelAndView(jsonres , FORMAT_JSON);
 	}
 	
