@@ -156,10 +156,10 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@RequestMapping(value="/crop", method=RequestMethod.PUT)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView cropimage(@RequestParam (value=IMAGE_URL) String full_Url, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
-		String filePath = StringUtils.substringAfterLast(full_Url,UserGroupSupport.getUserOrganizationNfsInternalPath());
-		final String mediaFolderPath = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
-		String fileExtension = StringUtils.substringAfterLast(full_Url, ".");
+	public ModelAndView cropimage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
+		String filePath = StringUtils.substringAfterLast(imageUrl, UserGroupSupport.getUserOrganizationCdnDirectPath());
+		final String mediaFolderPath = UserGroupSupport.getUserOrganizationCdnDirectPath() + Constants.UPLOADED_MEDIA_FOLDER;
+		String fileExtension = StringUtils.substringAfterLast(imageUrl, ".");
 		if (fileExtension.isEmpty()) {
 			fileExtension = PNG;
 		}
