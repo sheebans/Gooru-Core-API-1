@@ -38,6 +38,7 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.MediaDTO;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
@@ -156,19 +157,17 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@RequestMapping(value="/crop", method=RequestMethod.PUT)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView cropimage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
+	public ModelAndView cropImage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
 		String filePath = StringUtils.substringAfterLast(imageUrl, UserGroupSupport.getUserOrganizationCdnDirectPath());
 		final String mediaFolderPath = UserGroupSupport.getUserOrganizationCdnDirectPath() + Constants.UPLOADED_MEDIA_FOLDER;
-		String fileExtension = StringUtils.substringAfterLast(imageUrl, ".");
-		if (fileExtension.isEmpty()) {
-			fileExtension = PNG;
-		}
-		String fileName = UUID.randomUUID().toString() + "." + fileExtension;
+		String fileExtension = StringUtils.substringAfterLast(imageUrl, DOT);
+		ServerValidationUtils.reject(!fileExtension.isEmpty(), GL0006, 400, FILE_EXTENSION);
+		String fileName = UUID.randomUUID().toString() + DOT + fileExtension;
 		String destPath = mediaFolderPath + '/' + fileName;
 		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath);
 		Map<String,String> jsonres = new HashMap<String,String>();
-		jsonres.put("madiaFileName", fileName);
-		jsonres.put("url", UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName);
+		jsonres.put(MEDIA_FILE_NAME, fileName);
+		jsonres.put(URL, UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName);
 		return toModelAndView(jsonres , FORMAT_JSON);
 	}
 	

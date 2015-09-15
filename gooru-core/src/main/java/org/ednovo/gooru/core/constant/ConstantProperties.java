@@ -967,4 +967,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String INCLUDE_CONTENT[] = { "*.gooruOid", "*.title" };
 
 	final static String LAST_MODIFIED_USER_UID = "lastModifiedUserUid";
+	
+	final static String FILE_EXTENSION = "fileExtension";
+	
 }
