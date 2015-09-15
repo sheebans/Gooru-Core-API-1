@@ -158,15 +158,24 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView cropImage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
 		String filePath = StringUtils.substringAfterLast(imageUrl, UserGroupSupport.getUserOrganizationCdnDirectPath());
-		final String mediaFolderPath = UserGroupSupport.getUserOrganizationCdnDirectPath() + Constants.UPLOADED_MEDIA_FOLDER;
+		
+		StringBuffer destPath = new StringBuffer(UserGroupSupport.getUserOrganizationNfsInternalPath());
+		StringBuffer fileName = new StringBuffer('/');
+		StringBuffer mediaPath = new StringBuffer(Constants.UPLOADED_MEDIA_FOLDER);
+		StringBuffer url = new StringBuffer(UserGroupSupport.getUserOrganizationNfsRealPath());
+		mediaPath.append('/');
 		String fileExtension = StringUtils.substringAfterLast(imageUrl, DOT);
 		ServerValidationUtils.reject(!fileExtension.isEmpty(), GL0006, 400, FILE_EXTENSION);
-		String fileName = UUID.randomUUID().toString() + DOT + fileExtension;
-		String destPath = mediaFolderPath + '/' + fileName;
-		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath);
+		
+		fileName.append(UUID.randomUUID().toString());
+		fileName.append(DOT);
+		fileName.append(fileExtension);
+		mediaPath.append(fileName);
+		destPath.append(mediaPath);
+		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath.toString());
 		Map<String,String> jsonres = new HashMap<String,String>();
-		jsonres.put(MEDIA_FILE_NAME, fileName);
-		jsonres.put(URL, UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName);
+		jsonres.put(MEDIA_FILE_NAME, fileName.toString());
+		jsonres.put(URL, url.append(mediaPath).toString());
 		return toModelAndView(jsonres , FORMAT_JSON);
 	}
 	
