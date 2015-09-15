@@ -31,7 +31,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.controllers.BaseController;
