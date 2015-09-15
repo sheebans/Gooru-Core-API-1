@@ -99,4 +99,12 @@ public interface ContentIndexDao {
 	
 	List<Object[]> getResourceIdsByUserId(String gooruUId);
 
+	List<Object[]> getSecondParentMappedTaxonomy(Long contentId);
+	
+	List<Object[]> getFirstParentMappedTaxonomy(Long contentId);
+	
+	List<Object[]> getLeafLevelMappedTaxonomy(Long contentId);
+	
+	List<Object[]> getSubdomainMappedTaxonomy(Long contentId);
+
 }

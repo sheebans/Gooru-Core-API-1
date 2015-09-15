@@ -110,6 +110,14 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	private static final String TYPE_COLLECTION = "collection";
 	
 	private static final String TYPE_RESOURCE = "resource";
+
+	private static final String GET_TYPE_ONE_FIRST_PARENT_TAXONOMY = "SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = c.parent_id INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId";
+	
+	private static final String GET_TYPE_ONE_SECOND_PARENT_TAXONOMY = "SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = (SELECT parent_id FROM code WHERE code_id = (SELECT parent_id FROM code WHERE code_id = ccl.code_id)) INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId";
+	
+	private static final String GET_LEAF_LEVEL_MAPPED_TAXONOMY = "SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = c.code_id INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId";
+	
+	private static final String GET_SUBDOMAIN_MAPPED_TAXONOMY = "SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades FROM content_subdomain_assoc csa INNER JOIN subdomain sd ON sd.subdomain_id = csa.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId"; 
 	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
@@ -164,7 +172,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	}
 
 	private Query createSQLQuery(String query) {
-		return getSessionFactory().getCurrentSession().createSQLQuery(query);
+		return getSessionFactoryReadOnly().getCurrentSession().createSQLQuery(query);
 	}
 
 	@Override
@@ -332,5 +340,29 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	@Override
 	public List<Object[]> getResourceIdsByUserId(String gooruUId) {
 		return getIds(gooruUId, TYPE_RESOURCE);
+	}
+
+	@Override
+	public List<Object[]> getSecondParentMappedTaxonomy(Long contentId) {
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_TYPE_ONE_SECOND_PARENT_TAXONOMY).setLong(CONTENT_ID, contentId));
+		return list.size() > 0 ? list : null;
+	}
+	
+	@Override
+	public List<Object[]> getFirstParentMappedTaxonomy(Long contentId) {
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_TYPE_ONE_FIRST_PARENT_TAXONOMY).setLong(CONTENT_ID, contentId));
+		return list.size() > 0 ? list : null;
+	}
+	
+	@Override
+	public List<Object[]> getLeafLevelMappedTaxonomy(Long contentId) {
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_LEAF_LEVEL_MAPPED_TAXONOMY).setLong(CONTENT_ID, contentId));
+		return list.size() > 0 ? list : null;
+	}
+	
+	@Override
+	public List<Object[]> getSubdomainMappedTaxonomy(Long contentId) {
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_SUBDOMAIN_MAPPED_TAXONOMY).setLong(CONTENT_ID, contentId));
+		return list.size() > 0 ? list : null;
 	}
 }
