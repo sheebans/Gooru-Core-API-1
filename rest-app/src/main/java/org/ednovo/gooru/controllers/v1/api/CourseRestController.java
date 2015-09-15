@@ -13,7 +13,9 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.component.CollectionCopyProcessor;
 import org.ednovo.gooru.domain.service.ClassService;
+import org.ednovo.gooru.domain.service.collection.CourseCopyService;
 import org.ednovo.gooru.domain.service.collection.CourseService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@Autowired
 	private ClassService classService;
+
+	@Autowired
+	private CollectionCopyProcessor collectionCopyProcessor;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -81,7 +86,13 @@ public class CourseRestController extends BaseController implements ConstantProp
 	public void deleteCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCourseService().deleteCourse(courseId, user);
-		
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
+	public void copyCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		getCollectionCopyProcessor().copyCourse(courseId, user);
 	}
 
 	private Collection buildCourse(final String data) {
@@ -95,5 +106,10 @@ public class CourseRestController extends BaseController implements ConstantProp
 	public ClassService getClassService() {
 		return classService;
 	}
+
+	public CollectionCopyProcessor getCollectionCopyProcessor() {
+		return collectionCopyProcessor;
+	}
+
 
 }

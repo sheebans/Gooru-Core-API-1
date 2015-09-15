@@ -1,4 +1,4 @@
-package org.ednovo.gooru.infrastructure.messenger;
+package org.ednovo.gooru.domain.component;
 
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.SessionFactory;

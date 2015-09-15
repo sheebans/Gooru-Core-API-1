@@ -23,7 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.job;
 
-import org.ednovo.gooru.core.api.model.Country;
+import java.util.UUID;
+
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.JobType;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -54,6 +55,7 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 	@Override
 	public Job createJob(Resource resource) {
 		Job job = new Job();
+		job.setJobUid(UUID.randomUUID().toString());
 		job.setGooruOid(resource.getGooruOid());
 		job.setUser(resource.getUser());
 		job.setStatus(Job.Status.INPROGRESS.getStatus());

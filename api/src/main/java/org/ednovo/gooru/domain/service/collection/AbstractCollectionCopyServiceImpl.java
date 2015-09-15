@@ -1,6 +1,7 @@
 package org.ednovo.gooru.domain.service.collection;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -9,24 +10,20 @@ import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
-import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl implements CopyCollectionService, ParameterProperties, ConstantProperties {
+public abstract class AbstractCollectionCopyServiceImpl extends AbstractResourceServiceImpl implements AbstractCollectionCopyService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private CollectionDao collectionDao;
@@ -36,45 +33,11 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 
 	@Autowired
 	private QuestionService questionService;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Collection copyCollection(String courseId, String unitId, String lessonId, String collectionId, User user, Collection newCollection) {
-		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
-		rejectIfNull(sourceCollection, GL0056, 404, _COLLECTION);
-		final Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson, GL0056, 404, LESSON);
-		Collection destCollection = copyCollection(sourceCollection, lesson, user, newCollection);
-		updateContentMetaDataSummary(lesson.getContentId(), destCollection.getCollectionType(), LESSON);
-		return destCollection;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Collection copyCollection(String folderId, String collectionId, User user, Collection newCollection) {
-		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
-		rejectIfNull(sourceCollection, GL0056, 404, _COLLECTION);
-		Collection targetCollection = null;
-		if (folderId != null) {
-			targetCollection = this.getCollectionDao().getCollectionByType(folderId, FOLDER_TYPE);
-			rejectIfNull(targetCollection, GL0056, 404, FOLDER);
-		} else {
-			targetCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-			if (targetCollection == null) {
-				targetCollection = new Collection();
-				targetCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
-				targetCollection.setTitle(CollectionType.SHElf.getCollectionType());
-				super.createCollection(targetCollection, user);
-			}
-		}
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + targetCollection.getUser().getPartyUid() + "*");
-		return copyCollection(sourceCollection, targetCollection, user, newCollection);
-	}
-
-	private void copyCollectionItems(Collection lesson, Collection sourceCollection, Collection destCollection, User user) {
+	protected void copyCollectionItems(Collection lesson, Collection sourceCollection, Collection destCollection, User user) {
 		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(sourceCollection.getGooruOid());
 		for (CollectionItem sourceCollectionItem : collectionItems) {
 			final CollectionItem destCollectionItem = new CollectionItem();
@@ -98,7 +61,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 
 	}
 
-	private void copyContentClassification(Long sourceContentId, Collection desCollection) {
+	protected void copyContentClassification(Long sourceContentId, Collection desCollection) {
 		List<ContentClassification> contentClassifications = this.getContentClassificationRepository().getContentClassification(sourceContentId);
 		for (ContentClassification contentClassification : contentClassifications) {
 			ContentClassification newContentClassification = new ContentClassification();
@@ -109,7 +72,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		}
 	}
 
-	private void copyContentMetaAssoc(Long sourceContentId, Collection destCollection) {
+	protected void copyContentMetaAssoc(Long sourceContentId, Collection destCollection) {
 		List<ContentMetaAssociation> contentMetaAssocs = this.getContentRepository().getContentMetaAssoc(sourceContentId);
 		for (ContentMetaAssociation contentMetaAssoc : contentMetaAssocs) {
 			ContentMetaAssociation newContentMetaAssoc = new ContentMetaAssociation();
@@ -121,7 +84,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		}
 	}
 
-	private void copyCollectionRepoStorage(Collection sourceCollection, Collection destCollection) {
+	protected void copyCollectionRepoStorage(Collection sourceCollection, Collection destCollection) {
 		StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
 		sourceFilepath.append(sourceCollection.getImagePath()).append(File.separator);
 		StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
@@ -129,7 +92,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
 	}
 
-	private Collection copyCollection(Collection sourceCollection, Collection targetCollection, User user, Collection newCollection) {
+	protected Collection collectionCopy(Collection sourceCollection, Collection targetCollection, User user, Collection newCollection) {
 		Collection destCollection = new Collection();
 		if (newCollection.getTitle() != null) {
 			destCollection.setTitle(newCollection.getTitle());
@@ -159,6 +122,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		this.getCollectionDao().save(destCollection);
 		// copy resource and question items to collection
 		copyCollectionItems(targetCollection, sourceCollection, destCollection, user);
+		copyContentTaxonomyCourse(sourceCollection.getContentId(), destCollection);
 		copyContentMetaAssoc(sourceCollection.getContentId(), destCollection);
 		copyContentClassification(sourceCollection.getContentId(), destCollection);
 		copyCollectionRepoStorage(sourceCollection, destCollection);
@@ -174,8 +138,21 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		CollectionItem newCollectionItem = new CollectionItem();
 		newCollectionItem.setItemType(ADDED);
 		createCollectionItem(newCollectionItem, targetCollection, destCollection, user);
-		indexHandler.setReIndexRequest(newCollectionItem.getContent().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		return destCollection;
+	}
+
+	protected void copyContentTaxonomyCourse(Long sourceContentId, Collection desCollection) {
+		List<ContentTaxonomyCourseAssoc> taxonomyCourses = this.getTaxonomyCourseRepository().getContentTaxonomyCourseAssoc(desCollection.getContentId());
+		if (taxonomyCourses != null && taxonomyCourses.size() > 0) {
+			List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
+			for (ContentTaxonomyCourseAssoc taxonomyCourse : taxonomyCourses) {
+				ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
+				contentTaxonomyCourseAssoc.setContent(desCollection);
+				contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse.getTaxonomyCourse());
+				contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
+			}
+			this.getTaxonomyCourseRepository().saveAll(contentTaxonomyCourseAssocs);
+		}
 	}
 
 	public CollectionDao getCollectionDao() {
@@ -190,4 +167,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		return questionService;
 	}
 
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
+	}
 }
