@@ -165,15 +165,15 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		String fileExtension = StringUtils.substringAfterLast(imageUrl, DOT);
 		ServerValidationUtils.reject(!fileExtension.isEmpty(), GL0006, 400, FILE_EXTENSION);
 		fileName.append(DOT).append(fileExtension);
-		mediaPath.append('/').append(fileName);
+		mediaPath.append(COOKIE_PATH).append(fileName);
 		destPath.append(mediaPath);
 		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath.toString());
-		Map<String,String> json = new HashMap<String,String>();
-		json.put(MEDIA_FILE_NAME, fileName.toString());
-		json.put(URL, url.append(mediaPath).toString());
-		return toModelAndView(json , FORMAT_JSON);
+		Map<String,String> jsonResponse = new HashMap<String,String>();
+		jsonResponse.put(MEDIA_FILE_NAME, fileName.toString());
+		jsonResponse.put(URL, url.append(mediaPath).toString());
+		return toModelAndView(jsonResponse, FORMAT_JSON);
 	}
-	
+		
 
 	public MediaService getMediaService() {
 		return mediaService;
