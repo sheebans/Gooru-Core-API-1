@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.AccountUtil;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -40,7 +39,6 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -61,6 +59,7 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.userToken.UserTokenService;
+import org.ednovo.gooru.infrastructure.messenger.AccountProcessor;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
@@ -131,9 +130,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private IndexHandler indexHandler;
-	
-	@Autowired
-	private AccountUtil accountUtil;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
@@ -171,17 +167,17 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
 		final UserToken userToken = new UserToken();
-		final Errors errors = new BindException(userToken, SESSIONTOKEN);		
+		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		if (!errors.hasErrors()) {
 			rejectIfNull(username, GL0061, 400, USER_NAME);
 			rejectIfNull(password, GL0061, 400, PASSWORD);
 			String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
 			String sessionToken = null;
 			Application application = null;
-			
-			if(apiKey != null){
-				application  = this.getApplicationRepository().getApplication(apiKey);
-			}else {
+
+			if (apiKey != null) {
+				application = this.getApplicationRepository().getApplication(apiKey);
+			} else {
 				sessionToken = (request.getHeader(Constants.GOORU_SESSION_TOKEN) != null ? request.getHeader(Constants.GOORU_SESSION_TOKEN) : request.getParameter(SESSION_TOKEN));
 				rejectIfNull(sessionToken, GL0007, SESSIONTOKEN);
 				User user = this.userService.findByToken(sessionToken);
@@ -189,8 +185,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 			}
 			rejectIfNull(application, GL0056, API_KEY);
-			
-			// APIKEY domain white listing verification based on request referrer and host headers.
+
+			// APIKEY domain white listing verification based on request
+			// referrer and host headers.
 			verifyApikeyDomains(request, application);
 			Identity identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 			if (identity == null) {
@@ -201,7 +198,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity.getActive() == 0) {
 				throw new UnauthorizedException(generateErrorMessage(GL0079), GL0079);
 			}
-			
+
 			final User user = identity.getUser();
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) {
@@ -228,7 +225,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 
 			}
-			
+
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
 			userToken.setScope(SESSION);
@@ -294,39 +291,40 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
 	}
-	
+
 	public void verifyApikeyDomains(HttpServletRequest request, Application application) {
-		
+
 		boolean isValidReferrer = false;
-		
+
 		String requestDomain = null;
 		String registeredRefererDomains = null;
-		
-		if (request.getHeader(HOST) != null){
+
+		if (request.getHeader(HOST) != null) {
 			requestDomain = request.getHeader(HOST);
-		}else if (request.getHeader(REFERER) != null){
+		} else if (request.getHeader(REFERER) != null) {
 			requestDomain = request.getHeader(REFERER);
 		}
 
-		if (requestDomain != null){			
+		if (requestDomain != null) {
 
 			registeredRefererDomains = application.getRefererDomains();
-			
-			if(registeredRefererDomains != null ){				
-				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
+
+			if (registeredRefererDomains != null) {
+				String whiteListedDomains[] = registeredRefererDomains.split(COMMA);
 				for (String whitelistedDomain : whiteListedDomains) {
-					if(requestDomain.endsWith(whitelistedDomain)){
+					if (requestDomain.endsWith(whitelistedDomain)) {
 						isValidReferrer = true;
-						break;						
+						break;
 					}
 				}
-			}else { // If there are no valid domains set for valid APIKEY it should work
+			} else { // If there are no valid domains set for valid APIKEY it
+						// should work
 				isValidReferrer = true;
 			}
-			
+
 		}
-		
-		if (registeredRefererDomains != null && !isValidReferrer){
+
+		if (registeredRefererDomains != null && !isValidReferrer) {
 			throw new AccessDeniedException(generateErrorMessage(GL0109));
 		}
 	}
@@ -515,9 +513,5 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	public static Logger getLogger() {
 		return LOGGER;
-	}
-	
-	public AccountUtil getAccountUtil() {
-		return accountUtil;
 	}
 }

@@ -5,6 +5,9 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
+import org.ednovo.gooru.application.util.AccountUtil;
+import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.CollectionDeleteHandler;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -17,8 +20,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
-public class CollectionDeleteProcessor extends AbstractProcessor {
-
+public class AccountProcessor extends AbstractProcessor {
 	@Autowired
 	private HibernateTransactionManager transactionManager;
 
@@ -27,16 +29,19 @@ public class CollectionDeleteProcessor extends AbstractProcessor {
 	@Autowired
 	private CollectionDeleteHandler collectionDeleteHandler;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionDeleteProcessor.class);
+	@Autowired
+	private AccountUtil accountUtil;
 
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountProcessor.class);
+
 	@PostConstruct
 	public void init() {
-		transactionTemplate = new TransactionTemplate(transactionManager);
+		setTransactionTemplate(new TransactionTemplate(transactionManager));
 	}
 
-	public void deleteContent(final String gooruOid, final String collectionType) {
+	public void storeAccountLoginDetailsInRedis(final String key, final UserToken userToken, final User user) {
 		getExecutorservice().execute(new Runnable() {
 			public void run() {
 				getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
@@ -47,10 +52,9 @@ public class CollectionDeleteProcessor extends AbstractProcessor {
 						try {
 							transactionStatus = initTransaction(VALIDATE_RESOURCE, false);
 							session = getSessionFactory().openSession();
-							getCollectionDeleteHandler().deleteContent(gooruOid, collectionType);
-							getTransactionManager().commit(transactionStatus);
+							getAccountUtil().storeAccountLoginDetailsInRedis(key, userToken, user);
 						} catch (Exception ex) {
-							LOGGER.error("Failed  to delete content : " + gooruOid, ex);
+							LOGGER.error("Failed  to store account details in redis cache: ", ex);
 							getTransactionManager().rollback(transactionStatus);
 						} finally {
 							if (session != null) {
@@ -63,15 +67,19 @@ public class CollectionDeleteProcessor extends AbstractProcessor {
 		});
 	}
 
-	public CollectionDeleteHandler getCollectionDeleteHandler() {
-		return collectionDeleteHandler;
-	}
-
 	public static ExecutorService getExecutorservice() {
 		return executorService;
 	}
 
 	public TransactionTemplate getTransactionTemplate() {
 		return transactionTemplate;
+	}
+
+	public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
+		this.transactionTemplate = transactionTemplate;
+	}
+
+	public AccountUtil getAccountUtil() {
+		return accountUtil;
 	}
 }

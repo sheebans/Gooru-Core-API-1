@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.application.util.AccountUtil;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -46,6 +47,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
+import org.ednovo.gooru.infrastructure.messenger.AccountProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -72,12 +74,15 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Resource(name = "serverConstants")
 	private Properties serverConstants;
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
+	@Autowired
+	private AccountProcessor accountProcessor;
+
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
 		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json), false, request);
+		this.getAccountProcessor().storeAccountLoginDetailsInRedis(responseDTO.getModel().getToken(), responseDTO.getModel(), responseDTO.getModel().getUser());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -90,7 +95,8 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			response.sendRedirect(getValue(RETURN_URL, json));
 			return null;
 		} else {
-			return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes));
+			String responsedata = serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
+			return toModelAndView(responsedata);
 		}
 
 	}
@@ -142,9 +148,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		final JSONObject json = requestData(data);
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
 		final User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json),
-				getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(),
-						getValue(USER_PROFILE_CATEGORY, json) != null ? getValue(USER_PROFILE_CATEGORY, json) : UserRole.UserRoleType.OTHER.getType(),
-						request);
+				getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(), getValue(USER_PROFILE_CATEGORY, json) != null ? getValue(USER_PROFILE_CATEGORY, json) : UserRole.UserRoleType.OTHER.getType(), request);
 		if (user.getIdentities() != null) {
 			final Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {
@@ -171,6 +175,10 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 
 	public Properties getServerConstants() {
 		return serverConstants;
+	}
+
+	public AccountProcessor getAccountProcessor() {
+		return accountProcessor;
 	}
 
 }
