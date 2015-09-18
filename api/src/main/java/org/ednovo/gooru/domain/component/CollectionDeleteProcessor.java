@@ -1,11 +1,10 @@
-package org.ednovo.gooru.infrastructure.messenger;
+package org.ednovo.gooru.domain.component;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
-import org.ednovo.gooru.domain.service.CollectionDeleteHandler;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

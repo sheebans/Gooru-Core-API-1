@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.job;
 
-import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.JobType;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -37,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("jobService")
+@Service
 public class JobServiceImpl extends BaseServiceImpl implements JobService, ParameterProperties, ConstantProperties {
 
 	@Autowired
@@ -45,11 +44,6 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 
 	@Autowired
 	private JobRepository jobRepository;
-
-	@Override
-	public int getAverageRetryTime(long fileSize) {
-		return jobRepositoryHibernate.getAverageRetryTime(fileSize);
-	}
 
 	@Override
 	public Job createJob(Resource resource) {
@@ -63,22 +57,19 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 		return job;
 	}
 
-	public JobRepository getJobRepository() {
-		return jobRepository;
-	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Job getJob(String jobUid) {
-		Job job = this.getJobRepository().getJob(jobUid);
+	public Job getJob(Integer jobId) {
+		Job job = this.getJobRepository().getJob(jobId);
 		rejectIfNull(job, GL0056, 404, "Job");
 		return job;
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Job updateJob(String jobUid,Job newJob) {
-		Job job = this.getJobRepository().getJob(jobUid);
+	public Job updateJob(Integer jobId,Job newJob) {
+		Job job = this.getJobRepository().getJob(jobId);
 		rejectIfNull(newJob, GL0056, 404, "Job");
 		if (newJob.getStatus()!= null) {
 			job.setStatus(newJob.getStatus());
@@ -88,4 +79,7 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 	
 	}
 
+	public JobRepository getJobRepository() {
+		return jobRepository;
+	}
 }

@@ -1,4 +1,4 @@
-package org.ednovo.gooru.domain.service;
+package org.ednovo.gooru.domain.component;
 
 import java.util.List;
 
