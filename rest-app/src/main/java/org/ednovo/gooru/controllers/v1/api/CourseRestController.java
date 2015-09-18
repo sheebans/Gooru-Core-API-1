@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -15,7 +16,6 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.component.CollectionCopyProcessor;
 import org.ednovo.gooru.domain.service.ClassService;
-import org.ednovo.gooru.domain.service.collection.CourseCopyService;
 import org.ednovo.gooru.domain.service.collection.CourseService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,9 +90,12 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
-	public void copyCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView copyCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		getCollectionCopyProcessor().copyCourse(courseId, user);
+		Job job = getCollectionCopyProcessor().copyCourse(courseId, user);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		job.setUri(buildUri(RequestMappingUri.V2_JOB, String.valueOf(job.getJobId())));
+		return toModelAndViewWithIoFilter(job, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	private Collection buildCourse(final String data) {

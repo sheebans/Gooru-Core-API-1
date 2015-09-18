@@ -21,7 +21,7 @@ public class UnitCopyServiceImpl extends AbstractCollectionCopyServiceImpl  impl
 	public Collection unitCopy(String courseId, String unitId, User user) {
 		final Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
-		final Collection course = this.getCollectionDao().getCollectionByType(unitId, COURSE_TYPE);
+		final Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection newUnit = copyUnit(unit, course, user);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, ADD);

@@ -160,14 +160,14 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	public void convertDoctoPdf(Resource resource, String mediaFileName, String fileName) {
 		Job job = getJobService().createJob(resource);
-		resource.setSourceReference(job.getJobUid());
+		resource.setSourceReference(String.valueOf(job.getJobId()));
 		String sourcePath = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + mediaFileName;
 		String targetPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put(SOURCE_FILE_PATH, sourcePath);
 		param.put(TARGET_FOLDER_PATH, targetPath);
 		param.put(FILENAME, fileName);
-		param.put(JOB_UID, job.getJobUid());
+		param.put(JOB_UID, String.valueOf(job.getJobId()));
 		param.put(STATUS, job.getStatus());
 		param.put(EVENTNAME, CONVERT_DOCUMENT_PDF);
 		param.put(SESSIONTOKEN, UserGroupSupport.getSessionToken());

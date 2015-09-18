@@ -29,11 +29,9 @@ import org.ednovo.gooru.core.api.model.Resource;
 public interface JobService {
 
 	Job createJob(Resource resource);
-
-	int getAverageRetryTime(long fileSize);
 	
-	Job getJob(String jobUid);
+	Job getJob(Integer jobId);
 	
-	Job updateJob(String jobUid, Job status);
+	Job updateJob(Integer jobId, Job status);
 
 }

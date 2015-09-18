@@ -74,8 +74,8 @@ public class CollectionCopyProcessor extends AbstractProcessor {
 							updateJob(job, course.getGooruOid(), Job.Status.COMPLETED.getStatus());
 							getTransactionManager().commit(transactionStatus);
 						} catch (Exception ex) {
+							updateJob(job, null, Job.Status.FAILED.getStatus());
 							LOGGER.error("Failed  to copy course : " + courseId, ex);
-							getTransactionManager().rollback(transactionStatus);
 						} finally {
 							if (session != null) {
 								session.close();
@@ -104,8 +104,8 @@ public class CollectionCopyProcessor extends AbstractProcessor {
 							updateJob(job, unit.getGooruOid(), Job.Status.COMPLETED.getStatus());
 							getTransactionManager().commit(transactionStatus);
 						} catch (Exception ex) {
+							updateJob(job, null, Job.Status.FAILED.getStatus());
 							LOGGER.error("Failed  to copy unit : " + unitId, ex);
-							getTransactionManager().rollback(transactionStatus);
 						} finally {
 							if (session != null) {
 								session.close();
@@ -134,8 +134,8 @@ public class CollectionCopyProcessor extends AbstractProcessor {
 							updateJob(job, lesson.getGooruOid(), Job.Status.COMPLETED.getStatus());
 							getTransactionManager().commit(transactionStatus);
 						} catch (Exception ex) {
+							updateJob(job, null, Job.Status.FAILED.getStatus());
 							LOGGER.error("Failed  to copy lesson : " + courseId, ex);
-							getTransactionManager().rollback(transactionStatus);
 						} finally {
 							if (session != null) {
 								session.close();
@@ -153,12 +153,14 @@ public class CollectionCopyProcessor extends AbstractProcessor {
 		Job job = new Job();
 		job.setUser(user);
 		job.setStatus(Job.Status.INPROGRESS.getStatus());
+		job.setFileSize(0L);
 		job.setJobType((JobType) getJobRepository().get(JobType.class, JobType.Type.COPY.getType()));
 		job.setOrganization(user.getOrganization());
 		this.getJobRepository().save(job);
 		return job;
 	}
 	
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	private void updateJob(final Job job, final String gooruOid, final String status) { 
 		if (job != null) {
 			job.setGooruOid(gooruOid);

@@ -21,8 +21,9 @@
 <hibernate-mapping>
 	<class name="org.ednovo.gooru.core.api.model.Job" table="job">
 
-		<property name="jobUid" column="job_uid" not-null="true">
-		</property>
+		<id name="jobId" column="job_id" unsaved-value="null">
+			<generator class="identity" />
+		</id>
 		<property name="status" column="status" not-null="true" />
 		<property name="gooruOid" column="gooru_oid" not-null="false" />
 		<property name="fileSize" column="file_size" not-null="false" />
