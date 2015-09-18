@@ -91,7 +91,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		lesson.getContent().setLastModified(new Date());
 		lesson.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(lesson);
-		SessionContextSupport.putDeleteContentMeta(lesson.getContent());
 	}
 	
 	@Override

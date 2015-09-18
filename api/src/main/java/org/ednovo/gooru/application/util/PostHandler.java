@@ -2,7 +2,6 @@ package org.ednovo.gooru.application.util;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.component.CollectionDeleteProcessor;
@@ -20,16 +19,12 @@ public class PostHandler implements ParameterProperties {
 	private IndexProcessor indexProcessor;
 
 	@Autowired
-	private CollectionDeleteProcessor collectionDeleteProcessor;
-
-	@Autowired
 	private CollectionBoService collectionBoService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PostHandler.class);
 
 	public void initialize() {
 		searchIndex();
-		deleteCUL();
 		moveCollectionToFolder();
 	}
 
@@ -40,17 +35,6 @@ public class PostHandler implements ParameterProperties {
 			indexProcessor.index(SessionContextSupport.getIndexMeta());
 		} catch (Exception ex) {
 			LOGGER.error("Re-index API trigger failed " + ex);
-		}
-	}
-
-	private void deleteCUL() {
-		try {
-			Content content = SessionContextSupport.getDeleteContentMeta();
-			if (content != null) {
-				getCollectionDeleteProcessor().deleteContent(content.getGooruOid(), content.getContentType().getName());
-			}
-		} catch (Exception ex) {
-			LOGGER.error("Bulk content(CULCA) sub items deletion failed ", ex);
 		}
 	}
 
@@ -77,10 +61,6 @@ public class PostHandler implements ParameterProperties {
 
 	public IndexProcessor getIndexProcessor() {
 		return indexProcessor;
-	}
-
-	public CollectionDeleteProcessor getCollectionDeleteProcessor() {
-		return collectionDeleteProcessor;
 	}
 
 	public CollectionBoService getCollectionBoService() {

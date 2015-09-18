@@ -96,8 +96,6 @@ public class CollectionDeleteHandler  {
 				deleteUnit(gooruOid);
 			} else if (collectionType.equalsIgnoreCase(CollectionType.LESSON.getCollectionType())) {
 				deleteLesson(gooruOid);
-			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType()) || collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType()) || collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT_URL.getCollectionType())) {
-				deleteCollection(gooruOid);
 			}			
 	}
 
