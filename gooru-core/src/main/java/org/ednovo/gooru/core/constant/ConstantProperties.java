@@ -849,7 +849,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	public static final String PREVIOUS_RATE = "previousRate";
 
-	public static final String JOB_INCLUDES[] = { "*.job", "*.status", "*.jobUid" };
+	public static final String JOB_INCLUDES[] = { "*.job", "*.status", "*.jobId", "*.gooruOid" };
 
 	public static final String _GROUP_UID = "groupUId";
 

@@ -77,6 +77,8 @@
 	<context:component-scan base-package="org.ednovo.gooru.infrastructure.mail" />
 
 	<context:component-scan base-package="org.ednovo.gooru.security" />
+	
+	<context:component-scan base-package="org.ednovo.gooru.domain.component" />
 
 	<bean id="searchAPIEndPoint" class="java.lang.String">
 		<constructor-arg>

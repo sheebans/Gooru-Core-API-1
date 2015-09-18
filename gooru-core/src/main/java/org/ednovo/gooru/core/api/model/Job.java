@@ -12,7 +12,7 @@ public class Job extends OrganizationModel implements Serializable {
 	private static final long serialVersionUID = 4306366441283721824L;
 
 	public static enum Status {
-		INPROGRESS("Inprogress"), COMPLETED("Completed"), FAILED("Failed");
+		INPROGRESS("inprogress"), COMPLETED("completed"), FAILED("failed");
 
 		private String status;
 
@@ -26,9 +26,7 @@ public class Job extends OrganizationModel implements Serializable {
 	}
 
 	private Integer jobId;
-	
-	private String jobUid;
-	
+		
 	private JobType jobType;
 
 	private String gooruOid;
@@ -40,6 +38,8 @@ public class Job extends OrganizationModel implements Serializable {
 	private Integer timeToComplete;
 
 	private Long fileSize;
+	
+	private String uri;
 
 	public Job() {
 		jobType = new JobType();
@@ -101,13 +101,14 @@ public class Job extends OrganizationModel implements Serializable {
 	public void setFileSize(Long fileSize) {
 		this.fileSize = fileSize;
 	}
-	
-	public String getJobUid() {
-		return jobUid;
+
+	public String getUri() {
+		return uri;
 	}
 
-	public void setJobUid(String jobUid) {
-		this.jobUid = jobUid;
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
+
 	
 }

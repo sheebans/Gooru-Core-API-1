@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -48,6 +49,8 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath, s.subdomain_id as subdomainId, s.description, c.subject_id as subjectId, c.course_id as courseId  from domain d join subdomain s on s.domain_id=d.domain_id inner join course c on s.course_id=c.course_id where c.course_id=:courseId";
 
 	private static final String GET_TAXONOMY_COURSES = "FROM TaxonomyCourse c  WHERE c.courseId  in (:courseId)";
+	
+	private static final String GET_CONTENT_COURSE = "FROM ContentTaxonomyCourseAssoc c  WHERE c.content.contentId=:contentId";
 
 	@Override
 	public TaxonomyCourse getCourse(Integer courseId) {
@@ -91,6 +94,13 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	public List<TaxonomyCourse> getTaxonomyCourses(List<Integer> courseIds) {
 		Query query = getSession().createQuery(GET_TAXONOMY_COURSES);
 		query.setParameterList(COURSE_ID, courseIds);
+		return list(query);
+	}
+	
+	@Override
+	public List<ContentTaxonomyCourseAssoc> getContentTaxonomyCourseAssoc(Long contentId) {
+		Query query = getSession().createQuery(GET_CONTENT_COURSE);
+		query.setParameter(CONTENT_ID, contentId);
 		return list(query);
 	}
 }

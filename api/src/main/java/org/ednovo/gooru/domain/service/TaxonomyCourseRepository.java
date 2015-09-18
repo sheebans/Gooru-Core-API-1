@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -42,5 +43,7 @@ public interface TaxonomyCourseRepository extends BaseRepository {
 	Integer getMaxSequence();
 	
 	List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset); 
+	
+	List<ContentTaxonomyCourseAssoc> getContentTaxonomyCourseAssoc(Long contentId);
 
 }

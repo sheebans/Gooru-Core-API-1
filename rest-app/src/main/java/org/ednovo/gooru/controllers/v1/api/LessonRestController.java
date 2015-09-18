@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -14,6 +15,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.component.CollectionCopyProcessor;
 import org.ednovo.gooru.domain.service.collection.LessonService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class LessonRestController extends BaseController implements ConstantProp
 
 	@Autowired
 	private LessonService lessonService;
+	
+	@Autowired
+	private CollectionCopyProcessor collectionCopyProcessor;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -72,6 +77,16 @@ public class LessonRestController extends BaseController implements ConstantProp
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getLessonService().deleteLesson(courseId, unitId, lessonId, user);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
+	public ModelAndView copyLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		Job job = getCollectionCopyProcessor().copyLesson(courseId, unitId, lessonId, user);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		job.setUri(buildUri(RequestMappingUri.V2_JOB, String.valueOf(job.getJobId())));
+		return toModelAndViewWithIoFilter(job, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
 
 	private Collection buildLesson(final String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
@@ -79,6 +94,10 @@ public class LessonRestController extends BaseController implements ConstantProp
 	
 	public LessonService getLessonService() {
 		return lessonService;
+	}
+
+	public CollectionCopyProcessor getCollectionCopyProcessor() {
+		return collectionCopyProcessor;
 	}
 
 }
