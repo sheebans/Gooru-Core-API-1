@@ -38,7 +38,7 @@ public abstract class AbstractCollectionCopyServiceImpl extends AbstractResource
 	private IndexHandler indexHandler;
 
 	protected void copyCollectionItems(Collection lesson, Collection sourceCollection, Collection destCollection, User user) {
-		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(sourceCollection.getGooruOid());
+		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(sourceCollection.getGooruOid(), false);
 		for (CollectionItem sourceCollectionItem : collectionItems) {
 			final CollectionItem destCollectionItem = new CollectionItem();
 			if (sourceCollectionItem.getContent().getContentType().getName().equalsIgnoreCase(QUESTION)) {

@@ -75,7 +75,7 @@ public class CourseCopyServiceImpl extends AbstractCollectionCopyServiceImpl imp
 	}
 
 	protected void courseCopyItems(String courseId, Collection newCourse, User user) {
-		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(courseId);
+		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(courseId, false);
 		for (CollectionItem sourceCourseItem : collectionItems) {
 			getUnitCopyService().unitCopy(newCourse, sourceCourseItem.getContent().getGooruOid(), user);			
 		}

@@ -36,7 +36,7 @@ public interface CollectionDao extends BaseRepository {
 
 	CollectionItem getCollectionItem(String collectionItemId);
 
-	List<CollectionItem> getCollectionItems(String collectionId);
+	List<CollectionItem> getCollectionItems(String collectionId, boolean fetchAll);
 	
 	List<Map<String, Object>> getCollectionItemById(String collectionId);
 	
