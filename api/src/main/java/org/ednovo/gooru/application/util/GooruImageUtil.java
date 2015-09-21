@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,11 +43,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
@@ -65,8 +69,6 @@ import com.sun.pdfview.PDFFile;
 @Component
 public class GooruImageUtil implements ParameterProperties {
 
-	private static GooruImageUtil instance;
-
 	@Autowired
 	private SettingService settingService;
 
@@ -75,11 +77,9 @@ public class GooruImageUtil implements ParameterProperties {
 
 	private static String URL = "url";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
+	private static String CROP = "crop_";
 
-	public GooruImageUtil() {
-		instance = this;
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
 	public void imageUpload(String mediaFilename, Object folderPath, String imageDimension) {
 		if (mediaFilename != null) {
@@ -294,11 +294,44 @@ public class GooruImageUtil implements ParameterProperties {
 		return thumbnails;
 	}
 
-	public static GooruImageUtil getInstance() {
-		return instance;
+	public void cropImage(HttpServletResponse response, String filename, int width, int height, int x, int y) {
+		StringBuilder filePath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
+		filePath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(filename);
+		StringBuilder fileCropPath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
+		fileCropPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(CROP).append(filename);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "\"");
+		InputStream is = null;
+		FileInputStream fileInputStream = null;
+		File image = null;
+		try {
+			cropImageUsingImageMagick(filePath.toString(), width, height, x, y, fileCropPath.toString());
+			image = new File(fileCropPath.toString());
+			byte[] bFile = new byte[(int) image.length()];
+			fileInputStream = new FileInputStream(image);
+			fileInputStream.read(bFile);
+			ServletOutputStream os = response.getOutputStream();
+			os.write(bFile);
+			os.close();
+		} catch (Exception e) {
+			LOGGER.error("Error while cropping", e);
+		} finally {
+			try {
+				if (is != null)
+					is.close();
+				if (fileInputStream != null)
+					fileInputStream.close();
+				if (image != null) {
+					image.delete();
+				}
+			} catch (IOException ioe) {
+			}
+		}
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
+
 }
