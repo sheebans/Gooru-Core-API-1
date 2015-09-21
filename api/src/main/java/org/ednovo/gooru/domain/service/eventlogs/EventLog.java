@@ -66,7 +66,7 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 		log.put(key, value);
 	}
 	
-	public void putValue(String key, String value) throws JSONException {
+	public void putValue(String key, Object value) throws JSONException {
 		SessionContextSupport.getLog().put(key, value);
 	}
 	
