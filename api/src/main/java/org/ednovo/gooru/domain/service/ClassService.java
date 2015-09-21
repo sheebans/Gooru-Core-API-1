@@ -43,5 +43,7 @@ public interface ClassService {
 	boolean hasTeachAndStudy(String gooruUid);
 	
 	void updateMemberCount(String classUid);
+	
+	List<Map<String, Object>> getClassData(String gooruOid);
 
 }
