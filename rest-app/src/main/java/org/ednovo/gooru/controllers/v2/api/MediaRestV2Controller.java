@@ -24,20 +24,16 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.MediaDTO;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.RequestUtil;
-import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
@@ -152,28 +148,6 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 			response.setStatus(404);
 		}
 	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
-	@RequestMapping(value="/crop", method=RequestMethod.PUT)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView cropImage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
-		String filePath = StringUtils.substringAfterLast(imageUrl, UserGroupSupport.getUserOrganizationCdnDirectPath());
-		StringBuffer destPath = new StringBuffer(UserGroupSupport.getUserOrganizationNfsInternalPath());
-		StringBuffer fileName = new StringBuffer(UUID.randomUUID().toString());
-		StringBuffer mediaPath = new StringBuffer(Constants.UPLOADED_MEDIA_FOLDER);
-		StringBuffer url = new StringBuffer(UserGroupSupport.getUserOrganizationNfsRealPath());
-		String fileExtension = StringUtils.substringAfterLast(imageUrl, DOT);
-		ServerValidationUtils.reject(!fileExtension.isEmpty(), GL0006, 400, FILE_EXTENSION);
-		fileName.append(DOT).append(fileExtension);
-		mediaPath.append(COOKIE_PATH).append(fileName);
-		destPath.append(mediaPath);
-		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath.toString());
-		Map<String,String> jsonResponse = new HashMap<String,String>();
-		jsonResponse.put(MEDIA_FILE_NAME, fileName.toString());
-		jsonResponse.put(URL, url.append(mediaPath).toString());
-		return toModelAndView(jsonResponse, FORMAT_JSON);
-	}
-		
 
 	public MediaService getMediaService() {
 		return mediaService;
