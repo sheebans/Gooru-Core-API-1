@@ -16,6 +16,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.component.CollectionCopyProcessor;
+import org.ednovo.gooru.domain.component.CollectionDeleteProcessor;
 import org.ednovo.gooru.domain.service.collection.UnitService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class UnitRestController extends BaseController implements ConstantProper
 	
 	@Autowired
 	private CollectionCopyProcessor collectionCopyProcessor;
+	
+	@Autowired
+	private CollectionDeleteProcessor collectionDeleteProcessor;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -77,6 +81,7 @@ public class UnitRestController extends BaseController implements ConstantProper
 	public void deleteUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getUnitService().deleteUnit(courseId, unitId, user);
+		getCollectionDeleteProcessor().deleteContent(unitId, UNIT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
@@ -99,6 +104,10 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	public CollectionCopyProcessor getCollectionCopyProcessor() {
 		return collectionCopyProcessor;
+	}
+
+	public CollectionDeleteProcessor getCollectionDeleteProcessor() {
+		return collectionDeleteProcessor;
 	}
 
 }

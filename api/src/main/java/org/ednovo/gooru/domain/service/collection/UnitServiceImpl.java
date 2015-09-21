@@ -106,7 +106,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		unit.getContent().setLastModified(new Date());
 		unit.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(unit);
-		SessionContextSupport.putDeleteContentMeta(unit.getContent());
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {

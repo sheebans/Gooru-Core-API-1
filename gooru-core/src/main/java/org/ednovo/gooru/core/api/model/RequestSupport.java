@@ -23,8 +23,6 @@ public class RequestSupport {
 
 	private List<SearchIndexMeta> searchIndexMeta;
 
-	private Content deleteContentMeta;
-	
 	private Map<String, Object> moveContentMeta;
 
 	public Map<String, Object> getLog() {
@@ -41,14 +39,6 @@ public class RequestSupport {
 
 	public List<SearchIndexMeta> getSearchIndexMeta() {
 		return searchIndexMeta;
-	}
-
-	public Content getDeleteContentMeta() {
-		return deleteContentMeta;
-	}
-
-	public void setDeleteContentMeta(Content deleteContentMeta) {
-		this.deleteContentMeta = deleteContentMeta;
 	}
 
 	public Map<String, Object> getMoveContentMeta() {
