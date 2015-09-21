@@ -107,4 +107,6 @@ public interface ContentIndexDao {
 	
 	List<Object[]> getSubdomainMappedTaxonomy(Long contentId);
 
+	List<Object[]> getSubdomainMappedTaxonomyMeta(Long contentId);
+
 }
