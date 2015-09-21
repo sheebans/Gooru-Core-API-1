@@ -27,49 +27,21 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Job;
 import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.type.StandardBasicTypes;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JobRepositoryHibernate extends BaseRepositoryHibernate implements JobRepository {
 
-	@Autowired
-	public JobRepositoryHibernate(SessionFactory sessionFactory) {
-		setSessionFactory(sessionFactory);
-	}
+	private static final String GET_JOB = "FROM Job WHERE jobId=:jobId";
+
+	private static final String JOB_ID = "jobId";
 
 	@Override
-	public int getAverageRetryTime(long fileSize) {
-		String sql = "SELECT AVG(time_to_complete) as average_time FROM job WHERE job.time_to_complete IS NOT NULL AND job.file_size  ";
-		if (fileSize > 100000) {
-			sql += "BETWEEN  " + (fileSize - 100000) + " AND " + (fileSize + 100000);
-		} else {
-			sql += "BETWEEN  " + 0 + " AND " + fileSize;
-		}
-		sql += " AND job.status = 'Completed' LIMIT 100 ";
-
-		Session session = getSession();
-		Query query = session.createSQLQuery(sql).addScalar("average_time", StandardBasicTypes.INTEGER);
-		List<Integer> results = list(query);
-
-		return (results.size() > 0) ? results.get(0) : 0;
+	public Job getJob(Integer jobId) {
+		Query query = getSession().createQuery(GET_JOB);
+		query.setParameter(JOB_ID, jobId);
+		List<Job> results = list(query);
+		return (Job) (results.size() > 0 ? results.get(0) : null);
 	}
 
-	@Override
-	public Job createJob(String jobUid) {
-		Query query = getSession().createQuery("FROM Job job  WHERE job.jobUid=:jobUid").setParameter("jobUid", jobUid);
-		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
-
-	}
-
-	@Override
-	public Job getJob(String jobUid) {
-		Query query = getSession().createQuery("FROM Job job  WHERE job.jobUid=:jobUid").setParameter("jobUid", jobUid);
-		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-
-	
 }

@@ -10,7 +10,7 @@ public class JobType implements Serializable {
 	private String description;
 
 	public static enum Type {
-		PPTCONVERSION("ppt/pptx-conversion"), PDFCONVERSION("pdf-conversion");
+		PPTCONVERSION("ppt/pptx-conversion"), PDFCONVERSION("pdf-conversion"), COPY("copy");
 
 		private String type;
 

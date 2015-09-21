@@ -10,18 +10,14 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMeta;
-import org.ednovo.gooru.core.api.model.ContentSubdomainAssoc;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.eventlogs.UnitEventLog;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -110,7 +106,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		unit.getContent().setLastModified(new Date());
 		unit.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(unit);
-		SessionContextSupport.putDeleteContentMeta(unit.getContent());
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
