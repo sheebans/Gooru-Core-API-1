@@ -38,12 +38,10 @@ public interface ClassService {
 
 	Map<String, Object> getClassCollections(String lessonId, int limit, int offset);
 
-	List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset);
-
 	boolean hasTeachAndStudy(String gooruUid);
 	
 	void updateMemberCount(String classUid);
 	
-	List<Map<String, Object>> getClassData(String classUid, String gooruOid);
+	List<Map<String, Object>> getClassContent(String classUid, String gooruOid);
 
 }

@@ -367,17 +367,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClassData(String classUid, String gooruOid) {
+	public List<Map<String, Object>> getClassContent(String classUid, String gooruOid) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		return this.getClassRepository().getCourseData(gooruOid);
 	}
-	
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
-		return getClassRepository().getCollectionItem(courseId, limit, offset);
-	}
+
 
 	@Override
 	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
