@@ -369,8 +369,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public List<Map<String, Object>> getClassData(String classUid, String gooruOid) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
-		Collection collection = this.getCollectionDao().getCollection(gooruOid);
-		return this.getClassRepository().getCourseData(collection.getContentId());
+		return this.getClassRepository().getCourseData(gooruOid);
 	}
 	
 	@Override
