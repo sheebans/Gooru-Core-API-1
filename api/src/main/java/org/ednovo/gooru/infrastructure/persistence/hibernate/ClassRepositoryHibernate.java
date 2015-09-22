@@ -3,7 +3,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -221,21 +220,13 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.executeUpdate();
 	}
 	
-	final String COURSE_BY_CLASS = "select c.gooru_oid gooruOid,co.title,if(s.visibility=1,true,false) visibility from collection_item ci inner join collection co on co.content_id=ci.resource_content_id inner join content c on co.content_id = c.content_id left join class_collection_settings s on s.collection_id=ci.resource_content_id where ci.collection_content_id=:contentId";
-	final String COLLECTION_BY_ID = "FROM Collection where gooruOid=:gooruOid";
+	final String COURSE_BY_CLASS = "select c.content_id collectionId,c.gooru_oid gooruOid,co.title,if(s.visibility=1,true,false) visibility from collection_item ci inner join collection co on co.content_id=ci.resource_content_id inner join content c on co.content_id = c.content_id left join class_collection_settings s on s.collection_id=ci.resource_content_id where ci.collection_content_id=:contentId";
 	@Override
 	public List<Map<String, Object>> getCourseData(Long contentId){
 		Query query = getSession().createSQLQuery(COURSE_BY_CLASS);
 		query.setParameter(CONTENT_ID, contentId);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
-	}
-	
-	@Override
-	public Collection getCollection(String gooruOid){
-		Query query = getSession().createQuery(COLLECTION_BY_ID);
-		query.setParameter(GOORU_OID, gooruOid);
-		return (Collection) query.list().get(0);
 	}
 	
 }

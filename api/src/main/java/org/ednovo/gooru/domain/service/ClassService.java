@@ -44,6 +44,6 @@ public interface ClassService {
 	
 	void updateMemberCount(String classUid);
 	
-	List<Map<String, Object>> getClassData(String gooruOid);
+	List<Map<String, Object>> getClassData(String classUid, String gooruOid);
 
 }

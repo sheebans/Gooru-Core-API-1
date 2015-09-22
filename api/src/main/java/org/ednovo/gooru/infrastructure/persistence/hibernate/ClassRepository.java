@@ -3,7 +3,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.UserClass;
 
 public interface ClassRepository extends BaseRepository {
@@ -45,7 +44,5 @@ public interface ClassRepository extends BaseRepository {
 	void updateMemberCount(String classUid);
 
 	List<Map<String, Object>> getCourseData(Long gooruOid);
-	
-	Collection getCollection(String gooruOid);
 	
 }

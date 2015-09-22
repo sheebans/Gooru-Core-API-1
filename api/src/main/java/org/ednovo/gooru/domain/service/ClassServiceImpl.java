@@ -337,18 +337,14 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
-		throw new NotImplementedException("release - 1.6 : this feature is put on hold,  we  may implement this in further releases. ");
-		/*
-		 * UserClass userClass =
-		 * this.getClassRepository().getClassById(classUid);
-		 * rejectIfNull(userClass, GL0056, 404, CLASS);
-		 * List<ClassCollectionSettings> settings = new
-		 * ArrayList<ClassCollectionSettings>(); for (ClassCollectionSettings
-		 * classCollectionSetting : classCollectionSettings) {
-		 * classCollectionSetting.setClassId(userClass.getClassId());
-		 * settings.add(classCollectionSetting); }
-		 * this.getClassRepository().saveAll(settings);
-		 */
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>(); 
+		for (ClassCollectionSettings classCollectionSetting : classCollectionSettings) {
+			classCollectionSetting.setClassId(userClass.getClassId());
+			settings.add(classCollectionSetting); 
+		}
+		this.getClassRepository().saveAll(settings);
 	}
 
 	@Override
@@ -370,8 +366,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClassData(String gooruOid) {
-		Collection collection = this.getClassRepository().getCollection(gooruOid);
+	public List<Map<String, Object>> getClassData(String classUid, String gooruOid) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		Collection collection = this.getCollectionDao().getCollection(gooruOid);
 		return this.getClassRepository().getCourseData(collection.getContentId());
 	}
 	

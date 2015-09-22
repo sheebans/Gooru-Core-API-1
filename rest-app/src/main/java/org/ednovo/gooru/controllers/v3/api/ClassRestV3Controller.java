@@ -154,19 +154,19 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.CLASS_UNITS, method = RequestMethod.GET)
 	public ModelAndView getClassUnits(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassData(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
+		return toModelAndViewWithIoFilter(this.getClassService().getClassData(classUid, courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_LESSONS, method = RequestMethod.GET)
 	public ModelAndView getClassLessons(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId , @PathVariable(UNIT_ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassData(unitId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
+		return toModelAndViewWithIoFilter(this.getClassService().getClassData(classUid, unitId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_COLLECTIONS, method = RequestMethod.GET)
 	public ModelAndView getClassCollections(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId , @PathVariable(UNIT_ID) final String unitId,  @PathVariable(LESSON_ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassData(lessonId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
+		return toModelAndViewWithIoFilter(this.getClassService().getClassData(classUid, lessonId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
 	}
 	
 	private UserClass buildClass(final String data) {
