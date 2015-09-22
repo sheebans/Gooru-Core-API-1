@@ -80,7 +80,7 @@ public class RequestMappingUri {
 	
 	public static final String SUBDOMAIN_STANDARDS = "/{id}/standards";
 		
-	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/course/{courseId}/unit/{unitId}/lesson";
+	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/setting";
 	
 	public static final String V3_COLLECTION_ID = "/v3/collection/{id}";
 	
@@ -97,5 +97,11 @@ public class RequestMappingUri {
 	public static final String V2_JOB = "/v2/job";
 	
 	public static final String V1_CROP = "/v1/crop";
+	
+	public static final String CLASS_UNITS = "/{id}/course/{courseId}/unit";
+
+	public static final String CLASS_LESSONS = "/{id}/course/{courseId}/unit/{unitId}/lesson";
+	
+	public static final String CLASS_COLLECTIONS = "/{id}/course/{courseId}/unit/{unitId}/lesson/{lessonId}";
 
 }
