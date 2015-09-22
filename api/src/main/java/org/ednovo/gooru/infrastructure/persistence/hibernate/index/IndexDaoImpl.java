@@ -34,6 +34,9 @@ public class IndexDaoImpl {
 	@javax.annotation.Resource(name = "sessionFactory")
 	private SessionFactory sessionFactory;
 
+	@javax.annotation.Resource(name = "sessionFactoryReadOnly")
+	private SessionFactory sessionFactoryReadOnly;
+
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -42,4 +45,7 @@ public class IndexDaoImpl {
 		this.sessionFactory = sessionFactory;
 	}
 
+	public SessionFactory getSessionFactoryReadOnly() {
+		return sessionFactoryReadOnly;
+	}
 }
