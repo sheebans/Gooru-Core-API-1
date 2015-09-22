@@ -109,7 +109,6 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		course.getContent().setLastModified(new Date());
 		course.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
-		SessionContextSupport.putDeleteContentMeta(course.getContent());
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {

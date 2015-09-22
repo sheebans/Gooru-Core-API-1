@@ -30,7 +30,7 @@ public class CollectionDeleteHandler  {
 	public void deleteCourse(final String courseId) {
 		Collection course = getCollectionDao().getCollectionWithoutDeleteCheck(courseId);
 		if (course != null) {
-			List<CollectionItem> courseItems = getCollectionDao().getCollectionItems(courseId);
+			List<CollectionItem> courseItems = getCollectionDao().getCollectionItems(courseId, true);
 			if (courseItems != null) {
 				for (CollectionItem collectionItem : courseItems) {
 					deleteUnit(collectionItem.getContent().getGooruOid());
@@ -43,7 +43,7 @@ public class CollectionDeleteHandler  {
 	public void deleteUnit(final String unitId) {
 		Collection unit = getCollectionDao().getCollectionWithoutDeleteCheck(unitId);
 		if (unit != null) {
-			List<CollectionItem> unitItems = getCollectionDao().getCollectionItems(unitId);
+			List<CollectionItem> unitItems = getCollectionDao().getCollectionItems(unitId, true);
 			if (unitItems != null) {
 				for (CollectionItem collectionItem : unitItems) {
 					deleteLesson(collectionItem.getContent().getGooruOid());
@@ -56,7 +56,7 @@ public class CollectionDeleteHandler  {
 	public void deleteLesson(final String lessonId) {
 		Collection lesson = getCollectionDao().getCollectionWithoutDeleteCheck(lessonId);
 		if (lesson != null) {
-			List<CollectionItem> lessonItems = getCollectionDao().getCollectionItems(lessonId);
+			List<CollectionItem> lessonItems = getCollectionDao().getCollectionItems(lessonId, true);
 			if (lessonItems != null) {
 				for (CollectionItem collectionItem : lessonItems) {
 					deleteCollection(collectionItem.getContent().getGooruOid());
@@ -69,7 +69,7 @@ public class CollectionDeleteHandler  {
 	public void deleteCollection(final String collectionId) {
 		Collection collection = getCollectionDao().getCollectionWithoutDeleteCheck(collectionId);
 		if (collection != null && !collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-			List<CollectionItem> collectionItems = getCollectionDao().getCollectionItems(collectionId);
+			List<CollectionItem> collectionItems = getCollectionDao().getCollectionItems(collectionId, true);
 			if (collectionItems != null) {
 				for (CollectionItem collectionItem : collectionItems) {
 					if (collectionItem.getContent().getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
@@ -96,8 +96,6 @@ public class CollectionDeleteHandler  {
 				deleteUnit(gooruOid);
 			} else if (collectionType.equalsIgnoreCase(CollectionType.LESSON.getCollectionType())) {
 				deleteLesson(gooruOid);
-			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType()) || collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType()) || collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT_URL.getCollectionType())) {
-				deleteCollection(gooruOid);
 			}			
 	}
 

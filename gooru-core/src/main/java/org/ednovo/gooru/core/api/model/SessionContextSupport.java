@@ -62,22 +62,6 @@ public class SessionContextSupport {
 		}
 	}
 
-	public static Content getDeleteContentMeta() {
-		try {
-			return RequestSupport.getSessionContext().getDeleteContentMeta();
-		} catch (Exception ex) {
-			return null;
-		}
-	}
-
-	public static void putDeleteContentMeta(Content content) {
-		try {
-			RequestSupport.getSessionContext().setDeleteContentMeta(content);
-		} catch (Exception ex) {
-			LOGGER.error("Error in put value inside delete content meta object : ", ex);
-		}
-	}
-
 	public static Map<String, Object> getMoveContentMeta() {
 		try {
 			return RequestSupport.getSessionContext().getMoveContentMeta();

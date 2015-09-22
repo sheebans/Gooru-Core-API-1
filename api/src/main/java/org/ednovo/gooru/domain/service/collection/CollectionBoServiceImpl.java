@@ -101,10 +101,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.resetSequence(lessonId, collection.getCollectionItemId(), user.getPartyUid(), COLLECTION);
 		this.deleteCollection(collectionId);
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
-		collection.getContent().setIsDeleted((short) 1);
-		this.getCollectionDao().save(collection);
 		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collection, user, null, DELETE);
-		SessionContextSupport.putDeleteContentMeta(collection.getContent());
 	}
 
 	@Override

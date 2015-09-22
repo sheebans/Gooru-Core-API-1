@@ -310,6 +310,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
+		getClassEventLogger().deleteClass(classUId);
 	}
 
 	@Override

@@ -79,7 +79,7 @@ public class LessonCopyServiceImpl extends AbstractCollectionCopyServiceImpl imp
 	}
 
 	protected void lessonCopyItems(String lessonId, Collection newLesson, User user) {
-		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(lessonId);
+		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(lessonId, false);
 		for (CollectionItem sourceLessonItem : collectionItems) {
 			getCollectionCopyService().collectionCopy(newLesson, sourceLessonItem.getContent().getGooruOid(), user);
 		}

@@ -33,7 +33,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTIONS = "select re.title, cr.gooru_oid as gooruOid, re.language_objective as languageObjective, re.collection_type as type, re.image_path as imagePath, cr.sharing, ci.collection_item_id as collectionItemId, co.goals, co.ideas, co.questions,co.performance_tasks as performanceTasks, co.collection_type as collectionType, ci.item_sequence as itemSequence, cc.gooru_oid as parentGooruOid, re.description, re.url, cs.data, cm.meta_data as metaData, re.publish_status_id as publishStatus, re.build_type_id as buildType, cr.user_uid as gooruUId, u.username, cr.last_modified as lastModified, cr.last_updated_user_uid as lastModifiedUserUid  from  collection c  inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id left join content_settings cs on cs.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join content_meta cm  on  cm.content_id = re.content_id left join user u on u.gooru_uid = cr.user_uid ";
 
 	private static final String GET_COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid,r.media_type as mediaType,r.type_name as resourceType, r.folder, r.thumbnail, ct.value, ct.display_name as displayName, c.sharing, ci.collection_item_id as collectionItemId, r.url , co.collection_type as collectionType, ci.item_sequence as itemSequence, rc.gooru_oid as parentGooruOid, r.description, ci.start, ci.stop, cm.meta_data as metaData, ci.narration, aq.type, aq.type_name as typeName, question_text as questionText, explanation, c.user_uid as gooruUId, u.username, if(r.has_frame_breaker!=null, r.has_frame_breaker,rs.frame_breaker) as hasFrameBreaker, ri.num_of_pages as totalPages  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join content_meta cm on cm.content_id = c.content_id left join assessment_question aq on aq.question_id = r.content_id left join user u on u.gooru_uid = c.user_uid  left join resource_info ri on ri.resource_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id where rc.gooru_oid=:collectionId and rc.is_deleted=0";
-	
+
 	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id  join content ct on ct.content_id=co.content_id where c.content_id =:contentId and co.collection_type=:collectionType and is_deleted=0";
 
 	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo ";
@@ -55,7 +55,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String COLLECTION_LIST = "FROM Collection where gooruOid in (:collectionId)";
 
 	private static final String UPDATE_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
-	
+
 	private static final String GET_COLLECTION_ITEM_IDS = "SELECT rc.gooru_oid FROM collection_item ci INNER JOIN content rc ON (rc.content_id = ci.resource_content_id) WHERE ci.collection_content_id = :collectionId";
 
 	private static final String GET_COLLECTION_WITHOUT_DELETE_CHECK = "FROM Collection where gooruOid=:collectionId";
@@ -254,8 +254,12 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId) {
-		Query query = getSession().createQuery(GET_COLLECTION_ITEM_LIST);
+	public List<CollectionItem> getCollectionItems(String collectionId, boolean fetchAll) {
+		StringBuilder sql = new StringBuilder(GET_COLLECTION_ITEM_LIST);
+		if (!fetchAll) {
+			sql.append(" and ci.content.isDeleted = 0");
+		}
+		Query query = getSession().createQuery(sql.toString());
 		query.setParameter(COLLECTION_ID, collectionId);
 		return list(query);
 	}
@@ -281,7 +285,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ID, collectionId);
 		return list(query);
 	}
-	
+
 	@Override
 	public Object[] getParentCollection(final String collectionGooruOid, final String gooruUid) {
 		String hql = "select cc.gooru_oid as gooruOid, cor.title from collection_item ci inner join collection r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id inner join collection cor on cor.content_id = co.content_id   where cr.gooru_oid='"
@@ -292,7 +296,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		final Query query = getSession().createSQLQuery(hql);
 		return (Object[]) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
+
 	@Override
 	public Long getPublicCollectionCount(final String gooruOid, final String sharing) {
 		final String sql = "select count(1) as count  from collection_item  ci inner join collection r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"

@@ -12,7 +12,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -106,7 +105,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		unit.getContent().setLastModified(new Date());
 		unit.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(unit);
-		SessionContextSupport.putDeleteContentMeta(unit.getContent());
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {

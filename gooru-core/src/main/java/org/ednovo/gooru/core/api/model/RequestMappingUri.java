@@ -96,6 +96,8 @@ public class RequestMappingUri {
 	
 	public static final String V2_JOB = "/v2/job";
 	
+	public static final String V1_CROP = "/v1/crop";
+	
 	public static final String CLASS_UNITS = "/{id}/courses/{courseId}/units";
 
 	public static final String CLASS_LESSONS = "/{id}/courses/{courseId}/units/{unitId}/lessons";
