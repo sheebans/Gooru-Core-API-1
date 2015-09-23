@@ -82,7 +82,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
 		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json), false, request);
-		this.getAccountProcessor().storeAccountLoginDetailsInRedis(responseDTO.getModel().getToken(), responseDTO.getModel(), responseDTO.getModel().getUser());
+		//this.getAccountProcessor().storeAccountLoginDetailsInRedis(responseDTO.getModel().getToken(), responseDTO.getModel(), responseDTO.getModel().getUser());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
