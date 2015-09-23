@@ -51,7 +51,6 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
-import org.ednovo.gooru.domain.component.AccountProcessor;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
 import org.ednovo.gooru.domain.service.eventlogs.UserEventLog;
