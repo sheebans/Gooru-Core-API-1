@@ -1,5 +1,9 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -7,6 +11,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import flexjson.JSONSerializer;
 
 @Component
 public class ClassEventLogger extends EventLog{
@@ -48,6 +54,26 @@ public class ClassEventLogger extends EventLog{
 			putValue(payLoadObject, MODE, DELETE);
 			putValue(payLoadObject, TYPE, CLASS);
 			putValue(payLoadObject, ITEM_TYPE, CLASS);
+			putEntity(PAY_LOAD_OBJECT, payLoadObject);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
+	}
+	
+	/**
+	 * Class content settings Logs
+	 * @param classUid
+	 */
+	public void classContentVisibilty(String classUid, List<ClassCollectionSettings> classCollectionSetting) {
+		
+		try {
+			putValue(EVENT_NAME, ITEM_EDIT);
+			putValue(CONTEXT, CONTENT_GOORU_ID, classUid);
+			JSONObject payLoadObject = getLogParameter(PAY_LOAD_OBJECT);
+			putValue(payLoadObject, MODE, VISIBILITY);
+			putValue(payLoadObject, TYPE, CLASS);
+			putValue(payLoadObject, ITEM_TYPE, CLASS);
+			putValue(payLoadObject, CONTENT, new JSONSerializer().exclude(EXCLUDE_CLASS).deepSerialize(classCollectionSetting));
 			putEntity(PAY_LOAD_OBJECT, payLoadObject);
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
