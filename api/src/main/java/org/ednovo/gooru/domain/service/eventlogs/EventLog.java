@@ -12,6 +12,8 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(CourseEventLog.class);
 	
+	public final static String EXCLUDE_CLASS = "*.class";
+	
 	public final static String CLASS_ITEM_MOVE = "class.item.move";
 
 	public static final String CLASS_ITEM_DELETE = "class.item.delete";
