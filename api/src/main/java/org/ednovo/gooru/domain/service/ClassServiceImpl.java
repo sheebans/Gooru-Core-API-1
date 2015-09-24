@@ -343,6 +343,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			settings.add(classCollectionSetting); 
 		}
 		this.getClassRepository().saveAll(settings);
+		getClassEventLogger().classContentVisibilty(classUid, settings);
 	}
 	
 	@Override
