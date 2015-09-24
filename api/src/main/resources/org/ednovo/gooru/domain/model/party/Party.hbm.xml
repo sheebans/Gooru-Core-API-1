@@ -27,6 +27,7 @@
 		<property name="partyName" column="party_name" not-null="true" />
 		<property name="partyType" column="party_type" not-null="true" />
 		<property name="createdOn" column="created_on" not-null="true" />
+		<property name="isDeleted" column="is_deleted" not-null="true" />
 		<property name="lastModifiedOn" column="last_modified_on"
 			not-null="false" />
 		<property name="lastModifiedUserUid" column="last_modified_by_uid"

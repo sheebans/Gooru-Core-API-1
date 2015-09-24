@@ -303,7 +303,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		UserClass userClass = this.getClassRepository().getClassById(classUId);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		if (userClass.getUserUid().equals(user.getGooruUId())) {
-			this.getClassRepository().remove(userClass);
+			userClass.setIsDeleted(true);
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
@@ -355,7 +355,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
+	public Map<String, Object> getClassCollections(String classUid, String lessonId, int limit, int offset) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
 		Object gooruOid = lesson.get(GOORU_OID);
 		if (gooruOid != null) {

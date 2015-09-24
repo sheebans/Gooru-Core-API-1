@@ -152,7 +152,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_LESSON_COLLECTION, method = RequestMethod.GET)
 	public ModelAndView getClassCollection(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @PathVariable(LESSON_ID) final String lessonId,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassCollections(lessonId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, "*");
+		return toModelAndViewWithIoFilter(this.getClassService().getClassCollections(classUid, lessonId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, "*");
 	}
 	
 	private UserClass buildClass(final String data) {
