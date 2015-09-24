@@ -44,6 +44,16 @@ public class Party implements Serializable, IndexableEntry {
 	
 	private String name;
 	
+	private Boolean isDeleted;
+	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	public static enum TYPE {
 
 		NETWORK("network"), ORGANIZATION("organization"), USER("user"), GROUP("group");
