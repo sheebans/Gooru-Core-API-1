@@ -884,6 +884,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				&& (userCategory.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || userCategory
 						.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
 			profile.setUserType(userCategory);
+			user.setViewFlag(SSO_USER_VIEW_FLAG);
 		}
 		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()) && userParentId != null) {
