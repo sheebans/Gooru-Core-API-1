@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -32,6 +33,7 @@ import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 
 import flexjson.JSONSerializer;
 
@@ -67,17 +70,22 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
 	@Autowired
 	private CollectionEventLog collectionEventLog;
 
+	@Autowired
+	private PartyRepository partyRepository;
+
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String LAST_USER_MODIFIED = "lastUserModified";
-	
+
+	private final static String SHOWPROFILEPAGE = "showProfilePage";
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -93,10 +101,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.resetSequence(lessonId, collection.getCollectionItemId(), user.getPartyUid(), COLLECTION);
 		this.deleteCollection(collectionId);
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
-		collection.getContent().setIsDeleted((short) 1);
-		this.getCollectionDao().save(collection);
 		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collection, user, null, DELETE);
-		SessionContextSupport.putDeleteContentMeta(collection.getContent());
 	}
 
 	@Override
@@ -154,11 +159,66 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void resetFolderVisibility(final String gooruOid, final String gooruUid) {
+		final List<Map<String, String>> parenFolders = this.getParentCollection(gooruOid, gooruUid, false);
+		for (Map<String, String> folder : parenFolders) {
+			updateFolderSharing(folder.get(GOORU_OID));
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, String>> getParentCollection(final String collectionGooruOid, final String gooruUid, final boolean reverse) {
+		final List<Map<String, String>> parentNode = new ArrayList<Map<String, String>>();
+		getCollection(collectionGooruOid, gooruUid, parentNode);
+		if (reverse) {
+			return parentNode.size() > 0 ? Lists.reverse(parentNode) : parentNode;
+		} else {
+			return parentNode;
+		}
+	}
+
+	private List<Map<String, String>> getCollection(final String collectionGooruOid, final String gooruUid, final List<Map<String, String>> parentNode) {
+		final Object[] result = getCollectionDao().getParentCollection(collectionGooruOid, gooruUid);
+		if (result != null) {
+			final Map<String, String> node = new HashMap<String, String>();
+			node.put(GOORU_OID, String.valueOf(result[0]));
+			node.put(TITLE, String.valueOf(result[1]));
+			parentNode.add(node);
+			getCollection(String.valueOf(result[0]), gooruUid, parentNode);
+		}
+		return parentNode;
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateFolderSharing(final String gooruOid) {
+		final Collection collection = getCollectionDao().getCollection(gooruOid);
+		if (collection != null) {
+			if (getCollectionDao().getPublicCollectionCount(collection.getGooruOid(), PUBLIC) > 0) {
+				collection.setSharing(Sharing.PUBLIC.getSharing());
+			} else if (getCollectionDao().getPublicCollectionCount(collection.getGooruOid(), Sharing.ANYONEWITHLINK.getSharing()) > 0) {
+				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+			} else {
+				collection.setSharing(Sharing.PRIVATE.getSharing());
+			}
+			this.getCollectionDao().save(collection);
+		}
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String parentId, String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
 		Collection collection = getCollectionDao().getCollection(collectionId);
-		String collectionOldSharing = collection.getSharing(); 
+		String collectionOldSharing = collection.getSharing();
+		CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, collection.getUser());
+		if (newCollection.getPosition() != null) {
+			this.resetSequence(parentCollectionItem.getCollection(), parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
+		}
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
@@ -171,6 +231,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
+			if (parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
+			}
 		}
 		if (newCollection.getSettings() != null) {
 			updateCollectionSettings(collection, newCollection);
@@ -191,14 +254,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
-		if (newCollection.getPosition() != null) {
-			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
-			if (parentId == null) {
-				parentId = parentCollectionItem.getCollection().getGooruOid();
-			}
-			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
-			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
-		}
+
 		if (newCollection.getMediaFilename() != null && !newCollection.getMediaFilename().isEmpty()) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
@@ -211,9 +267,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
-		if(parentId != null) {
-			CollectionItem collectionItem = getCollectionDao().getCollectionItem(parentId, collectionId, user.getPartyUid());
-			getCollectionEventLog().collectionUpdateEventLog(parentId, collectionItem, collectionOldSharing, user);
+		if (parentId != null) {
+			getCollectionEventLog().collectionUpdateEventLog(parentId, parentCollectionItem, collectionOldSharing, user);
 		}
 		Map<String, Object> data = generateCollectionMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -259,7 +314,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
 			createContentMeta(resource, data);
-
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
+			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -293,6 +349,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
 		createContentMeta(question, metaData);
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		return collectionItem;
 	}
 
@@ -312,7 +370,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public CollectionItem addResource(String collectionId, String resourceId, User user) {
+	public CollectionItem addResource(String collectionId, String resourceId, String collectionItemId, User user) {
 		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		Resource resource = getResourceBoService().getResource(resourceId);
@@ -320,15 +378,19 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		reject(!resource.getContentType().getName().equalsIgnoreCase(QUESTION), GL0056, 404, RESOURCE);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
+		if (collectionItemId != null) {
+			copyCollectionItem(collectionItemId, collectionItem);
+		}
 		collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, null, ADD);
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		return collectionItem;
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public CollectionItem addQuestion(String collectionId, String questionId, User user) {
+	public CollectionItem addQuestion(String collectionId, String questionId, String collectionItemId, User user) {
 		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		AssessmentQuestion question = this.getQuestionService().getQuestion(questionId);
@@ -336,10 +398,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		AssessmentQuestion copyQuestion = this.getQuestionService().copyQuestion(question, user);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
+		if (collectionItemId != null) {
+			copyCollectionItem(collectionItemId, collectionItem);
+		}
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, question.getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		getIndexHandler().setReIndexRequest(copyQuestion.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
 	}
@@ -358,7 +425,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Object lastModifiedUserUid = collection.get(LAST_MODIFIED_USER_UID);
 			if (lastModifiedUserUid != null) {
 				Long collaborator = getCollaboratorRepository().getCollaboratorsCountById(collectionId);
-				if (collaborator != null && collaborator > 0) { 
+				if (collaborator != null && collaborator > 0) {
 					collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
 				}
 			}
@@ -367,6 +434,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> creator = (Map<String, Object>) collection.get(USER);
+		creator.put(SHOWPROFILEPAGE, false);
+		final PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(String.valueOf(creator.get(GOORU_UID)), SHOW_PROFILE_PAGE);
+		if (partyCustomField != null) {
+			creator.put(SHOWPROFILEPAGE, Boolean.parseBoolean(partyCustomField.getOptionalValue()));
+			collection.put(USER, creator);
+		}
 		return collection;
 	}
 
@@ -475,6 +550,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getCollectionItemId(), user.getPartyUid(), COLLECTION);
+		SessionContextSupport.getMoveContentMeta().put(USER_UID, user.getPartyUid());
+		if (sourceCollectionItem != null && sourceCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
+			SessionContextSupport.getMoveContentMeta().put(SOURCE_ID, sourceCollectionItem.getCollection().getGooruOid());
+		}
+		if (targetCollection.getCollectionType().equalsIgnoreCase(FOLDER)) {
+			SessionContextSupport.getMoveContentMeta().put(TARGET_ID, targetCollection.getGooruOid());
+		}
 		getCollectionDao().remove(sourceCollectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
@@ -661,9 +743,19 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
+		collectionItem.getCollection().setLastModified(new Date());
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
+	}
+
+	private void copyCollectionItem(String collectionItemId, CollectionItem collectionItem) {
+		CollectionItem addCollectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
+		if (addCollectionItem != null) {
+			collectionItem.setNarration(addCollectionItem.getNarration());
+			collectionItem.setStart(addCollectionItem.getStart());
+			collectionItem.setStop(addCollectionItem.getStop());
+		}
 	}
 
 	private Errors validateResource(final Resource resource) {
@@ -712,6 +804,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public CollectionEventLog getCollectionEventLog() {
 		return collectionEventLog;
+	}
+
+	public PartyRepository getPartyRepository() {
+		return partyRepository;
 	}
 
 }

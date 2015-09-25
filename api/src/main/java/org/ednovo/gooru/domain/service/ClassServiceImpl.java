@@ -6,10 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
@@ -306,10 +303,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		UserClass userClass = this.getClassRepository().getClassById(classUId);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		if (userClass.getUserUid().equals(user.getGooruUId())) {
-			this.getClassRepository().remove(userClass);
+			userClass.setIsDeleted(true);
 		} else {
 			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
+		getClassEventLogger().deleteClass(classUId);
 	}
 
 	@Override
@@ -337,45 +335,29 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
-		throw new NotImplementedException("release - 1.6 : this feature is put on hold,  we  may implement this in further releases. ");
-		/*
-		 * UserClass userClass =
-		 * this.getClassRepository().getClassById(classUid);
-		 * rejectIfNull(userClass, GL0056, 404, CLASS);
-		 * List<ClassCollectionSettings> settings = new
-		 * ArrayList<ClassCollectionSettings>(); for (ClassCollectionSettings
-		 * classCollectionSetting : classCollectionSettings) {
-		 * classCollectionSetting.setClassId(userClass.getClassId());
-		 * settings.add(classCollectionSetting); }
-		 * this.getClassRepository().saveAll(settings);
-		 */
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>(); 
+		for (ClassCollectionSettings classCollectionSetting : classCollectionSettings) {
+			classCollectionSetting.setClassId(userClass.getClassId());
+			settings.add(classCollectionSetting); 
+		}
+		this.getClassRepository().saveAll(settings);
+		getClassEventLogger().classContentVisibilty(classUid, settings);
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
-		throw new NotImplementedException("release - 1.6 : this feature is put on hold,  we  may implement this in further releases. ");
-		/*
-		 * List<Map<String, Object>> lessons =
-		 * getClassRepository().getCollectionItem(unitId, limit, offset);
-		 * List<Map<String, Object>> lessonList = new ArrayList<Map<String,
-		 * Object>>(); for (Map<String, Object> lesson : lessons) { Long
-		 * contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-		 * List<Map<String, Object>> classCollectionSettings =
-		 * this.getClassRepository().getClassCollectionSettings(contentId,
-		 * classUid); lesson.put(ITEMS, classCollectionSettings);
-		 * lessonList.add(lesson); } return lessonList;
-		 */
+	public List<Map<String, Object>> getClassContent(String classUid, String gooruOid, String collectionType) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		return this.getClassRepository().getCourseData(gooruOid, collectionType);
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
-		return getClassRepository().getCollectionItem(courseId, limit, offset);
-	}
-
-	@Override
-	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
+	public Map<String, Object> getClassCollections(String classUid, String lessonId, int limit, int offset) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
 		Object gooruOid = lesson.get(GOORU_OID);
 		if (gooruOid != null) {

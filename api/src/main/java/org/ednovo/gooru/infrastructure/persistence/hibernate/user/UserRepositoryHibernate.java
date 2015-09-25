@@ -106,6 +106,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String FIND_ENTITY_BY_ENTITY_NAME = "SELECT DISTINCT(eo.entityName) FROM EntityOperation eo WHERE eo.entityName = :entityName";
 	private static final String FIND_OPERATIONS_BY_ROLE = "FROM RoleEntityOperation REO WHERE REO.userRole.roleId = :roleId";
 	private static final String FIND_ALL_ENTITY_NAME = "SELECT DISTINCT entityOperation.entityName FROM EntityOperation entityOperation";
+	private static final String GET_PROFILE = "select  date_of_birth as dateOfBirth,user_type as userType from profile  where user_uid =:userUid";
 	
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
@@ -963,5 +964,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(FIND_ENTITY_BY_ENTITY_NAME);
 		query.setParameter("entityName", entityName);
 		return query.list().size() > 0 ? true : false;
+	}
+
+	@Override
+	public Map<String, Object> getProfile(String userUid) {
+		Query query = getSession().createSQLQuery(GET_PROFILE);
+		query.setParameter(USER_UID, userUid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>>  result = list(query);
+		return result != null && result.size() > 0 ? result.get(0) : null;
 	}
 }

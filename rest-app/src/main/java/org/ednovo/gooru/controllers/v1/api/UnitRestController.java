@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -14,6 +15,8 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.component.CollectionCopyProcessor;
+import org.ednovo.gooru.domain.component.CollectionDeleteProcessor;
 import org.ednovo.gooru.domain.service.collection.UnitService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,12 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	@Autowired
 	private UnitService unitService;
+	
+	@Autowired
+	private CollectionCopyProcessor collectionCopyProcessor;
+	
+	@Autowired
+	private CollectionDeleteProcessor collectionDeleteProcessor;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -72,6 +81,17 @@ public class UnitRestController extends BaseController implements ConstantProper
 	public void deleteUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getUnitService().deleteUnit(courseId, unitId, user);
+		getCollectionDeleteProcessor().deleteContent(unitId, UNIT);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
+	public ModelAndView copyUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		Job job = getCollectionCopyProcessor().copyUnit(courseId, unitId, user);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		job.setUri(buildUri(RequestMappingUri.V2_JOB, String.valueOf(job.getJobId())));
+		return toModelAndViewWithIoFilter(job, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	private Collection buildUnit(final String data) {
@@ -80,6 +100,14 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	public UnitService getUnitService() {
 		return unitService;
+	}
+
+	public CollectionCopyProcessor getCollectionCopyProcessor() {
+		return collectionCopyProcessor;
+	}
+
+	public CollectionDeleteProcessor getCollectionDeleteProcessor() {
+		return collectionDeleteProcessor;
 	}
 
 }

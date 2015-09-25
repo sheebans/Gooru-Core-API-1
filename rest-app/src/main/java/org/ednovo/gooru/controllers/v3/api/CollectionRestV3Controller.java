@@ -17,7 +17,9 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
-import org.ednovo.gooru.domain.service.collection.CopyCollectionService;
+import org.ednovo.gooru.domain.service.collection.CollectionCopyService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,7 +37,10 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	private CollectionBoService collectionBoService;
 
 	@Autowired
-	private CopyCollectionService copyCollectionService;
+	private CollectionCopyService collectionCopyService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private static final String INCLUDE_ITEMS = "includeItems";
 	
@@ -65,9 +70,10 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = { RequestMappingUri.V3_SOURCE_COLLECTION_ID }, method = RequestMethod.POST)
-	public ModelAndView copyCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView collectionCopy(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final Collection collection = this.getCopyCollectionService().copyCollection(folderId, collectionId, user, buildCollection(data));
+		final Collection collection = this.getCollectionCopyService().collectionCopy(folderId, collectionId, user, buildCollection(data));
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION, collection.getGooruOid()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -98,9 +104,9 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE_ID }, method = RequestMethod.POST)
-	public ModelAndView addResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView addResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String resourceId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, collectionItemId,  user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -126,9 +132,9 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_QUESTION_ID }, method = RequestMethod.POST)
-	public ModelAndView addQuestion(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String questionId, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView addQuestion(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String questionId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, collectionItemId, user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -183,11 +189,15 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 		return collectionBoService;
 	}
 
-	public CopyCollectionService getCopyCollectionService() {
-		return copyCollectionService;
+	public CollectionCopyService getCollectionCopyService() {
+		return collectionCopyService;
 	}
 
 	private CollectionItem buildCollectionItem(final String data) {
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
+	}
+
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
 	}
 }

@@ -44,7 +44,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import flexjson.JSONSerializer;
 
 @Component
 public class DoAuthorization {
@@ -96,19 +93,12 @@ public class DoAuthorization {
 		AuthenticationDo authentication = null;
 		UserToken userToken = null;
 		String key = null;
-		String data = null;
+		String loginToken = null;
 		final String skipCache = request.getParameter("skipCache");
 
 		if (oAuthToken != null) {
-			try {
-				key = SESSION_TOKEN_KEY + oAuthToken;
-				data = getRedisService().getValue(key);
-				if (data != null && (skipCache == null || skipCache.equals("0"))) {
-					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
-				}
-			} catch (Exception e) {
-				LOGGER.error("Failed to  get  value from redis server");
-			}
+			loginToken = oAuthToken;
+			authentication = getAuthenticationDoFromCache(oAuthToken);
 			if (authentication == null || authentication.getUserToken() == null) {
 				try {
 					user = oAuthService.getUserByOAuthAccessToken(BaseUtil.extractToken(oAuthToken));
@@ -127,15 +117,8 @@ public class DoAuthorization {
 			}
 			request.setAttribute(Constants.OAUTH_ACCESS_TOKEN, oAuthToken);
 		} else if (sessionToken != null) {
-			try {
-				key = SESSION_TOKEN_KEY + sessionToken;
-				data = getRedisService().get(key);
-				if (data != null && (skipCache == null || skipCache.equals("0"))) {
-					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
-				}
-			} catch (Exception e) {
-				LOGGER.error("Failed to  get  value from redis server");
-			}
+			loginToken = sessionToken;
+			authentication = getAuthenticationDoFromCache(sessionToken);
 			if (authentication == null || authentication.getUserToken() == null) {
 				userToken = userTokenRepository.findByToken(sessionToken);
 			} else {
@@ -159,6 +142,8 @@ public class DoAuthorization {
 				redisService.addSessionEntry(sessionToken, organization);
 			}
 		} else if (apiKeyToken != null) {
+			loginToken = apiKeyToken;
+			authentication = getAuthenticationDoFromCache(apiKeyToken);
 			if (authentication == null) {
 				final Application application = this.getApplicationRepository().getApplication(apiKeyToken);
 				if (application == null) {
@@ -182,7 +167,7 @@ public class DoAuthorization {
 		}
 		// check token expires
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
-			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
+			doAuthentication(request, response, authentication.getUserToken().getUser(), loginToken, skipCache, authentication, key);
 		}
 
 		// set to request so that controllers can read it.
@@ -199,7 +184,7 @@ public class DoAuthorization {
 		if (user != null) {
 			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(authentication.getUserToken(), user);
+				authentication = getAccountUtil().storeAccountLoginDetailsInRedis(sessionToken, authentication.getUserToken(), user);
 			}
 			userCredential = authentication.getUserCredential();
 			if (LOGGER.isDebugEnabled()) {
@@ -210,6 +195,20 @@ public class DoAuthorization {
 
 		}
 		return auth;
+	}
+	
+	private AuthenticationDo getAuthenticationDoFromCache(String token) { 
+		AuthenticationDo authenticationDo = null;
+		try {
+			String key = SESSION_TOKEN_KEY + token;
+			String data = getRedisService().get(key);
+			if (data != null) {
+				authenticationDo = JsonDeserializer.deserialize(data, AuthenticationDo.class);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Failed to  get  value from redis server");
+		}
+		return authenticationDo;
 	}
 
 	private boolean hasRoleChanged(Authentication auth, User user) {

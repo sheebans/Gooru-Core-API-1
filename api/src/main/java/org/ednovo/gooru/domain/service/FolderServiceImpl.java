@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -63,6 +64,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	@Autowired
 	private CollectionService collectionService;
 
+	@Autowired
+	private CollectionBoService collectionBoService;
+	
 	@Override
 	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, final Integer limit, final Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType) {
 		if (!BaseUtil.isUuid(gooruUid)) {
@@ -97,7 +101,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
 		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, true, orderBy, excludeType);
 		if (collectionItems == null || collectionItems.size() == 0) {
-			collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, true, ASC, false, excludeType);
+			collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 50, 0, sharing, orderBy, true, ASC, false, excludeType);
 		}
 		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 		if (collectionItems != null && collectionItems.size() > 0) {
@@ -148,7 +152,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public String getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType, final boolean clearCache) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, 404, FOLDER);
-		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
+		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC + HYPHEN +limit + HYPHEN + offset;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -174,7 +178,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public List<Map<String, String>> getFolderNode(final String collectionId) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
-		return this.getCollectionService().getParentCollection(collectionId, null, true);
+		return getCollectionBoService().getParentCollection(collectionId, null, true);
 	}
 
 	@Override
@@ -230,4 +234,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
+	
+	public CollectionBoService getCollectionBoService(){
+		return collectionBoService;
+	}
+	
 }

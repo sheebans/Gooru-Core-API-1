@@ -17,7 +17,9 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
-import org.ednovo.gooru.domain.service.collection.CopyCollectionService;
+import org.ednovo.gooru.domain.service.collection.CollectionCopyService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,7 +37,10 @@ public class CollectionRestController extends BaseController implements Constant
 	private CollectionBoService collectionBoService;
 
 	@Autowired
-	private CopyCollectionService copyCollectionService;
+	private CollectionCopyService collectionCopyService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private static final String COLLECTION_TYPES = "collection,assessment,assessment/url";
 
@@ -103,9 +108,9 @@ public class CollectionRestController extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_RESOURCE_ID }, method = RequestMethod.POST)
 	public ModelAndView addResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
+			@PathVariable(value = ID) final String resourceId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, collectionItemId, user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -134,9 +139,9 @@ public class CollectionRestController extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_QUESTION_ID }, method = RequestMethod.POST)
 	public ModelAndView addQuestion(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String questionId, final HttpServletRequest request, final HttpServletResponse response) {
+			@PathVariable(value = ID) final String questionId, @RequestParam(value = COLLECTION_ITEM_ID, required= false) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, user);
+		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId,collectionItemId,  user);
 		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -152,10 +157,11 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = { RequestMappingUri.TARGET_LESSON }, method = RequestMethod.POST)
-	public ModelAndView copyCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @PathVariable(value = ID) final String collectionId, @RequestBody final String data,
+	public ModelAndView collectionCopy(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @PathVariable(value = ID) final String collectionId, @RequestBody final String data,
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final Collection collection = this.getCopyCollectionService().copyCollection(courseId, unitId, lessonId, collectionId, user, buildCollection(data));
+		final Collection collection = this.getCollectionCopyService().collectionCopy(courseId, unitId, lessonId, collectionId, user, buildCollection(data));
+		getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION, collection.getGooruOid()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -202,8 +208,8 @@ public class CollectionRestController extends BaseController implements Constant
 		return collectionBoService;
 	}
 
-	public CopyCollectionService getCopyCollectionService() {
-		return copyCollectionService;
+	public CollectionCopyService getCollectionCopyService() {
+		return collectionCopyService;
 	}
 
 	private Collection buildCollection(final String data) {
@@ -212,6 +218,10 @@ public class CollectionRestController extends BaseController implements Constant
 
 	private CollectionItem buildCollectionItem(final String data) {
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
+	}
+
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
 	}
 
 }

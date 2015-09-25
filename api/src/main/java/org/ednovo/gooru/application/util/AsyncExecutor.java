@@ -78,7 +78,7 @@ public class AsyncExecutor {
 					logger.debug("coping resource folder");
 					getResourceManager().copyResourceRepository(sourceFilePath, targetFilepath);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.debug("coping resource folder is failed", e);
 				}
 				return null;
 			}

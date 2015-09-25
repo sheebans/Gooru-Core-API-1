@@ -125,31 +125,36 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = { RequestMethod.PUT })
-	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getClassService().updateClassSettings(classUid, this.buildClassCollectionSettings(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@RequestMapping(value = RequestMappingUri.CLASS_UNIT, method = RequestMethod.GET)
-	public ModelAndView getClassUnit(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,
+	@RequestMapping(value = RequestMappingUri.CLASS_UNITS, method = RequestMethod.GET)
+	public ModelAndView getClassUnits(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
+		return toModelAndView(this.getClassService().getClassContent(classUid, courseId, COURSE), RESPONSE_FORMAT_JSON);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.CLASS_LESSONS, method = RequestMethod.GET)
+	public ModelAndView getClassLessons(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId , @PathVariable(UNIT_ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndView(this.getClassService().getClassContent(classUid, unitId, UNIT), RESPONSE_FORMAT_JSON);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.CLASS_COLLECTIONS, method = RequestMethod.GET)
+	public ModelAndView getClassCollections(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId , @PathVariable(UNIT_ID) final String unitId,  @PathVariable(LESSON_ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndView(this.getClassService().getClassContent(classUid, lessonId, LESSON), RESPONSE_FORMAT_JSON);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_LESSON_COLLECTION, method = RequestMethod.GET)
 	public ModelAndView getClassCollection(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @PathVariable(LESSON_ID) final String lessonId,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassCollections(lessonId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, "*");
+		return toModelAndViewWithIoFilter(this.getClassService().getClassCollections(classUid, lessonId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, "*");
 	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = RequestMethod.GET)
-	public ModelAndView getClassCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassCollectionSettings(classUid, unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
-	}
-
+	
 	private UserClass buildClass(final String data) {
 		return JsonDeserializer.deserialize(data, UserClass.class);
 	}

@@ -12,6 +12,8 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(CourseEventLog.class);
 	
+	public final static String EXCLUDE_CLASS = "*.class";
+	
 	public final static String CLASS_ITEM_MOVE = "class.item.move";
 
 	public static final String CLASS_ITEM_DELETE = "class.item.delete";
@@ -52,13 +54,26 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 
 	public static final String SHELF_COURSE_QUESTION = "shelf.course.unit.lesson.collection.question";
 
-	public void putValue(String entityName, String key, String value) throws JSONException {
+	public void putValue(String entityName, String key, Object value) throws JSONException {
 		JSONObject log = getLogParameter(entityName);
-		log.put(key, value);
-		SessionContextSupport.getLog().put(entityName,log.toString());
+		putValue(log, key, value);
+		putEntity(entityName, log);
 	}
 	
 	public JSONObject getLogParameter(String key) throws JSONException {
 		return SessionContextSupport.getLog().get(key) != null ? new JSONObject(SessionContextSupport.getLog().get(key).toString()) : new JSONObject();
 	}
+
+	public void putValue(JSONObject log, String key, Object value) throws JSONException {
+		log.put(key, value);
+	}
+	
+	public void putValue(String key, Object value) throws JSONException {
+		SessionContextSupport.getLog().put(key, value);
+	}
+	
+	public void putEntity(String entityName, JSONObject log) {
+		SessionContextSupport.getLog().put(entityName,log.toString());
+	}
+	
 }

@@ -15,8 +15,6 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.AssessmentQuestionAssetAssoc;
 import org.ednovo.gooru.core.api.model.Asset;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.Collection;
-import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -281,6 +279,9 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		copyQuestion.setUser(user);
 		copyQuestion.setCreator(question.getCreator());
 		copyQuestion.setType(question.getType());
+		copyQuestion.setCreatedOn(new Date(System.currentTimeMillis()));
+		copyQuestion.setOrganization(question.getOrganization());
+		copyQuestion.setThumbnail(question.getThumbnail());
 		if (question.getHints() != null) {
 			Set<AssessmentHint> copyHints = new TreeSet<AssessmentHint>();
 			for (AssessmentHint hint : question.getHints()) {
