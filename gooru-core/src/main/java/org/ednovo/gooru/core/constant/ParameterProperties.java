@@ -340,8 +340,6 @@ public interface ParameterProperties {
 
 	String TASK = "task";
 
-	String PLANNED_END_DATE = "plannedEndDate";
-
 	String TASK_RESOURCE_ASSOC = "taskResourceAssoc";
 
 	String TASK_RESOURCE_ASSOC_ID = "taskResourceAssocId";
@@ -427,8 +425,6 @@ public interface ParameterProperties {
 	String STATUS = "status";
 
 	String ESTIMATEDEFFORT = "estimatedEffort";
-
-	String PLANNEDENDDATE = "plannedEndDate";
 
 	String TO_ADDRESS = "to";
 
