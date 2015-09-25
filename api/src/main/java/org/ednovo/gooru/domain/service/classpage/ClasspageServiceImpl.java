@@ -430,13 +430,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			results.put(COLLECTION_ITEM_ID, object[2]);
 			results.put(ASSOC_COLLECTION_NO, object[3]);
 			results.put(DIRECTION, object[4]);
-			results.put(DUEDATE, object[5]);
-			results.put(COLLECTION_CREATOR, object[6]);
-			results.put(CREATED_DATE, object[7]);
-			results.put(LAST_MODIFIED_DATE, object[8]);
-			results.put(TITLE, object[9]);
-			results.put(COLLECTION_TITLE, object[10]);
-			results.put(CLASSPAGE_CREATOR, object[11]);
+			results.put(COLLECTION_CREATOR, object[5]);
+			results.put(CREATED_DATE, object[6]);
+			results.put(LAST_MODIFIED_DATE, object[7]);
+			results.put(TITLE, object[8]);
+			results.put(COLLECTION_TITLE, object[9]);
+			results.put(CLASSPAGE_CREATOR, object[10]);
 			result.add(results);
 		}
 		resultCount.put(SEARCH_RESULT, result);
@@ -471,8 +470,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				items.put("collectionGooruOid", object[4]);
 				items.put("collectionTitle", object[5]);
 				items.put("narration", object[6]);
-				items.put("isRequired", object[7]);
-				items.put("minimumScore", object[8]);
+				items.put("minimumScore", object[7]);
 			}
 		}
 		return items;
