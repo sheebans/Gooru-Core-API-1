@@ -166,7 +166,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	}
 
 	private Query createSQLQuery(String query) {
-		return getSessionFactoryReadOnly().getCurrentSession().createSQLQuery(query);
+		return getSessionFactory().getCurrentSession().createSQLQuery(query);
 	}
 
 	@Override
