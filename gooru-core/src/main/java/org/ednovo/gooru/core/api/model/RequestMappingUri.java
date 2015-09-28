@@ -103,5 +103,20 @@ public class RequestMappingUri {
 	public static final String CLASS_LESSONS = "/{id}/course/{courseId}/unit/{unitId}/lesson";
 	
 	public static final String CLASS_COLLECTIONS = "/{id}/course/{courseId}/unit/{unitId}/lesson/{lessonId}";
+	
+	public static final String V3_LIBRARY = "/v3/library";
+	
+	public static final String V3_LIBRARY_COURSE = "/{id}/course";
+	
+	public static final String V3_LIBRARY_COURSE_UNIT = "/{id}/course/{courseId}/unit";
+	
+	public static final String V3_LIBRARY_COURSE_LESSON = "/{id}/course/{courseId}/unit/{unitId}/lesson";
 
+	public static final String V3_LIBRARY_SUBJECT = "/{id}/subject";
+	
+	public static final String V3_LIBRARY_SUBJECT_COURSE = "/{id}/subject/{subjectId}/course";
+	
+	public static final String V3_LIBRARY_SUBJECT_COURSE_UNIT = "/{id}/subject/{subjectId}/course/{courseId}/unit";
+	
+	public static final String V3_LIBRARY_SUBJECT_COURSE_UNIT_LESSON = "/{id}/subject/{subjectId}/course/{courseId}/unit/{unitId}/lesson";
 }

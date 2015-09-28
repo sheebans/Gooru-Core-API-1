@@ -239,11 +239,13 @@ public class Constants implements ParameterProperties {
 
 	public static final Short BUILD_IPAD_TYPE_ID = 77;
 
-	public static final Map<Object, String> SCORE_TYPE;
+	public static final Map<Integer, String> LIBRARIES;
 
-	public static final Short SCORE_TYPE_SELF_REPORTED = 1;
+	public static final Integer LIBRARY_COUMMUNITY_CATEGORY_ID = 1;
 
-	public static final Short SCORE_TYPE_COMPUTER_SCORED = 2;
+	public static final Integer LIBRARY_DISTRICT_CATEGORY_ID = 2;
+	
+	public static final Integer LIBRARY_PARTNER_CATEGORY_ID = 3;
 	
 	public static final Map<Short, String> PUBLISH_STATUS_ID;
 
@@ -291,10 +293,11 @@ public class Constants implements ParameterProperties {
 	}
 
 	static {
-		Map<Object, String> scoreType = new HashMap<Object, String>();
-		scoreType.put(SCORE_TYPE_SELF_REPORTED, "Self reported");
-		scoreType.put(SCORE_TYPE_COMPUTER_SCORED, "Computer scored");
-		SCORE_TYPE = Collections.unmodifiableMap(scoreType);
+		Map<Integer, String> libraries = new HashMap<Integer, String>();
+		libraries.put(LIBRARY_COUMMUNITY_CATEGORY_ID, "Community Library");
+		libraries.put(LIBRARY_DISTRICT_CATEGORY_ID, "District Libraries");
+		libraries.put(LIBRARY_PARTNER_CATEGORY_ID, "Partner Libraries");
+		LIBRARIES = Collections.unmodifiableMap(libraries);
 	}
 
 }
