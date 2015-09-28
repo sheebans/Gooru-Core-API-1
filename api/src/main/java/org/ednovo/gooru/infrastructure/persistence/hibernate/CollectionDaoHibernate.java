@@ -257,7 +257,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	public List<CollectionItem> getCollectionItems(String collectionId, boolean fetchAll) {
 		StringBuilder sql = new StringBuilder(GET_COLLECTION_ITEM_LIST);
 		if (!fetchAll) {
-			sql.append(" and ci.content.isDeleted = 0");
+			sql.append(" and ci.content.isDeleted = 0 order by ci.itemSequence");
 		}
 		Query query = getSession().createQuery(sql.toString());
 		query.setParameter(COLLECTION_ID, collectionId);

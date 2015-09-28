@@ -1,12 +1,9 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
