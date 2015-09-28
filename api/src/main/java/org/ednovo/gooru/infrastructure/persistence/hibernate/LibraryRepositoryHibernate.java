@@ -16,7 +16,7 @@ public class LibraryRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	private static final String GET_USER_UID = "select gooru_uid  from user where username=:username";
 
-	private static final String GET_COLLECTION_ITEMS = "select cc.title, cc.content_id as collectionId, ci.collection_item_id as collectionItemId, cr.gooru_oid as gooruOid, co.gooru_oid as parentGooruOid, cc.image_path as imagePath, cc.collection_type as collectionType  from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = cc.content_id inner join content co on co.content_id = c.content_id";
+	private static final String GET_COLLECTION_ITEMS = "select cc.title, cc.content_id as collectionId, ci.collection_item_id as collectionItemId, cr.gooru_oid as gooruOid, co.gooru_oid as parentGooruOid, cc.image_path as imagePath, cc.collection_type as collectionType  from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = cc.content_id inner join content co on co.content_id = c.content_id ";
 
 	private static final String GET_COLLECTION_RESOURCE_ITEMS = "select cc.title, cc.type_name as resourceType, cc.folder, cc.thumbnail, ct.value, ct.display_name as displayName  from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = cc.content_id inner join content co on co.content_id = c.content_id left join custom_table_value ct on ct.custom_table_value_id = resource_format_id where cr.gooru_oid =:gooruOid order by  ci.item_sequence";
 
@@ -40,7 +40,7 @@ public class LibraryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<Map<String, Object>> getCollectionItems(String gooruOid, String collectionType, int limit, int offset) {
 		StringBuilder sql = new StringBuilder(GET_COLLECTIONS);
-		sql.append("where cr.gooru_oid =:gooruOid and cc.collection_type  =:collectionType order by  ci.item_sequence");
+		sql.append("where co.gooru_oid =:gooruOid and cc.collection_type  =:collectionType order by  ci.item_sequence");
 		Query query = getSession().createSQLQuery(sql.toString());
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(COLLECTION_TYPE, collectionType);
@@ -53,10 +53,10 @@ public class LibraryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<Map<String, Object>> getCollectionItems(String gooruOid, String[] collectionType, int limit, int offset) {
 		StringBuilder sql = new StringBuilder(GET_COLLECTION_ITEMS);
-		sql.append("where cr.gooru_oid =:gooruOid and cc.collection_type in (:collectionType) order by  ci.item_sequence");
+		sql.append("where co.gooru_oid =:gooruOid and cc.collection_type in (:collectionType) order by  ci.item_sequence");
 		Query query = getSession().createSQLQuery(sql.toString());
 		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(COLLECTION_TYPE, collectionType);
+		query.setParameterList(COLLECTION_TYPE, collectionType);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit > MAX_LIMIT ? MAX_LIMIT : limit);

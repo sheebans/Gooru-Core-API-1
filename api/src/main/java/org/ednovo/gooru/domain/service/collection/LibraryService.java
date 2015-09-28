@@ -11,10 +11,10 @@ public interface LibraryService {
 	
 	List<Map<String, Object>> getSubjects(String userUid, int limit, int offset);
 	
-	List<Map<String, Object>> getSubjectItems(String subjectId, int limit, int offset);
+	List<Map<String, Object>> getCourses(String subjectId, int limit, int offset);
 	
-	List<Map<String, Object>> getUnitItems(String unitId, int limit, int offset);
+	List<Map<String, Object>> getUnits(String courseId, int limit, int offset);
 	
-	List<Map<String, Object>> getLessonItems(String lessonId, int limit, int offset);
+	List<Map<String, Object>> getLessons(String unitId, int limit, int offset);
 	
 }

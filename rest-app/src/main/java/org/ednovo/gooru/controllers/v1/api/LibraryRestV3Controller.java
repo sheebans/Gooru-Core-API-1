@@ -41,14 +41,14 @@ public class LibraryRestV3Controller extends BaseController implements ConstantP
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_COURSE_UNIT, method = RequestMethod.GET)
 	public ModelAndView getUnits(@PathVariable(value = ID) final String userUId, @PathVariable(value = COURSE_ID) final String courseId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getLibraryService().getUnitItems(userUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+		return toModelAndViewWithIoFilter(getLibraryService().getUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_COURSE_LESSON, method = RequestMethod.GET)
-	public ModelAndView getLessons(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") int limit, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getLibraryService().getLessonItems(userUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getLessons(@PathVariable(value = ID) final String userUId, @PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getLibraryService().getLessons(unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -60,24 +60,23 @@ public class LibraryRestV3Controller extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_SUBJECT_COURSE, method = RequestMethod.GET)
-	public ModelAndView getSubjectCourses(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getLibraryService().getSubjectItems(userUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getSubjectCourses(@PathVariable(value = ID) final String userUId, @PathVariable(value = SUBJECT_ID) final String subjectId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getLibraryService().getCourses(subjectId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_SUBJECT_COURSE_UNIT, method = RequestMethod.GET)
-	public ModelAndView getSubjectUnits(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getLibraryService().getUnitItems(userUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getSubjectUnits(@PathVariable(value = ID) final String userUId, @PathVariable(value = SUBJECT_ID) final String subjectId, @PathVariable(value = COURSE_ID) final String courseId,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getLibraryService().getUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_SUBJECT_COURSE_UNIT_LESSON, method = RequestMethod.GET)
 	public ModelAndView getSubjectLessons(@PathVariable(value = ID) final String userUId, @PathVariable(value = SUBJECT_ID) final String subjectId, @PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId,
-			@PathVariable(value = LESSON_ID) final String lessonId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") int limit, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getLibraryService().getLessonItems(userUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getLibraryService().getLessons(unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	public LibraryService getLibraryService() {

@@ -49,7 +49,7 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 	}
 
 	@Override
-	public List<Map<String, Object>> getSubjectItems(String subjectId, int limit, int offset) {
+	public List<Map<String, Object>> getCourses(String subjectId, int limit, int offset) {
 		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(subjectId, COURSE, limit, offset);
 		List<Map<String, Object>> courses = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> course : results) {
@@ -59,8 +59,8 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 	}
 
 	@Override
-	public List<Map<String, Object>> getUnitItems(String unitId, int limit, int offset) {
-		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(unitId, UNIT, limit, offset);
+	public List<Map<String, Object>> getUnits(String courseId, int limit, int offset) {
+		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(courseId, UNIT, limit, offset);
 		List<Map<String, Object>> units = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> unit : results) {
 			units.add(mergeMetaData(unit));
@@ -69,15 +69,15 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 	}
 
 	@Override
-	public List<Map<String, Object>> getLessonItems(String lessonId, int limit, int offset) {
-		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(lessonId, LESSON, limit, offset);
+	public List<Map<String, Object>> getLessons(String unitId, int limit, int offset) {
+		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(unitId, LESSON, limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
 			List<Map<String, Object>> collectionResults = getLibraryRepository().getCollectionItems(String.valueOf(lesson.get(GOORU_OID)), COLLECTION_TYPES, 30, 0);
 			List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 			int count = 0;
 			for (Map<String, Object> collection : collectionResults) {
-				if (count == 1) { 
+				if (count == 1) {
 					collection.put(COLLECTION_ITEMS, getLibraryRepository().getCollectionResourceItems(String.valueOf(collection.get(GOORU_OID)), 4, 0));
 				}
 				collections.add(mergeMetaData(collection));
