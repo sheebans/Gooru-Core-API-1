@@ -368,43 +368,42 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			final Map<String, Object> resource = new HashMap<String, Object>();
 			if (!optimize) {
 				result.put(ASSOCIATION_DATE, object[0]);
-				resource.put(FOLDER, object[7]);
-				resource.put(SHARING, object[9]);
+				resource.put(FOLDER, object[6]);
+				resource.put(SHARING, object[8]);
 				final Map<String, Object> thumbnails = new HashMap<String, Object>();
-				if (object[8] != null) {
+				if (object[7] != null) {
 					final StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[7]) + String.valueOf(object[8]));
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[6]) + String.valueOf(object[7]));
 				} else {
 					thumbnails.put(URL, "");
 				}
 				resource.put(THUMBNAILS, thumbnails);
 				final Map<String, Object> user = new HashMap<String, Object>();
-				user.put(USERNAME, object[12]);
-				user.put(GOORU_UID, object[13]);
-				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[13]) + ".png");
+				user.put(USERNAME, object[11]);
+				user.put(GOORU_UID, object[12]);
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[12]) + ".png");
 				resource.put(USER, user);
-				resource.put(COLLECTIONITEMS, getPathawyItemWithOutValidation(object[5].toString(), 0, 10, orderBy, apiCaller));
+				resource.put(COLLECTIONITEMS, getPathawyItemWithOutValidation(object[4].toString(), 0, 10, orderBy, apiCaller));
 			}
-			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
-			resource.put(GOALS, object[10]);
-			resource.put(COLLECTION_TYPE, object[24]);
-			resource.put(TITLE, object[6]);
-			resource.put(TYPE_NAME, object[14]);
-			resource.put(GOORU_OID, object[5]);
+			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[4].toString(), null, CLASSPAGE));
+			resource.put(GOALS, object[9]);
+			resource.put(COLLECTION_TYPE, object[23]);
+			resource.put(TITLE, object[5]);
+			resource.put(TYPE_NAME, object[13]);
+			resource.put(GOORU_OID, object[4]);
 			result.put(COLLECTION_ITEM_ID, object[1]);
 			result.put(ITEM_SEQUENCE, object[2]);
 			result.put(NARRATION, object[3]);
-			result.put(PLANNED_END_DATE, object[4]);
-			result.put(STATUS, object[11]);
-			result.put(IS_REQUIRED, object[15]);
-			result.put(SHOW_ANSWER_BY_QUESTIONS, object[16]);
-			result.put(SHOW_HINTS, object[17]);
-			result.put(SHOW_ANSWER_END, object[18]);
-			result.put(MINIMUM_SCORE, object[19]);
-			result.put(ESTIMATED_TIME, object[20]);
-			result.put("minimumScoreByUser", object[21]);
-			result.put("assignmentCompleted", object[22]);
-			result.put("timeStudying", object[23]);
+			result.put(STATUS, object[10]);
+			result.put(IS_REQUIRED, object[14]);
+			result.put(SHOW_ANSWER_BY_QUESTIONS, object[15]);
+			result.put(SHOW_HINTS, object[16]);
+			result.put(SHOW_ANSWER_END, object[17]);
+			result.put(MINIMUM_SCORE, object[18]);
+			result.put(ESTIMATED_TIME, object[19]);
+			result.put("minimumScoreByUser", object[20]);
+			result.put("assignmentCompleted", object[21]);
+			result.put("timeStudying", object[22]);
 			result.put(RESOURCE, resource);
 			collectionItems.add(result);
 		}
@@ -431,13 +430,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			results.put(COLLECTION_ITEM_ID, object[2]);
 			results.put(ASSOC_COLLECTION_NO, object[3]);
 			results.put(DIRECTION, object[4]);
-			results.put(DUEDATE, object[5]);
-			results.put(COLLECTION_CREATOR, object[6]);
-			results.put(CREATED_DATE, object[7]);
-			results.put(LAST_MODIFIED_DATE, object[8]);
-			results.put(TITLE, object[9]);
-			results.put(COLLECTION_TITLE, object[10]);
-			results.put(CLASSPAGE_CREATOR, object[11]);
+			results.put(COLLECTION_CREATOR, object[5]);
+			results.put(CREATED_DATE, object[6]);
+			results.put(LAST_MODIFIED_DATE, object[7]);
+			results.put(TITLE, object[8]);
+			results.put(COLLECTION_TITLE, object[9]);
+			results.put(CLASSPAGE_CREATOR, object[10]);
 			result.add(results);
 		}
 		resultCount.put(SEARCH_RESULT, result);
@@ -472,9 +470,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				items.put("collectionGooruOid", object[4]);
 				items.put("collectionTitle", object[5]);
 				items.put("narration", object[6]);
-				items.put("plannedEndDate", object[7]);
-				items.put("isRequired", object[8]);
-				items.put("minimumScore", object[9]);
+				items.put("minimumScore", object[7]);
 			}
 		}
 		return items;

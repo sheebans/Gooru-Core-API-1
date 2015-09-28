@@ -35,9 +35,9 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
 			"*.associationDate", "*associatedUser", "*.status", "*.totalPages", "*.isRequired", "*.minimumScore", "*.estimatedTime", "*.showAnswerByQuestions", "*.showHints", "*.showAnswerEnd", "*.resource", "*.resource.collectionItems.resource", "*.itemCount", "*.minimumScoreByUser",
-			"*.timeStudying", "*.assignmentCompleted", "*.plannedEndDate", "*.collectionType" };
+			"*.timeStudying", "*.assignmentCompleted", "*.collectionType" };
 
-	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.title", "*.searchResults", "*.collectionItems", "*.resource", "*.resource.collectionItems.resource", "*.itemCount", "*.minimumScoreByUser" };
+	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = {  "*.totalHitCount", "*.title", "*.searchResults", "*.collectionItems", "*.resource", "*.resource.collectionItems.resource", "*.itemCount", "*.minimumScoreByUser" };
 
 	static final String COLLECTION_ITEM_INCLUDE[] = { "collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.collectionItem",
 			"*.collectionItem.collection", "*.totalPages" };
@@ -64,7 +64,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String CLASSPAGE_ITEM_INCLUDE[] = { "*.collection.gooruOid", "*.collection.title", "*.collection.thumbnails", "*.collection.goals" };
 
-	static final String CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.plannedEndDate" };
+	static final String CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description" };
 
 	static final String COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -229,23 +229,23 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String SESSION_INCLUDES[] = { "*.sessionActivityId", "*.classId", "*.rating", "*.reaction", "*.isStudent", "*.type", "*.parentId", "*.sequence", "*.viewsInSession", "*.timeSpentInMillis", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
 
-	static final String TASK_INCLUDES[] = { "*.collectionTasks", "*.creator.gooruUId", "*.creator.firstName", "*.creator.username", "*.creator.lastname", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.typeName", "*.gooruOid",
+	static final String TASK_INCLUDES[] = { "*.collectionTasks", "*.creator.gooruUId", "*.creator.firstName", "*.creator.username", "*.creator.lastname", "*.taskUid", "*.title", "*.description", "*.plannedStartDate",  "*.status", "*.estimatedEffort", "*.typeName", "*.gooruOid",
 			"*.lastModified", "*.createdOn", "*.lastUpdatedUserUid", "*.searchResults", "*.totalHitCount", "task" };
 
 	static final String TASK_HISTORY_INCLUDES[] = { "*.taskHistoryUid", "*.taskContentId", "*.userUid", "*.createdDate", "*.taskHistoryItems" };
 
 	static final String TASK_HISTORY_ITEM_INCLUDES[] = { "*.taskHistoryItemUid", "*.taskHistory", "*.fieldName", "*.oldKey", "*.oldValue", "*.newKey", "*.newValue" };
 
-	static final String TASK_RESOURCE_ASSOC_INCLUDES[] = { "*.taskResourceAssocs", "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName",
+	static final String TASK_RESOURCE_ASSOC_INCLUDES[] = { "*.taskResourceAssocs", "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate",  "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName",
 			"*.resource", "*.gooruOid", "*.associationDate", "*.user", "*.associatedByUid", "*.sequence", "*.taskResourceAssocUid", "*.user", "*.associationType", "*.totalHitCount", "*.searchResults" };
 
-	static final String TASK_CREATE_RESOURCE_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.resource",
+	static final String TASK_CREATE_RESOURCE_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate",  "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.resource",
 			"*.gooruOid", "*.associationDate", "*.user", "*.associatedByUid", "*.sequence", "*.taskResourceAssocUid", "*.user", "*.associationType", "*.totalHitCount", "*.searchResults" };
 
-	static final String TASK_USER_ASSOC_INCLUDES[] = { "*.task", "user", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.associationType",
+	static final String TASK_USER_ASSOC_INCLUDES[] = { "*.task", "user", "*.taskUid", "*.title", "*.description", "*.plannedStartDate",  "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.associationType",
 			"*.lastName", "*.gooruUId", "*.profileImageUrl", "*.loginType", "*.userRoleSetString", "*.username", "*.viewFlag", "*.createdOn", "*.restEndPoint", "*.confirmStatus", "*.emailId", "*.token", "*.partyUid", "*.firstName", "*.usernameDisplay", "*.accountCreatedType" };
 
-	static final String TASK_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.taskAssocUid", "*.taskParent",
+	static final String TASK_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate",  "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.taskAssocUid", "*.taskParent",
 			"*.taskDescendant", "*.sequence", "*.associationType" };
 
 	static final String SESSION_ITEM_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId", "*.classId", "*.score" };
@@ -357,7 +357,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	static final String POST_INCLUDE_FIELDS[] = { "*.title", "*.freeText", "*.type", "*.assocGooruOid", "*.assocUserUid", "*.target", "*.gooruOid", "*.createdOn", "*.value", "*.status" };
 
 	static final String COLLECTION_TASK_INCLUDES[] = { "*.task", "*.collectionTasks", "collectionTasks.collection.gooruOid", "collectionTasks.task", "collectionTasks.task.creator.gooruUId", "collectionTasks.task.creator.firstName", "collectionTasks.task.creator.username",
-			"collectionTasks.task.creator.lastName", "collectionTasks.task.title", "task.description", "collectionTasks.task.plannedStartDate", "collectionTasks.task.plannedEndDate", "collectionTasks.task.status", "collectionTasks.task.estimatedEffort", "collectionTasks.task.typeName",
+			"collectionTasks.task.creator.lastName", "collectionTasks.task.title", "task.description", "collectionTasks.task.plannedStartDate", "collectionTasks.task.status", "collectionTasks.task.estimatedEffort", "collectionTasks.task.typeName",
 			"collectionTasks.task.gooruOid", "collectionTasks.task.lastModified", "collectionTasks.collectionIds", "collectionTasks.task.createdOn", "collectionTasks.task.lastUpdatedUserUid", "*.totalCollectionCount", "task", "*.totalHitCount", "collectionTasks.task.description" };
 
 	static final String VIEWS = "views";

@@ -119,7 +119,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) final String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) final String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") final Boolean clearCache,
+			@RequestParam(value = ORDER_BY, required = false) final String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") final Boolean clearCache,
 			@RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) final Boolean optimize, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = TYPE, required = false) final String type, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
