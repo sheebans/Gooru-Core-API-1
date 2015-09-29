@@ -22,7 +22,7 @@ public interface EntityCassandraService<K, M extends Serializable> {
 
 	M save(K id);
 
-	List<M> save(K... ids);
+	List<M> save(Boolean fetchFromSlave, K... ids);
 
 	void save(M model);
 

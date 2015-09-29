@@ -29,7 +29,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			throw new RuntimeException("Id : " + id + " doesn't exist in Cassandra ");
 		}
 		CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
-		M modelCio = builder.build(source);
+		M modelCio = builder.build(source, false);
 		if (modelCio != null) {
 			getCassandraDao().save(modelCio);
 		}
@@ -37,7 +37,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 	}
 
 	@Override
-	public List<M> save(String... ids) {
+	public List<M> save(Boolean useSlave, String... ids) {
 		if (ids != null) {
 			List<M> models = new ArrayList<M>();
 			Collection<String> modelKeys = new ArrayList<String>();
@@ -47,7 +47,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 					throw new NotFoundException("Content not exist : " + key);
 				}		
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
-				M modelCio = builder.build(source);
+				M modelCio = builder.build(source, useSlave);
 				if (modelCio != null) {
 					models.add(modelCio);
 				}

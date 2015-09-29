@@ -337,8 +337,16 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	}
 
 	@Override
-	public List<Object[]> getStandardsTaxonomyMeta(Long contentId) {
-		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_STANDARDS_TAXONOMY_META).setLong(CONTENT_ID, contentId));
+	public List<Object[]> getStandardsTaxonomyMeta(Long contentId, Boolean useSlave) {
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_STANDARDS_TAXONOMY_META, useSlave).setLong(CONTENT_ID, contentId));
 		return list.size() > 0 ? list : null;
+	}
+
+	private Query createSQLQuery(String query, Boolean useSlave) {
+		if(useSlave) {
+			return getSessionFactoryReadOnly().getCurrentSession().createSQLQuery(query);
+		} else {
+			return getSessionFactory().getCurrentSession().createSQLQuery(query);
+		}
 	}
 }
