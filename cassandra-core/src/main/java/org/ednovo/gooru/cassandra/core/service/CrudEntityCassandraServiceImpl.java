@@ -23,13 +23,13 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 
 	
 	@Override
-	public M save(String id) {
+	public M save(String id, Boolean useSlave) {
 		S source = fetchSource(id);
 		if (source == null) {
 			throw new RuntimeException("Id : " + id + " doesn't exist in Cassandra ");
 		}
 		CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
-		M modelCio = builder.build(source, false);
+		M modelCio = builder.build(source, useSlave);
 		if (modelCio != null) {
 			getCassandraDao().save(modelCio);
 		}
