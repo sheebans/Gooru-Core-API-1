@@ -61,7 +61,7 @@ public class DomainCassandraServiceImpl extends ApiEntityCassandraServiceImpl<Do
 	}
 
 	@Override
-	public DomainCio save(String id) {
+	public DomainCio save(String id, Boolean fetchFromSlave) {
 		return null;
 	}
 
