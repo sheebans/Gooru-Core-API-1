@@ -20,7 +20,7 @@ public class LibraryRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	private static final String GET_COLLECTION_RESOURCE_ITEMS = "select cc.title, cc.type_name as resourceType, cc.folder, cc.thumbnail, ct.value, ct.display_name as displayName  from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = cc.content_id inner join content co on co.content_id = c.content_id left join custom_table_value ct on ct.custom_table_value_id = resource_format_id where cr.gooru_oid =:gooruOid order by  ci.item_sequence";
 
-	private static final String GET_LIBRARIES = "select library_user_uid as libraryId, name,type_id as typeId, image_path as imagePath  from library where category_id =:categoryId";
+	private static final String GET_LIBRARIES = "select library_user_uid as libraryId, name,type_id as typeId, image_path as imagePath  from library where category_id =:categoryId order by sequence";
 
 	private static final String CATEGORY_ID = "categoryId";
 
