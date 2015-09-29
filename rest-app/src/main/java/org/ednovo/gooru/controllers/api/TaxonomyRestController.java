@@ -273,6 +273,7 @@ public class TaxonomyRestController extends BaseController implements ConstantPr
 		return jsonmodel;
 	}
 
+	@Deprecated
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/taxonomy/{taxonomyCode}/tree.{format}")
