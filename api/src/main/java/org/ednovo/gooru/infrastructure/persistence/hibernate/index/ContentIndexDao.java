@@ -99,6 +99,6 @@ public interface ContentIndexDao {
 	
 	List<Object[]> getResourceIdsByUserId(String gooruUId);
 
-	List<Object[]> getStandardsTaxonomyMeta(Long contentId, Boolean fetchFromSlave);
+	List<Object[]> getStandardsTaxonomyMeta(Long contentId, boolean fetchFromSlave);
 
 }
