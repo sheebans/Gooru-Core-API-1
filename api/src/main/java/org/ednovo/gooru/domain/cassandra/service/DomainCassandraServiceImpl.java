@@ -43,7 +43,7 @@ public class DomainCassandraServiceImpl extends ApiEntityCassandraServiceImpl<Do
 	}
 
 	@Override
-	public List<DomainCio> save(Boolean fetchFromSlave, String... names) {
+	public List<DomainCio> save(boolean fetchFromSlave, String... names) {
 		if (names != null) {
 			List<DomainCio> resourceSourceCios = new ArrayList<DomainCio>();
 			Collection<String> modelKeys = new ArrayList<String>();
@@ -61,7 +61,7 @@ public class DomainCassandraServiceImpl extends ApiEntityCassandraServiceImpl<Do
 	}
 
 	@Override
-	public DomainCio save(String id, Boolean fetchFromSlave) {
+	public DomainCio save(String id, boolean fetchFromSlave) {
 		return null;
 	}
 
