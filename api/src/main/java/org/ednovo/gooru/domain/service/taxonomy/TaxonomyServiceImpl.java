@@ -29,12 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentException;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.TaxonomyDTO;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.application.util.formatter.CodeFo;
 import org.ednovo.gooru.core.application.util.formatter.FilterSubjectFo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -172,7 +174,12 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 
 	@Override
 	public String findTaxonomyTree(String taxonomyCode, String format) throws Exception {
+		try{
 		return taxonomyRepository.findTaxonomyTree(taxonomyCode, format);
+		}
+		catch(DocumentException e){
+			throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0056, FILE),GL0056);
+		}
 	}
 
 	@Override
