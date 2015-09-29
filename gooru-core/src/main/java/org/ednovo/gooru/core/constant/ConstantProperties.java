@@ -972,5 +972,4 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	static final String WSFED_SSO_USER_SOURCE = "WSFED";
 	
-	final static String FILE_NOT_FOUND = "File Not Found";
 }
