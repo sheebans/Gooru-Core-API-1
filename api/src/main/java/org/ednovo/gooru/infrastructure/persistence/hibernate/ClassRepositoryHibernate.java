@@ -8,7 +8,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
@@ -41,7 +40,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String UPDATE_MEMBER_COUNT = "update   user_group set member_count = (select count(1) from user_group_association where user_group_uid =:classUid)   where  user_group_uid =:classUid";
 
-	private static final String COURSE_BY_CLASS = "select c.content_id collectionId,c.gooru_oid gooruOid,co.title,if(s.visibility=1,true,false) visibility from collection_item ci inner join content t on t.content_id=ci.collection_content_id inner join collection cc on t.content_id=cc.content_id inner join collection co on co.content_id=ci.resource_content_id inner join content c on co.content_id = c.content_id left join class_collection_settings s on s.collection_id=ci.resource_content_id where t.gooru_oid=:gooruOid and cc.collection_type=:collectionType";
+	private static final String COURSE_BY_CLASS = "select c.content_id collectionId,c.gooru_oid gooruOid,co.title,if(s.visibility=1,true,false) visibility, co.collection_type collectionType from collection_item ci inner join content t on t.content_id=ci.collection_content_id inner join collection cc on t.content_id=cc.content_id inner join collection co on co.content_id=ci.resource_content_id inner join content c on co.content_id = c.content_id left join class_collection_settings s on s.collection_id=ci.resource_content_id where t.gooru_oid=:gooruOid and cc.collection_type=:collectionType";
 	
 	private static final String USERCLASS = "From UserClass u where u.partyUid=:partyUid and u.isDeleted=0";
 	@Override
@@ -223,7 +222,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public List<Map<String, Object>> getCourseData(String gooruOid, String collectionType){
-		Query query = getSession().createSQLQuery(COURSE_BY_CLASS).addScalar(VISIBILITY,StandardBasicTypes.BOOLEAN).addScalar(COLLECTION_ID).addScalar(GOORU_OID).addScalar(TITLE);
+		Query query = getSession().createSQLQuery(COURSE_BY_CLASS).addScalar(VISIBILITY,StandardBasicTypes.BOOLEAN).addScalar(COLLECTION_ID).addScalar(GOORU_OID).addScalar(TITLE).addScalar(COLLECTION_TYPE);
 		query.setParameter(COLLECTION_TYPE, collectionType);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
