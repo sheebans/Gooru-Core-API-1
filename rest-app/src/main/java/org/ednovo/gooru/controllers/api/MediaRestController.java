@@ -2,6 +2,7 @@ package org.ednovo.gooru.controllers.api;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.FileMeta;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -35,7 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { "/media" })
-public class MediaRestController extends BaseController {
+public class MediaRestController extends BaseController implements ConstantProperties {
 
 	private static final Logger logger = LoggerFactory.getLogger(MediaRestController.class);
 
@@ -134,6 +137,27 @@ public class MediaRestController extends BaseController {
 		}
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
+	@RequestMapping(value="/crop", method=RequestMethod.PUT)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView cropImage(@RequestParam (value=IMAGE_URL) String imageUrl, @RequestParam(value = XPOSITION) int xPosition, @RequestParam(value = YPOSITION) int yPosition, @RequestParam(value = WIDTH) int width, @RequestParam(value = HEIGHT) int height ,HttpServletRequest request, HttpServletResponse response) throws Exception{
+		String filePath = StringUtils.substringAfterLast(imageUrl, UserGroupSupport.getUserOrganizationCdnDirectPath());
+		StringBuffer destPath = new StringBuffer(UserGroupSupport.getUserOrganizationNfsInternalPath());
+		StringBuffer fileName = new StringBuffer(UUID.randomUUID().toString());
+		StringBuffer mediaPath = new StringBuffer(Constants.UPLOADED_MEDIA_FOLDER);
+		StringBuffer url = new StringBuffer(UserGroupSupport.getUserOrganizationNfsRealPath());
+		String fileExtension = StringUtils.substringAfterLast(imageUrl, DOT);
+		ServerValidationUtils.reject(!fileExtension.isEmpty(), GL0006, 400, FILE_EXTENSION);
+		fileName.append(DOT).append(fileExtension);
+		mediaPath.append('/').append(fileName);
+		destPath.append(mediaPath);
+		getGooruImageUtil().cropImageUsingImageMagick(filePath, width, height, xPosition, yPosition, destPath.toString());
+		Map<String,String> json = new HashMap<String,String>();
+		json.put(MEDIA_FILE_NAME, fileName.toString());
+		json.put(URL, url.append(mediaPath).toString());
+		return toModelAndView(json , FORMAT_JSON);
+	}
+	
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
 	}
