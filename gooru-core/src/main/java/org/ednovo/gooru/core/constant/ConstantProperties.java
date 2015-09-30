@@ -974,4 +974,8 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String FILE_EXTENSION = "fileExtension";
 	
+	final static String[] CLASS_ITEMS = { "*.gooruOid","*.collectionId", "*.visibility", "*.title" };
+	
+	final static String[] EXCLUDE_CLASS = { "*.collectionType"};
+	
 }

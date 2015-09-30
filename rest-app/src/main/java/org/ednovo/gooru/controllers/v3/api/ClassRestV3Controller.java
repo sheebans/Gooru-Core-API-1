@@ -133,13 +133,13 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.CLASS_UNITS, method = RequestMethod.GET)
 	public ModelAndView getClassUnits(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndView(this.getClassService().getClassContent(classUid, courseId, COURSE), RESPONSE_FORMAT_JSON);
+		return toModelAndViewWithIoFilter(this.getClassService().getClassContent(classUid, courseId, COURSE), RESPONSE_FORMAT_JSON, EXCLUDE_CLASS, CLASS_ITEMS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_LESSONS, method = RequestMethod.GET)
 	public ModelAndView getClassLessons(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId , @PathVariable(UNIT_ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndView(this.getClassService().getClassContent(classUid, unitId, UNIT), RESPONSE_FORMAT_JSON);
+		return toModelAndViewWithIoFilter(this.getClassService().getClassContent(classUid, unitId, UNIT), RESPONSE_FORMAT_JSON, EXCLUDE_CLASS, CLASS_ITEMS);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
