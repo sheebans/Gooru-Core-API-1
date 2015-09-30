@@ -77,9 +77,10 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 			List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 			int count = 0;
 			for (Map<String, Object> collection : collectionResults) {
-				if (count == 1) {
+				if (count == 0) {
 					collection.put(COLLECTION_ITEMS, getLibraryRepository().getCollectionResourceItems(String.valueOf(collection.get(GOORU_OID)), 4, 0));
 				}
+				count = 1;
 				collections.add(mergeMetaData(collection));
 			}
 			lesson.put(COLLECTION_ITEMS, collections);
