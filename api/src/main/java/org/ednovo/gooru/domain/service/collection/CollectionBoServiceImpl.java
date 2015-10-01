@@ -325,13 +325,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public void updateResource(String collectionId, String collectionResourceItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionResourceItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
+		String resourceId = collectionItem.getContent().getGooruOid();
+		this.getResourceBoService().updateResource(resourceId, newCollectionItem.getResource(), user);
 		Map<String, Object> data = generateResourceMetaData(collectionItem.getContent(), newCollectionItem.getResource(), user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, collectionItem, EDIT);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
 			updateContentMeta(contentMeta, data);
 		}
+		indexHandler.setReIndexRequest(resourceId, IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
 	@Override
