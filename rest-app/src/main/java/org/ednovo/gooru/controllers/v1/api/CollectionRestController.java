@@ -179,7 +179,7 @@ public class CollectionRestController extends BaseController implements Constant
 	public void moveCollection(@RequestBody final String data,@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId,
 			@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response)  {
 		final User user = (User) request.getAttribute(Constants.USER);
-			this.getCollectionBoService().moveCollection(build(data), courseId, unitId, lessonId, collectionId, user);
+		this.getCollectionBoService().moveCollection(build(data), courseId, unitId, lessonId, collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
