@@ -1,11 +1,9 @@
 package org.ednovo.gooru.domain.service.collection;
 
-import java.io.File;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;

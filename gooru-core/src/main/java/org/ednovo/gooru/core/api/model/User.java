@@ -71,9 +71,7 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	private Integer viewFlag;
 	
 	private String token;
-    
-	private Boolean isDeleted = false;
-	
+    	
 	private Set<PartyCustomField> customFields;
 	
 	private Map<String, Object> meta;
@@ -347,17 +345,6 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 
 	public void setToken(String token) {
 		this.token = token;
-	}
-
-	public void setIsDeleted(Boolean isDeleted) {
-		if(isDeleted == null){
-			isDeleted = false;
-		}
-		this.isDeleted = isDeleted;
-	}
-
-	public Boolean getIsDeleted() {
-		return isDeleted;
 	}
 
 	public void setCustomFields(Set<PartyCustomField> customFields) {
