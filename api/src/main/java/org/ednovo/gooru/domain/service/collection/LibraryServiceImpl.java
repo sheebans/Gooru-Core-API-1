@@ -73,12 +73,15 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 		List<Map<String, Object>> results = getLibraryRepository().getCollectionItems(unitId, LESSON, limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
-			List<Map<String, Object>> collectionResults = getLibraryRepository().getCollectionItems(String.valueOf(lesson.get(GOORU_OID)), COLLECTION_TYPES, 30, 0);
+			List<Map<String, Object>> collectionResults = getLibraryRepository().getCollectionItems(String.valueOf(lesson.get(GOORU_OID)), COLLECTION_TYPES, 15, 0);
 			List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 			int count = 0;
 			for (Map<String, Object> collection : collectionResults) {
 				if (count == 0) {
 					collection.put(COLLECTION_ITEMS, getLibraryRepository().getCollectionResourceItems(String.valueOf(collection.get(GOORU_OID)), 4, 0));
+				} else {
+					excludeCollectionAttributes(collection);
+					
 				}
 				count = 1;
 				collections.add(mergeMetaData(collection));
@@ -87,6 +90,19 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 			lessons.add(mergeMetaData(lesson));
 		}
 		return lessons;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getCollections(String lessonId, int limit, int offset) {
+		List<Map<String, Object>> collectionResults = getLibraryRepository().getCollectionItems(lessonId, COLLECTION_TYPES, limit, offset);
+		return collectionResults;
+	}
+	
+	private void excludeCollectionAttributes(Map<String, Object> collection) { 
+		collection.remove(COLLECTION_ITEM_ID);
+		collection.remove(PARENT_GOORU_OID);
+		collection.remove(IMAGE_PATH);
+		collection.remove(COLLECTION_TYPE);
 	}
 
 	@Override
@@ -137,5 +153,7 @@ public class LibraryServiceImpl implements LibraryService, ParameterProperties, 
 	public SettingService getSettingService() {
 		return settingService;
 	}
+
+	
 
 }
