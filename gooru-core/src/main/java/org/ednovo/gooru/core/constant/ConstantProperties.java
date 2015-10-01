@@ -978,4 +978,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String[] COLLECTIONS  = {"*.gooruOid", "*.title"}; 
 	
+	final static String SOURCE_COURSE_ID = "sourceCourseId";
+	
 }

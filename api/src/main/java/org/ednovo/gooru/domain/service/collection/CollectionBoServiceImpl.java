@@ -501,7 +501,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	// moved
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
+	public void moveCollection(Map<String, String> data, String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
@@ -509,7 +509,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
+		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
