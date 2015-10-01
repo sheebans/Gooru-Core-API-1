@@ -134,9 +134,6 @@
 			<property name="confirmStatus" column="confirm_status"
 				length="1" not-null="true">
 			</property>
-			<property name="isDeleted" column="is_deleted" length="1"
-				not-null="false">
-			</property>
 			<property name="addedBySystem" column="added_by_system"
 				length="1" not-null="false">
 			</property>

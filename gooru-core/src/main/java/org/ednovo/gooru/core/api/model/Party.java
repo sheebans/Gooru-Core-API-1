@@ -43,15 +43,15 @@ public class Party implements Serializable, IndexableEntry {
 	private String id;
 	
 	private String name;
+
+	private boolean isDeleted;
 	
-	private Boolean isDeleted;
-	
-	public Boolean getIsDeleted() {
-		return isDeleted;
+	public void setIsDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
-	public void setIsDeleted(Boolean isDeleted) {
-		this.isDeleted = isDeleted;
+	public boolean getIsDeleted() {
+		return isDeleted;
 	}
 
 	public static enum TYPE {
