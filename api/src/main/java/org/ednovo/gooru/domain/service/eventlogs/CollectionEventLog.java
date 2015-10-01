@@ -145,14 +145,16 @@ public class CollectionEventLog extends EventLog {
 			payLoadObject.put(UNIT_GOORU_ID, unit.getCollection().getGooruOid());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			payLoadObject.put(COURSE_GOORU_ID, course.getCollection().getGooruOid());
-			List<String> classUids = this.getClassRepository().getClassUid(courseId);
+			List<String> classUids = null;
 			JSONArray classIds = new JSONArray();
-			classIds.addAll(classUids);
+			if(courseId != null){
+				classUids = this.getClassRepository().getClassUid(courseId);
+				classIds.addAll(classUids);
+			}
 			if (!classUids.isEmpty()) {
 				payLoadObject.put(CLASS_GOORU_IDS, classIds);
 				SessionContextSupport.putLogParameter(EVENT_NAME, CLASS_ITEM_MOVE);
 			} else {
-				payLoadObject.remove(CLASS_GOORU_IDS);
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 			}
 			if (!classUids.isEmpty() && collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
