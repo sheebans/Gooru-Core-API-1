@@ -17,4 +17,6 @@ public interface LibraryService {
 	
 	List<Map<String, Object>> getLessons(String unitId, int limit, int offset);
 	
+	List<Map<String, Object>> getCollections(String lessonId, int limit, int offset);
+	
 }

@@ -976,4 +976,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String[] EXCLUDE_CLASS = { "*.collectionType"};
 	
+	final static String[] COLLECTIONS  = {"*.gooruOid", "*.title"}; 
+	
 }
