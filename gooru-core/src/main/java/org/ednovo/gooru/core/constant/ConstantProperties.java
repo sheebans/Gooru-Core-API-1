@@ -971,9 +971,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	static final Integer SSO_USER_VIEW_FLAG = 12;
 	
 	static final String WSFED_SSO_USER_SOURCE = "WSFED";
-	
-	final static String FILE_EXTENSION = "fileExtension";
-	
+		
 	final static String[] CLASS_ITEMS = { "*.gooruOid","*.collectionId", "*.visibility", "*.title" };
 	
 	final static String[] EXCLUDE_CLASS = { "*.collectionType"};
