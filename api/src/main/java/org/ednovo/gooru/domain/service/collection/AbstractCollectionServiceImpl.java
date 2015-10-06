@@ -423,7 +423,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			if (contentType.equalsIgnoreCase(COLLECTION)) {
 				summary.put(MetaConstants.COLLECTION_COUNT, count);
 			}
-			if (contentType.equalsIgnoreCase(ASSESSMENT)) {
+			if (contentType.equalsIgnoreCase(ASSESSMENT) || contentType.equalsIgnoreCase(ASSESSMENT_URL)) {
 				summary.put(MetaConstants.ASSESSMENT_COUNT, count);
 			}
 			metaData.put(SUMMARY, summary);
