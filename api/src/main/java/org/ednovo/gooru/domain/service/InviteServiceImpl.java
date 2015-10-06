@@ -96,7 +96,10 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		User creator = getUserRepository().findByGooruId(userClass.getUserUid());
 		for (String email : emails) {
 			Identity identity = this.getUserRepository().findByEmail(email);
-			boolean isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid, identity.getUser().getPartyUid()) != null ? true : false;	
+			boolean isMember = false;
+			if(identity != null){
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid, identity.getUser().getPartyUid()) != null ? true : false;
+			}
 			if(!isMember){
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, userClass.getPartyUid(), null);
 				if (inviteUser == null) {
