@@ -1,5 +1,9 @@
 package org.ednovo.gooru.controllers.v1.api;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +19,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.domain.service.collection.CollectionCopyService;
@@ -29,6 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
 public class CollectionRestController extends BaseController implements ConstantProperties, ParameterProperties {
@@ -169,10 +176,10 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
 	@RequestMapping(value = { RequestMappingUri.TARGET_LESSON }, method = RequestMethod.PUT)
-	public void moveCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId,
+	public void moveCollection(@RequestBody final String data,@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId,
 			@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response)  {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCollectionBoService().moveCollection(courseId, unitId, lessonId, collectionId, user);
+		this.getCollectionBoService().moveCollection(build(data), courseId, unitId, lessonId, collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -220,6 +227,11 @@ public class CollectionRestController extends BaseController implements Constant
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
 
+	private Map<String,String> build(final String data) {
+		return JsonDeserializer.deserialize(data, new TypeReference<Map<String,String>>() {
+		});
+	}
+	
 	public IndexHandler getIndexHandler() {
 		return indexHandler;
 	}

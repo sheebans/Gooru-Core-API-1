@@ -70,16 +70,16 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	private JdbcTemplate jdbcTemplate;
 
-	private static final String FIND_USER_BY_TOKEN = "select u.user_id,u.gooru_uid,u.firstname,u.lastname,u.username,i.external_id from user u, user_token t, identity i where t.token =:token and u.gooru_uid = t.user_uid and i.user_uid=t.user_uid and " + generateOrgAuthSqlQuery("u.") + " AND "
-			+ generateUserIsDeletedSql("u.");
+	private static final String FIND_USER_BY_TOKEN = "select u.user_id,u.gooru_uid,u.firstname,u.lastname,u.username,i.external_id from user u, user_token t, identity i, party p where t.token =:token and u.gooru_uid = t.user_uid and i.user_uid=t.user_uid and t.user_uid = p.party_uid and " + generateOrgAuthSqlQuery("u.") + " AND "
+			+ generateUserIsDeletedSql("p.");
 	private static final String FIND_REGISTERED_USER = "select count(*) as totalCount from registered_users where email = :emailId";
 	private static final String INSERT_REGISTERED_USER = "insert into registered_users values('%s', '%s'); ";
 	private static final String UPDATE_AGE_CHECK = "update profile set age_check = %s where user_uid = %s;";
-	private static final String FIND_AGE_CHECK = "select age_check from profile , user where  profile.user_uid = user.gooru_uid AND profile.user_uid=:userId AND " + generateOrgAuthSqlQuery("user.") + " AND " + generateUserIsDeletedSql("user.");
+	private static final String FIND_AGE_CHECK = "select age_check from profile , user, party where  profile.user_uid = user.gooru_uid and user.gooru_uid = party.party_uid AND profile.user_uid=:userId AND " + generateOrgAuthSqlQuery("user.") + " AND " + generateUserIsDeletedSql("party.");
 	private static final String CHECK_CODE = "select count(*) as totalCount from invite_code where code = :code and dateofexpiry >= :dateOfExpiry";
 	private static final String INSERT_INVITE = "insert into Invites (FirstName,LastName,Email,School,message, LastDateInvited) values ('%s','%s','%s','%s','%s','%s');";
-	private static final String GET_USER_NAME_AVAILABILITY = "select count(1) as totalCount from user where username = :userName AND "  + generateUserIsDeletedSql("user.");
-	private static final String GET_EMAILID_AVAILABILITY = "select count(1) as totalCount from identity i inner join  user u  on  u.gooru_uid=i.user_uid where external_id = :emailId AND " + generateUserIsDeletedSql("u.");
+	private static final String GET_USER_NAME_AVAILABILITY = "select count(1) as totalCount from user, party where party.party_uid = user.gooru_uid and username = :userName AND "  + generateUserIsDeletedSql("party.");
+	private static final String GET_EMAILID_AVAILABILITY = "select count(1) as totalCount from identity i inner join  user u inner join party p   on  u.gooru_uid=i.user_uid and p.party_uid = u.gooru_uid where external_id = :emailId AND " + generateUserIsDeletedSql("p.");
 	private static final String USER_SUMMARY = "from UserSummary u where u.gooruUid =:gooruUid";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY = "select  u.username as child_user_name, i2.external_id as parent_email_id  from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY_COUNT = "select count(1) as count from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";

@@ -148,7 +148,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 			response.setStatus(404);
 		}
 	}
-
+	
 	public MediaService getMediaService() {
 		return mediaService;
 	}

@@ -2,6 +2,7 @@ package org.ednovo.gooru.controllers.api;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.FileMeta;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -134,6 +137,7 @@ public class MediaRestController extends BaseController {
 		}
 	}
 
+	
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
 	}

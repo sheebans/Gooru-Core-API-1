@@ -325,13 +325,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public void updateResource(String collectionId, String collectionResourceItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionResourceItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
+		String resourceId = collectionItem.getContent().getGooruOid();
+		this.getResourceBoService().updateResource(resourceId, newCollectionItem.getResource(), user);
 		Map<String, Object> data = generateResourceMetaData(collectionItem.getContent(), newCollectionItem.getResource(), user);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, collectionItem, EDIT);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
 			updateContentMeta(contentMeta, data);
 		}
+		indexHandler.setReIndexRequest(resourceId, IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
 	@Override
@@ -501,7 +503,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	// moved
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
+	public void moveCollection(Map<String, String> data, String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
@@ -509,7 +511,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		this.getCollectionEventLog().getMoveEventLog(courseId, unitId, lessonId, collection, user, collection.getContentType().getName());
+		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
@@ -736,13 +738,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
-		if (contentType.equalsIgnoreCase(QUESTION) || !resource.getSharing().equalsIgnoreCase(PUBLIC)) {
-			indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-			getCollectionDao().remove(resource);
-		} else {
-			getCollectionDao().remove(collectionItem);
-		}
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);		
+		getCollectionDao().remove(collectionItem);
 		collectionItem.getCollection().setLastModified(new Date());
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");

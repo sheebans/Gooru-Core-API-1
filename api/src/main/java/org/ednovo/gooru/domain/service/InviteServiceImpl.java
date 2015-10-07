@@ -37,6 +37,7 @@ import java.util.Map;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
@@ -94,27 +95,34 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		List<String> emailIds = new ArrayList<String>();
 		User creator = getUserRepository().findByGooruId(userClass.getUserUid());
 		for (String email : emails) {
-			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, userClass.getPartyUid(), null);
-			if (inviteUser == null) {
-				inviteUser = new InviteUser(email, userClass.getPartyUid(), CLASS, user, status);
-				this.getInviteRepository().save(inviteUser);
-				emailIds.add(email);
+			Identity identity = this.getUserRepository().findByEmail(email);
+			boolean isMember = false;
+			if(identity != null){
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid, identity.getUser().getPartyUid()) != null ? true : false;
 			}
-			try {
-				String courseGooruOid = null;
-				if (userClass.getCourseContentId() != null) {
-					Content content = this.getContentRepository().findByContent(userClass.getCourseContentId());
-					if (content != null) {
-						courseGooruOid = content.getGooruOid();
+			if(!isMember){
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, userClass.getPartyUid(), null);
+				if (inviteUser == null) {
+					inviteUser = new InviteUser(email, userClass.getPartyUid(), CLASS, user, status);
+					this.getInviteRepository().save(inviteUser);
+					emailIds.add(email);
+				}
+				try {
+					String courseGooruOid = null;
+					if (userClass.getCourseContentId() != null) {
+						Content content = this.getContentRepository().findByContent(userClass.getCourseContentId());
+						if (content != null) {
+							courseGooruOid = content.getGooruOid();
+						}
 					}
+					if (userClass.getVisibility() != null && !userClass.getVisibility()) {
+						this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
+					} else {
+						this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
+					}
+				} catch (Exception e) {
+					LOGGER.error(ERROR, e);
 				}
-				if (userClass.getVisibility() != null && !userClass.getVisibility()) {
-					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
-				} else {
-					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), courseGooruOid);
-				}
-			} catch (Exception e) {
-				LOGGER.error(ERROR, e);
 			}
 		}
 	}

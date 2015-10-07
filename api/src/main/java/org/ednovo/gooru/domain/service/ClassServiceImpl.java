@@ -225,14 +225,15 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			boolean isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid, user.getPartyUid()) != null ? true : false;
 			if (isMember) {
 				status = ACTIVE;
-			}
-			if (user.getIdentities().size() > 0) {
-				mailId = user.getIdentities().iterator().next().getExternalId();
-			}
-			if (mailId != null && !creatorUid.equalsIgnoreCase(user.getGooruUId())) {
-				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, String.valueOf(result.get(CLASS_UID)), PENDING);
-				if (inviteUser != null) {
-					status = PENDING;
+			} else {
+				if (user.getIdentities().size() > 0) {
+					mailId = user.getIdentities().iterator().next().getExternalId();
+				}
+				if (mailId != null && !creatorUid.equalsIgnoreCase(user.getGooruUId())) {
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, String.valueOf(result.get(CLASS_UID)), PENDING);
+					if (inviteUser != null) {
+						status = PENDING;
+					}
 				}
 			}
 		}
@@ -361,7 +362,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
 		Object gooruOid = lesson.get(GOORU_OID);
 		if (gooruOid != null) {
-			List<Map<String, Object>> collections = this.getClassRepository().getCollections(lessonId, limit, offset);
+			List<Map<String, Object>> collections = this.getClassRepository().getCollections(userClass.getClassId(), lessonId, limit, offset);
 			List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
 			for (Map<String, Object> collection : collections) {
 				Object collectionId = collection.get(GOORU_OID);

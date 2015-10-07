@@ -23,7 +23,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 
 	
 	@Override
-	public M save(String id, Boolean useSlave) {
+	public M save(String id, boolean useSlave) {
 		S source = fetchSource(id);
 		if (source == null) {
 			throw new RuntimeException("Id : " + id + " doesn't exist in Cassandra ");
@@ -37,7 +37,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 	}
 
 	@Override
-	public List<M> save(Boolean useSlave, String... ids) {
+	public List<M> save(boolean useSlave, String... ids) {
 		if (ids != null) {
 			List<M> models = new ArrayList<M>();
 			Collection<String> modelKeys = new ArrayList<String>();

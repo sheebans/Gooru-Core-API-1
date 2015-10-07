@@ -20,9 +20,9 @@ public interface EntityCassandraService<K, M extends Serializable> {
 
 	void delete(String... ids);
 
-	M save(K id, Boolean useSlave);
+	M save(K id, boolean useSlave);
 
-	List<M> save(Boolean fetchFromSlave, K... ids);
+	List<M> save(boolean fetchFromSlave, K... ids);
 
 	void save(M model);
 
