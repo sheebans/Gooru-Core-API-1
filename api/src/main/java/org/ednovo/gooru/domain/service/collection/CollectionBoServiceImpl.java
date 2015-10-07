@@ -738,13 +738,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
-		if (contentType.equalsIgnoreCase(QUESTION) || !resource.getSharing().equalsIgnoreCase(PUBLIC)) {
-			indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-			getCollectionDao().remove(resource);
-		} else {
-			getCollectionDao().remove(collectionItem);
-		}
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);		
+		getCollectionDao().remove(collectionItem);
 		collectionItem.getCollection().setLastModified(new Date());
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
