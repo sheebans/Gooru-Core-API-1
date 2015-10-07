@@ -40,7 +40,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String UPDATE_MEMBER_COUNT = "update   user_group set member_count = (select count(1) from user_group_association where user_group_uid =:classUid)   where  user_group_uid =:classUid";
 
-	private static final String COURSE_BY_CLASS = "select c.content_id collectionId,c.gooru_oid gooruOid,co.title,if(s.visibility=1,true,false) visibility, co.collection_type collectionType from collection_item ci inner join content t on t.content_id=ci.collection_content_id inner join collection cc on t.content_id=cc.content_id inner join collection co on co.content_id=ci.resource_content_id inner join content c on co.content_id = c.content_id left join class_collection_settings s on s.collection_id=ci.resource_content_id where t.gooru_oid=:gooruOid and cc.collection_type=:collectionType";
+	private static final String COURSE_BY_CLASS = " select collection.collection_type collectionType, collection.collection_id as collectionId, title, gooru_oid as gooruOid, if(visibility=1,1,0) visibility  from (select cr.content_id as collection_id, cr.title, co.gooru_oid, cr.collection_type   from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cr on cr.content_id = ci.resource_content_id inner join content co on  co.content_id = cr.content_id inner join content cc on cc.content_id = c.content_id   where cc.gooru_oid =:gooruOid and cc.type_name =:collectionType) as collection left join (select c.class_id, c.class_uid, collection_id, cs.visibility, score_type_id  from class c  left join class_collection_settings cs  on c.class_id = cs.class_id where cs.class_id =:classUid) as class_setting on class_setting.collection_id = collection.collection_id;";
 	
 	private static final String USERCLASS = "From UserClass u where u.partyUid=:partyUid and u.isDeleted=0";
 	@Override
@@ -222,9 +222,10 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public List<Map<String, Object>> getCourseData(String gooruOid, String collectionType){
+	public List<Map<String, Object>> getCourseData(Long classUid, String gooruOid, String collectionType){
 		Query query = getSession().createSQLQuery(COURSE_BY_CLASS).addScalar(VISIBILITY,StandardBasicTypes.BOOLEAN).addScalar(COLLECTION_ID).addScalar(GOORU_OID).addScalar(TITLE).addScalar(COLLECTION_TYPE);
 		query.setParameter(COLLECTION_TYPE, collectionType);
+		query.setParameter(CLASS_UID, classUid);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
