@@ -113,6 +113,8 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	private static final String GET_STANDARDS_TAXONOMY_META = "SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = c.parent_id INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId UNION SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = (SELECT parent_id FROM code WHERE code_id = (SELECT parent_id FROM code WHERE code_id = ccl.code_id)) INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId UNION SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, c.code AS standard, ccl.code_id AS codeId FROM content_classification ccl INNER JOIN code c ON c.code_id = ccl.code_id INNER JOIN subdomain_attribute_mapping sam ON sam.code_id = c.code_id INNER JOIN subdomain sd ON sd.subdomain_id = sam.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id = :contentId UNION SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, null AS standard, null AS codeId FROM content_subdomain_assoc csa INNER JOIN subdomain sd ON sd.subdomain_id = csa.subdomain_id INNER JOIN course cou ON cou.course_id = sd.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId UNION SELECT s.name AS subject, s.subject_id AS subjectId, cou.name AS course, cou.course_id AS courseId, cou.grades AS courseGrades, null AS standard, null AS codeId FROM content_course_assoc csa INNER JOIN course cou ON cou.course_id = csa.course_id INNER JOIN subject s ON s.subject_id = cou.subject_id WHERE content_id =:contentId";
 	
+	private static final String GET_RESOURCE_METADATA = "SELECT r FROM Resource r  where r.gooruOid =:gooruOid and r.resourceType.name in ('animation/kmz','animation/swf','assessment-question','exam/pdf','handouts','image/png','ppt/pptx','resource/url','textbook/scribd','video/youtube','vimeo/video')";
+	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
 		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_SEGMENTS_SQL).setParameter(CONTENT_ID, contentId));
@@ -244,7 +246,9 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('scollection', 'classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
+		Query query = getSessionFactory().getCurrentSession().createQuery(GET_RESOURCE_METADATA);
+		query.setParameter(GOORU_OID, gooruOid);
+		List<Resource> resources = HibernateDaoSupport.list(query);
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
