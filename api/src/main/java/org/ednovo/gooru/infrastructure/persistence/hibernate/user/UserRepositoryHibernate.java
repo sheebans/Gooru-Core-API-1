@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Gender;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Party;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
@@ -337,6 +338,15 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setFirstResult(offset);
 		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
 		return query.list();
+	}
+	
+	@Override
+	public List<PartyCustomField> getPartyCustomField(ArrayList<String> partyUid, String optionalKey) {
+		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.partyUid in ( :partyUid )  and  partycustomfield.optionalKey=:optionalKey and partycustomfield.optionalValue='true'";
+		Query query = getSession().createQuery(hql);
+		query.setParameterList(PARTY_UID, partyUid);
+		query.setParameter("optionalKey", optionalKey);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")

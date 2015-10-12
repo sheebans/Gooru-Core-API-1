@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Gender;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Party;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
@@ -78,6 +80,8 @@ public interface UserRepository extends BaseRepository {
 	long getFollowedByUsersCount(String gooruUId);
 
 	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
+	
+	List<PartyCustomField> getPartyCustomField(ArrayList<String> userIds, String optionalKey);
 
 	long getFollowedOnUsersCount(String gooruUId);
 
