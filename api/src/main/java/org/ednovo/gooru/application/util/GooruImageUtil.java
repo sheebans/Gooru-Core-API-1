@@ -294,7 +294,7 @@ public class GooruImageUtil implements ParameterProperties {
 		return thumbnails;
 	}
 
-	public void cropImage(HttpServletResponse response, String filename, int width, int height, int x, int y) {
+	public synchronized void cropImage(HttpServletResponse response, String filename, int width, int height, int x, int y) {
 		StringBuilder filePath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
 		filePath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(filename);
 		StringBuilder fileCropPath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
@@ -305,29 +305,27 @@ public class GooruImageUtil implements ParameterProperties {
 		InputStream is = null;
 		FileInputStream fileInputStream = null;
 		File image = null;
-		synchronized (image) {
+		try {
+			cropImageUsingImageMagick(filePath.toString(), width, height, x, y, fileCropPath.toString());
+			image = new File(fileCropPath.toString());
+			byte[] bFile = new byte[(int) image.length()];
+			fileInputStream = new FileInputStream(image);
+			fileInputStream.read(bFile);
+			ServletOutputStream os = response.getOutputStream();
+			os.write(bFile);
+			os.close();
+		} catch (Exception e) {
+			LOGGER.error("Error while cropping", e);
+		} finally {
 			try {
-				cropImageUsingImageMagick(filePath.toString(), width, height, x, y, fileCropPath.toString());
-				image = new File(fileCropPath.toString());
-				byte[] bFile = new byte[(int) image.length()];
-				fileInputStream = new FileInputStream(image);
-				fileInputStream.read(bFile);
-				ServletOutputStream os = response.getOutputStream();
-				os.write(bFile);
-				os.close();
-			} catch (Exception e) {
-				LOGGER.error("Error while cropping", e);
-			} finally {
-				try {
-					if (is != null)
-						is.close();
-					if (fileInputStream != null)
-						fileInputStream.close();
-					if (image != null) {
-						image.delete();
-					}
-				} catch (IOException ioe) {
+				if (is != null)
+					is.close();
+				if (fileInputStream != null)
+					fileInputStream.close();
+				if (image != null) {
+					image.delete();
 				}
+			} catch (IOException ioe) {
 			}
 		}
 	}
