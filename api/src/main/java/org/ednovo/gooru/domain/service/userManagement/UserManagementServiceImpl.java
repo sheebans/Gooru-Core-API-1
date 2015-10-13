@@ -197,6 +197,18 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public SearchResults<Map<String, Object>> getFollowedOnUsers(final String gooruUId, Integer offset, Integer limit) {
 		final List<User> users = this.getUserRepository().getFollowedOnUsers(gooruUId, offset, limit);
+		List<Map<String, Object>> usersObjs = null;
+		if(users.size() > 0){
+			usersObjs = getUsersObjs(users);
+		}
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(usersObjs);
+		result.setTotalHitCount(this.getUserRepository().getFollowedOnUsersCount(gooruUId));
+		return result;
+	}
+
+	private List<Map<String, Object>>  getUsersObjs(List<User> users){
+		
 		final List<Map<String, Object>> usersObjs = new ArrayList<Map<String, Object>>();
 		final List<String> userIds = new ArrayList<String>();
 		for (User user : users) {
@@ -215,32 +227,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					}
 				}
 		}
-		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
-		result.setSearchResults(usersObjs);
-		result.setTotalHitCount(this.getUserRepository().getFollowedOnUsersCount(gooruUId));
-		return result;
+		
+		return usersObjs;
 	}
-
+	
 	@Override
 	public SearchResults<Map<String, Object>> getFollowedByUsers(final String gooruUId, Integer offset, Integer limit) {
 		final List<User> users = this.getUserRepository().getFollowedByUsers(gooruUId, offset, limit);
-		final List<Map<String, Object>> usersObjs = new ArrayList<Map<String, Object>>();
-		final List<String> userIds = new ArrayList<String>();
-		for (User user : users) {
-			usersObjs.add(setUserObj(user));
-			userIds.add(user.getGooruUId());
-		}
-		final List<PartyCustomField> partyCustomFields = this.getUserRepository().getPartyCustomField(userIds, SHOW_PROFILE_PAGE);
-		if (partyCustomFields != null) {
-			Map<String, Object> partyCustomField = new HashMap<String, Object>();
-			for(PartyCustomField partyCustom:partyCustomFields){
-				partyCustomField.put(partyCustom.getPartyUid(), Boolean.parseBoolean(partyCustom.getOptionalValue().toString()));
-			}
-			for(Map<String,Object> usersObj:usersObjs){
-					if( partyCustomField.get(usersObj.get(_GOORU_UID).toString()) != null){
-						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID)) );
-					}
-				}
+		List<Map<String, Object>> usersObjs = null;
+		if(users.size() > 0){
+			usersObjs = getUsersObjs(users);
 		}
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(usersObjs);
