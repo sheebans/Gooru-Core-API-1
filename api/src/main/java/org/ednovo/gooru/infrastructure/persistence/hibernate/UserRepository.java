@@ -81,7 +81,7 @@ public interface UserRepository extends BaseRepository {
 
 	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 	
-	List<PartyCustomField> getPartyCustomField(ArrayList<String> userIds, String optionalKey);
+	List<PartyCustomField> getPartyCustomField(List<String> userIds, String optionalKey);
 
 	long getFollowedOnUsersCount(String gooruUId);
 

@@ -341,11 +341,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 	
 	@Override
-	public List<PartyCustomField> getPartyCustomField(ArrayList<String> partyUid, String optionalKey) {
-		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.partyUid in ( :partyUid )  and  partycustomfield.optionalKey=:optionalKey";
+	public List<PartyCustomField> getPartyCustomField(List<String> partyUid, String optionalkey) {
+		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.partyUid in ( :partyUid )  and  partycustomfield.optionalKey=:optionalkey";
 		Query query = getSession().createQuery(hql);
 		query.setParameterList(PARTY_UID, partyUid);
-		query.setParameter(OPTIONAL_KEY, optionalKey);
+		query.setParameter(OPTIONAL_KEY, optionalkey);
 		return list(query);
 	}
 
