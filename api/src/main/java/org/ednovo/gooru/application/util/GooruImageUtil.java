@@ -305,27 +305,29 @@ public class GooruImageUtil implements ParameterProperties {
 		InputStream is = null;
 		FileInputStream fileInputStream = null;
 		File image = null;
-		try {
-			cropImageUsingImageMagick(filePath.toString(), width, height, x, y, fileCropPath.toString());
-			image = new File(fileCropPath.toString());
-			byte[] bFile = new byte[(int) image.length()];
-			fileInputStream = new FileInputStream(image);
-			fileInputStream.read(bFile);
-			ServletOutputStream os = response.getOutputStream();
-			os.write(bFile);
-			os.close();
-		} catch (Exception e) {
-			LOGGER.error("Error while cropping", e);
-		} finally {
+		synchronized (image) {
 			try {
-				if (is != null)
-					is.close();
-				if (fileInputStream != null)
-					fileInputStream.close();
-				if (image != null) {
-					image.delete();
+				cropImageUsingImageMagick(filePath.toString(), width, height, x, y, fileCropPath.toString());
+				image = new File(fileCropPath.toString());
+				byte[] bFile = new byte[(int) image.length()];
+				fileInputStream = new FileInputStream(image);
+				fileInputStream.read(bFile);
+				ServletOutputStream os = response.getOutputStream();
+				os.write(bFile);
+				os.close();
+			} catch (Exception e) {
+				LOGGER.error("Error while cropping", e);
+			} finally {
+				try {
+					if (is != null)
+						is.close();
+					if (fileInputStream != null)
+						fileInputStream.close();
+					if (image != null) {
+						image.delete();
+					}
+				} catch (IOException ioe) {
 				}
-			} catch (IOException ioe) {
 			}
 		}
 	}
