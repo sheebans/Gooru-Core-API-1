@@ -207,11 +207,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (partyCustomFields != null) {
 			Map<String, Object> partyCustomField = new HashMap<String, Object>();
 			for(PartyCustomField partyCustom:partyCustomFields){
-				partyCustomField.put(partyCustom.getPartyUid(), partyCustom.getOptionalValue());
+				partyCustomField.put(partyCustom.getPartyUid(), Boolean.parseBoolean(partyCustom.getOptionalValue().toString()));
 			}
 			for(Map<String,Object> usersObj:usersObjs){
 					if( partyCustomField.get(usersObj.get(_GOORU_UID).toString()) != null){
-						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID).toString()));
+						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID)));
 					}
 				}
 		}
@@ -234,11 +234,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (partyCustomFields != null) {
 			Map<String, Object> partyCustomField = new HashMap<String, Object>();
 			for(PartyCustomField partyCustom:partyCustomFields){
-				partyCustomField.put(partyCustom.getPartyUid(), partyCustom.getOptionalValue());
+				partyCustomField.put(partyCustom.getPartyUid(), Boolean.parseBoolean(partyCustom.getOptionalValue().toString()));
 			}
 			for(Map<String,Object> usersObj:usersObjs){
 					if( partyCustomField.get(usersObj.get(_GOORU_UID).toString()) != null){
-						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID).toString()));
+						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID)) );
 					}
 				}
 		}
