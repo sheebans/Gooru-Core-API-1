@@ -207,12 +207,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (partyCustomFields != null) {
 			Map<String, Object> partyCustomField = new HashMap<String, Object>();
 			for(PartyCustomField partyCustom:partyCustomFields){
-				partyCustomField.put(partyCustom.getPartyUid(), partyCustom.getOptionalKey());
+				partyCustomField.put(partyCustom.getPartyUid(), partyCustom.getOptionalValue());
 			}
 			for(Map<String,Object> usersObj:usersObjs){
-					usersObj.put(SHOWPROFILEPAGE, false);
 					if( partyCustomField.get(usersObj.get(_GOORU_UID).toString()) != null){
-						usersObj.put(SHOWPROFILEPAGE, true);
+						usersObj.put(SHOWPROFILEPAGE, partyCustomField.get(usersObj.get(_GOORU_UID).toString()));
 					}
 				}
 		}
