@@ -301,7 +301,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 			"*.totalHitCount", "*.searchResults", "*.isDeleted", "*.lastModifiedOn" };
 
 	static final String FOLLOWED_BY_USERS_INCLUDES[] = { "*.totalHitCount", "*.searchResults", "*.username", "*.profileImageUrl", "*.firstName", "*.gooruUid", "*.emailId", "*.lastName", "*.course", "*.summary", "*.summary.tags", "*.summary.collection", "*.summary.followers", "*.summary.following",
-			"*.customFields", "*.PartyUid", "*.category", "*.optionalKey", "*.optionalValue" };
+			"*.customFields", "*.PartyUid", "*.category", "*.optionalKey", "*.optionalValue", "*.showProfilePage" };
 
 	static final String FOLLOW_USER_INCLUDES[] = { "*.username", "*.profileImageUrl", "*.firstName", "*.gooruUid", "*.emailId", "*.lastName", "*.course", "*.summary", "*.summary.tags", "*.summary.collection", "*.summary.followers", "*.summary.following", "*.customFields", "*.PartyUid",
 			"*.category", "*.optionalKey", "*.optionalValue" };
