@@ -41,5 +41,7 @@ public interface ClassService {
 	void updateMemberCount(String classUid);
 	
 	List<Map<String, Object>> getClassContent(String classUid, String gooruOid, String collectionType);
+	
+	List<Map<String, Object>> getClassesByCourse(String courseId, String collectionId, int limit, int offset);
 
 }

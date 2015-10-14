@@ -123,4 +123,6 @@ public class RequestMappingUri {
 	public static final String V3_LIBRARY_SUBJECT_COURSE_UNIT_LESSON = "/{id}/subject/{subjectId}/course/{courseId}/unit/{unitId}/lesson";
 	
 	public static final String V3_LIBRARY_SUBJECT_COURSE_UNIT_LESSON_COLLECTION = "/{id}/subject/{subjectId}/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection";
+	
+	public static final String COURSE_COLLECTION_CLASSES = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}/classes";
 }
