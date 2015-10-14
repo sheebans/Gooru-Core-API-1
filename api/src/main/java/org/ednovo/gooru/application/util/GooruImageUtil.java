@@ -294,7 +294,7 @@ public class GooruImageUtil implements ParameterProperties {
 		return thumbnails;
 	}
 
-	public synchronized void cropImage(HttpServletResponse response, String filename, int width, int height, int x, int y) {
+	public void cropImage(HttpServletResponse response, String filename, int width, int height, int x, int y) {
 		StringBuilder filePath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
 		filePath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(filename);
 		StringBuilder fileCropPath = new StringBuilder(UserGroupSupport.getUserOrganizationNfsInternalPath());
@@ -322,9 +322,7 @@ public class GooruImageUtil implements ParameterProperties {
 					is.close();
 				if (fileInputStream != null)
 					fileInputStream.close();
-				if (image != null) {
-					image.delete();
-				}
+				
 			} catch (IOException ioe) {
 			}
 		}

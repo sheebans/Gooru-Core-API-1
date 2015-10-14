@@ -45,4 +45,6 @@ public interface ClassRepository extends BaseRepository {
 
 	List<Map<String, Object>> getCourseData(Long classUid, String gooruOid, String collectionType);
 	
+	List<Map<String, Object>> getClasses(String courseId, String collectionId, int limit, int offset);
+	
 }
