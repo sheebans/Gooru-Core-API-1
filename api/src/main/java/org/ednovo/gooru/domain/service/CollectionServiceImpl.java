@@ -395,24 +395,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					thumbnails.put(URL, url.toString());
 					collection.put(THUMBNAILS, thumbnails);
 				}
-				List<Map<String, Object>> collectionItems;
 				if (fetchChildItem) {
 					if (count == 0) {
 						if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
 							collection.put(COLLECTION_ITEMS, getCollectionItem(String.valueOf(collection.get(GOORU_OID)), sharing, itemLimit, fetchChildItem, orderBy, excludeType));
 						} else if (typeName.equalsIgnoreCase(FOLDER)) {
-							collectionItems = getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType);
-							if(collectionItems.size() > 0 ){
-								collection.put(COLLECTION_ITEMS, collectionItems);
-							}
+							collection.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
 						}
 					}
 				} else {
 					if (typeName.equalsIgnoreCase(FOLDER)) {
-						collectionItems = getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType);
-							if(collectionItems.size() > 0 ){
-								collection.put(COLLECTION_ITEMS, collectionItems);
-							}
+						collection.put(COLLECTION_ITEMS, getFolderItem(collectionGooruOid, itemLimit, 0, sharing, collectionType, orderBy, itemLimit, fetchChildItem, null, excludeType));
 					}
 				}
 				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(collection.get(GOORU_OID)), sharing, collectionType, excludeType));
@@ -422,9 +415,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					collection.put(SETTINGS, JsonDeserializer.deserialize(contentSettings, new TypeReference<Map<String, String>>() {
 					}));
 				}
-				if(collection.get(COLLECTION_ITEMS) != null){
-					folderItems.add(collection);
-				}
+				folderItems.add(collection);
 				count++;
 			}
 		}
