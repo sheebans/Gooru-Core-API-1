@@ -84,7 +84,10 @@ public class GooruImageUtil implements ParameterProperties {
 	public void imageUpload(String mediaFilename, Object folderPath, String imageDimension) {
 		if (mediaFilename != null) {
 			StringBuilder sourceRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
-			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(mediaFilename);
+			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator);
+			StringBuilder cropImage = new StringBuilder(sourceRepoPath);
+			cropImage.append(CROP).append(mediaFilename);
+			sourceRepoPath.append(mediaFilename);
 			File srcFile = new File(sourceRepoPath.toString());
 			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
 			targetRepoPath.append(folderPath).append(File.separator);
@@ -92,12 +95,17 @@ public class GooruImageUtil implements ParameterProperties {
 			if (!destFile.exists()) {
 				destFile.mkdirs();
 			}
+			
 			srcFile.renameTo(new File(targetRepoPath.append(mediaFilename).toString()));
+			File deletePath = new File (cropImage.toString());
+			if(deletePath.exists()){
+				deletePath.delete();
+			}
 			sourceRepoPath.setLength(0);
 			sourceRepoPath.append(ConfigProperties.getNfsInternalPath()).append(folderPath).append(File.separator);
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put(SOURCE_FILE_PATH, targetRepoPath.toString());
-			param.put(TARGET_FOLDER_PATH, sourceRepoPath.toString());
+			param.put(TARGET_FOLDER_PATH, sourceRepoPath.toString());	
 			param.put(THUMBNAIL, mediaFilename);
 			param.put(DIMENSIONS, imageDimension);
 			param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
