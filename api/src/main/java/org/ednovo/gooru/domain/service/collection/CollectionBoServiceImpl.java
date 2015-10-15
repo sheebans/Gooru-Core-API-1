@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -229,6 +230,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
 				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
+				updateResourceSharing(PUBLIC,collection);
 			}
 			collection.setSharing(newCollection.getSharing());
 			if (parentCollectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
@@ -738,13 +740,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
-		if (contentType.equalsIgnoreCase(QUESTION) || !resource.getSharing().equalsIgnoreCase(PUBLIC)) {
-			indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-			getCollectionDao().remove(resource);
-		} else {
-			getCollectionDao().remove(collectionItem);
-		}
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);		
+		getCollectionDao().remove(collectionItem);
 		collectionItem.getCollection().setLastModified(new Date());
 		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
@@ -778,6 +775,17 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 		}
 		return errors;
+	}
+	
+	public void updateResourceSharing(final String sharing, final Collection collection) {
+		final Iterator<CollectionItem> iterator = collection.getCollectionItems().iterator();
+		while (iterator.hasNext()) {
+			final CollectionItem collectionItem = iterator.next();
+			if (!collectionItem.getContent().getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
+				collectionItem.getContent().setSharing(sharing);
+				getCollectionDao().save(collectionItem);
+			}
+		}
 	}
 
 	public CollectionDao getCollectionDao() {

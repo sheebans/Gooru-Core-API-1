@@ -71,6 +71,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Autowired
 	private ClassEventLogger classEventLogger;
 	
+	private static final String CLASS_ID = "classId";
+	
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -193,6 +195,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		return results;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getClassesByCourse(String courseId, String collectionId, int limit, int offset) {
+		return this.getClassRepository().getClasses(courseId, collectionId, limit, offset);
+	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -253,6 +260,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		result.remove(USER_NAME);
 		result.remove(FIRSTNAME);
 		result.remove(LASTNAME);
+		result.remove(CLASS_ID);
 		return result;
 	}
 
@@ -489,6 +497,4 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public ClassEventLogger getClassEventLogger() {
 		return classEventLogger;
 	}
-
-
 }

@@ -322,9 +322,7 @@ public class GooruImageUtil implements ParameterProperties {
 					is.close();
 				if (fileInputStream != null)
 					fileInputStream.close();
-				if (image != null) {
-					image.delete();
-				}
+				
 			} catch (IOException ioe) {
 			}
 		}
