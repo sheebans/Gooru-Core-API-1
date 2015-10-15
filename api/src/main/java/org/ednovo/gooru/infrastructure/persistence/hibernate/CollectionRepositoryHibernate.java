@@ -647,7 +647,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select count(1) as count from  collection c  inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id left join content_settings cs on cs.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id  where c.collection_type = 'shelf' and cr.sharing in ('"
 				+ sharing.replace(",", "','") + "')";
 		if (gooruUid != null) {
-			sql += " and cc.user_uid = '" + gooruUid + "' and c.collection_type = 'shelf' ";
+			sql += " and cc.user_uid = '" + gooruUid + "' ";
 		} else if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "' ";
 		}
