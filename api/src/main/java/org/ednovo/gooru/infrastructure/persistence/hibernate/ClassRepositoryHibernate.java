@@ -44,7 +44,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String USERCLASS = "From UserClass u where u.partyUid=:partyUid and u.isDeleted=0";
 
-	private static final String COURSE_COLLECTION_CLASSES = "select class_uid as classUid, name, if(visibility = 1, 1, 0) as visibility  from (select class_uid, name, class_id from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid inner join content cc on cc.content_id = course_content_id  where p.is_deleted=0 and cc.gooru_oid =:courseId) as class left join (select collection_id, visibility, class_id  from class_collection_settings  ccs inner join content cc on cc.content_id = ccs.collection_id   where cc.gooru_oid =:collectionId) as collection on collection.class_id = class.class_id";
+	private static final String COURSE_COLLECTION_CLASSES = "select class_uid as classUid, name, if(visibility = 1, 1, 0) as visibility  from (select class_uid, name, class_id from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid inner join content cc on cc.content_id = course_content_id  where p.is_deleted=0 and cc.gooru_oid =:courseId order by p.created_on desc) as class left join (select collection_id, visibility, class_id  from class_collection_settings  ccs inner join content cc on cc.content_id = ccs.collection_id   where cc.gooru_oid =:collectionId) as collection on collection.class_id = class.class_id";
 
 	@Override
 	public UserClass getClassById(String classUid) {
