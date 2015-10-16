@@ -346,13 +346,19 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
-		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>(); 
+		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>();
 		for (ClassCollectionSettings classCollectionSetting : classCollectionSettings) {
 			classCollectionSetting.setClassId(userClass.getClassId());
 			settings.add(classCollectionSetting); 
 		}
 		this.getClassRepository().saveAll(settings);
 		getClassEventLogger().classContentVisibilty(classUid, settings);
+	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateClassSettings(List<ClassCollectionSettings> classCollectionSettings) {
+		this.getClassRepository().saveAll(classCollectionSettings);
 	}
 	
 	@Override
