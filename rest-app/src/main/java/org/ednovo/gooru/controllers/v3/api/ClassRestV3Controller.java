@@ -125,8 +125,14 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = { RequestMethod.PUT })
-	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateCollectionSetting(@PathVariable(ID) final String classUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getClassService().updateClassSettings(classUid, this.buildClassCollectionSettings(data));
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
+	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTING, method = { RequestMethod.PUT })
+	public void updateCollectionSettings(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		this.getClassService().updateClassSettings(this.buildClassCollectionSettings(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
