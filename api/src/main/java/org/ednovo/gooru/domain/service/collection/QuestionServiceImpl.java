@@ -332,7 +332,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		sourceFilepath.append(question.getFolder()).append(File.separator);
 		StringBuilder targetFilepath = new StringBuilder(copyQuestion.getOrganization().getNfsStorageArea().getInternalPath());
 		targetFilepath.append(copyQuestion.getFolder()).append(File.separator);
-		this.getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
+		getResourceManager().copyResourceRepository(sourceFilepath.toString(), targetFilepath.toString());
 		return copyQuestion;
 
 	}

@@ -31,8 +31,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.scheduling.annotation.Async;
@@ -60,7 +58,6 @@ public class AsyncExecutor {
 	@javax.annotation.Resource(name = "resourceManager")
 	private ResourceManager resourceManager;
 
-	private Logger logger = LoggerFactory.getLogger(AsyncExecutor.class);
 
 	@Autowired
 	private S3ResourceApiHandler s3ResourceApiHandler;
@@ -68,21 +65,6 @@ public class AsyncExecutor {
 	@PostConstruct
 	public void init() {
 		transactionTemplate = new TransactionTemplate(transactionManager);
-	}
-
-	public void copyResourceFolder(final String sourceFilePath, final String targetFilepath) {
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					logger.debug("coping resource folder");
-					getResourceManager().copyResourceRepository(sourceFilePath, targetFilepath);
-				} catch (Exception e) {
-					logger.debug("coping resource folder is failed", e);
-				}
-				return null;
-			}
-		});
 	}
 
 	void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
