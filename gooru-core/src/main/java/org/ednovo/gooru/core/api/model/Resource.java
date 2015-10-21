@@ -247,22 +247,6 @@ public class Resource extends Content implements Serializable {
 		return fileData;
 	}
 
-	/*
-	 * public String getFolder() { if (folder == null && getGooruOid() != null)
-	 * { folder = "assets/" + getGooruOid() + '/'; } return folder; }
-	 */
-
-	public String getFolder() {
-		if ((folder == null || folder.length() < 10) && getContentId() != null) {
-			folder = buildResourceFolder(getContentId());
-		}
-		return folder;
-	}
-
-	public void setFolder(String folder) {
-		this.folder = folder;
-	}
-
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}

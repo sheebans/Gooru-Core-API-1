@@ -84,11 +84,13 @@ public abstract class AbstractCollectionCopyServiceImpl extends AbstractResource
 	}
 
 	protected void copyCollectionRepoStorage(Collection sourceCollection, Collection destCollection) {
-		StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		sourceFilepath.append(sourceCollection.getImagePath()).append(File.separator);
-		StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		targetFilepath.append(destCollection.getImagePath()).append(File.separator);
-		getResourceManager().copyResourceRepository(sourceFilepath.toString(), targetFilepath.toString());
+		if (sourceCollection.getImagePath() != null && sourceCollection.getImagePath().length() > 0) {
+			StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
+			sourceFilepath.append(sourceCollection.getFolder()).append(File.separator);
+			StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
+			targetFilepath.append(destCollection.getFolder()).append(File.separator);
+			getResourceManager().copyResourceRepository(sourceFilepath.toString(), targetFilepath.toString());
+		}
 	}
 
 	protected Collection collectionCopy(Collection sourceCollection, Collection targetCollection, User user, Collection newCollection) {

@@ -173,7 +173,7 @@ public class FileManager implements ResourceManager, ParameterProperties {
 					try {
 						FileUtils.copyDirectory(srcPath, dstPath);
 					} catch (IOException e) {
-						throw new RuntimeException("Error while copying resource.", e);
+						logger.error("Failed to copy  the content.");
 					}
 				}
 
