@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -84,11 +85,13 @@ public abstract class AbstractCollectionCopyServiceImpl extends AbstractResource
 	}
 
 	protected void copyCollectionRepoStorage(Collection sourceCollection, Collection destCollection) {
-		StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		sourceFilepath.append(sourceCollection.getImagePath()).append(File.separator);
-		StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		targetFilepath.append(destCollection.getImagePath()).append(File.separator);
-		getResourceManager().copyResourceRepository(sourceFilepath.toString(), targetFilepath.toString());
+		if (sourceCollection.getImagePath() != null && sourceCollection.getImagePath().length() > 0) {
+			StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
+			sourceFilepath.append(sourceCollection.getFolder()).append(File.separator);
+			StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
+			targetFilepath.append(destCollection.getFolder()).append(File.separator);
+			getResourceManager().copyResourceRepository(sourceFilepath.toString(), targetFilepath.toString());
+		}
 	}
 
 	protected Collection collectionCopy(Collection sourceCollection, Collection targetCollection, User user, Collection newCollection) {
@@ -103,7 +106,6 @@ public abstract class AbstractCollectionCopyServiceImpl extends AbstractResource
 		destCollection.setDescription(sourceCollection.getDescription());
 		destCollection.setNotes(sourceCollection.getNotes());
 		destCollection.setLanguage(sourceCollection.getLanguage());
-		destCollection.setImagePath(sourceCollection.getImagePath());
 		destCollection.setGooruOid(UUID.randomUUID().toString());
 		destCollection.setContentType(sourceCollection.getContentType());
 		destCollection.setLastModified(new Date(System.currentTimeMillis()));
@@ -118,6 +120,12 @@ public abstract class AbstractCollectionCopyServiceImpl extends AbstractResource
 		destCollection.setOrganization(sourceCollection.getOrganization());
 		destCollection.setCreator(sourceCollection.getCreator());
 		destCollection.setUrl(sourceCollection.getUrl());
+		this.getCollectionDao().save(destCollection);
+		if (sourceCollection.getImagePath() != null && sourceCollection.getImagePath().length() > 0) { 
+			StringBuilder imagePath = new StringBuilder(destCollection.getFolder());
+			imagePath.append(StringUtils.substringAfterLast(sourceCollection.getImagePath(), sourceCollection.getFolder()));
+			destCollection.setImagePath(imagePath.toString());
+		}
 		this.getCollectionDao().save(destCollection);
 		// copy resource and question items to collection
 		copyCollectionItems(targetCollection, sourceCollection, destCollection, user);

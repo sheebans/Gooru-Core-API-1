@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentMeta;
@@ -45,7 +46,6 @@ public class LessonCopyServiceImpl extends AbstractCollectionCopyServiceImpl imp
 		newLesson.setDescription(lesson.getDescription());
 		newLesson.setNotes(lesson.getNotes());
 		newLesson.setLanguage(lesson.getLanguage());
-		newLesson.setImagePath(lesson.getImagePath());
 		newLesson.setGooruOid(UUID.randomUUID().toString());
 		newLesson.setContentType(lesson.getContentType());
 		newLesson.setLastModified(new Date(System.currentTimeMillis()));
@@ -56,6 +56,12 @@ public class LessonCopyServiceImpl extends AbstractCollectionCopyServiceImpl imp
 		newLesson.setOrganization(lesson.getOrganization());
 		newLesson.setCreator(lesson.getCreator());
 		newLesson.setUrl(lesson.getUrl());
+		this.getCollectionDao().save(newLesson);
+		if (lesson.getImagePath() != null && lesson.getImagePath().length() > 0) { 
+			StringBuilder imagePath = new StringBuilder(newLesson.getFolder());
+			imagePath.append(StringUtils.substringAfterLast(lesson.getImagePath(), lesson.getFolder()));
+			newLesson.setImagePath(imagePath.toString());
+		}
 		this.getCollectionDao().save(newLesson);
 		// copy lesson items to collection
 		lessonCopyItems(lesson.getGooruOid(), newLesson, user);

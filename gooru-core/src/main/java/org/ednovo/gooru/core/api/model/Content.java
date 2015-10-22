@@ -17,8 +17,6 @@ import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.core.type.TypeReference;
-//import javax.persistence.Column;
-//import javax.persistence.Id;
 
 @JsonFilter("content")
 public class Content extends OrganizationModel implements IndexableEntry, IsCassandraIndexable {
@@ -103,6 +101,8 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	private List<Integer> depthOfKnowledgeIds;
 
 	private String mediaFilename;
+	
+	private String folder;
 
 	public String getMediaFilename() {
 		return mediaFilename;
@@ -356,6 +356,17 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
 
 		return contentFolder + "/";
+	}
+	
+	public String getFolder() {
+		if ((folder == null || folder.length() < 10) && getContentId() != null) {
+			folder = buildResourceFolder(getContentId());
+		}
+		return folder;
+	}
+
+	public void setFolder(String folder) {
+		this.folder = folder;
 	}
 
 	public List<Integer> getStandardIds() {
