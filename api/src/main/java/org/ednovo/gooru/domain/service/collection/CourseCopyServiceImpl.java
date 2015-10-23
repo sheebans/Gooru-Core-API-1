@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -52,6 +53,12 @@ public class CourseCopyServiceImpl extends AbstractCollectionCopyServiceImpl imp
 		newCourse.setOrganization(course.getOrganization());
 		newCourse.setCreator(course.getCreator());
 		newCourse.setUrl(course.getUrl());
+		this.getCollectionDao().save(newCourse);
+		if (course.getImagePath() != null && course.getImagePath().length() > 0) { 
+			StringBuilder imagePath = new StringBuilder(newCourse.getFolder());
+			imagePath.append(StringUtils.substringAfterLast(course.getImagePath(), course.getFolder()));
+			newCourse.setImagePath(imagePath.toString());
+		}
 		this.getCollectionDao().save(newCourse);
 		// copy lesson items to collection
 		courseCopyItems(course.getGooruOid(), newCourse, user);

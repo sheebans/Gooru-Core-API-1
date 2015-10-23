@@ -1721,7 +1721,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			sourceFilepath.append(sourceCollection.getImagePath()).append(File.separator);
 			StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
 			targetFilepath.append(destCollection.getImagePath()).append(File.separator);
-			getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
 			if (addToShelf) {
 				collectionItem = new CollectionItem();
 				collectionItem.setItemType(SUBSCRIBED);

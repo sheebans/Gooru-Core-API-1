@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -49,17 +51,18 @@ import com.google.code.javascribd.type.ApiKey;
 import com.google.code.javascribd.type.FileData;
 
 @Service("resourceManager")
-public class FileManager implements ResourceManager,ParameterProperties {
+public class FileManager implements ResourceManager, ParameterProperties {
 
 	private final Logger logger = LoggerFactory.getLogger(FileManager.class);
+
+	private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
 	@Override
 	public void saveResource(Resource resource) {
 
 		String resourceURI = getAbsoluteURI(resource.getFolder());
 
-		if (resource.getResourceType() == null || ( !resource.getResourceType().getName().equals(ResourceType.Type.RESOURCE.getType())
-				&& !resource.getResourceType().getName().equals(ResourceType.Type.VIDEO.getType()))) {
+		if (resource.getResourceType() == null || (!resource.getResourceType().getName().equals(ResourceType.Type.RESOURCE.getType()) && !resource.getResourceType().getName().equals(ResourceType.Type.VIDEO.getType()))) {
 			this.addAsset(resourceURI, resource.getUrl(), resource.getFileData());
 		}
 	}
@@ -120,7 +123,7 @@ public class FileManager implements ResourceManager,ParameterProperties {
 							f.delete();
 						}
 						continue;
-					} else{
+					} else {
 						f.delete();
 					}
 				}
@@ -136,15 +139,15 @@ public class FileManager implements ResourceManager,ParameterProperties {
 	}
 
 	private void addAsset(String resourceURI, String fileName, byte[] fileData) {
-		
-		if(fileData == null || fileData.length == 0) {
+
+		if (fileData == null || fileData.length == 0) {
 			return;
 		}
 
 		logger.info("Adding asset: " + fileName + " with resourceURI: " + resourceURI);
-		
+
 		File dir = new File(resourceURI);
-		if(!dir.exists()){
+		if (!dir.exists()) {
 			dir.mkdirs();
 		}
 
@@ -160,21 +163,30 @@ public class FileManager implements ResourceManager,ParameterProperties {
 	}
 
 	@Override
-	public void copyResourceRepository(String  sourceFilepath, String targetFilePath) throws Exception {
-		File srcPath = new File(sourceFilepath);
-		File dstPath = new File(targetFilePath);
+	public void copyResourceRepository(final String sourceFilepath, final String targetFilePath) {
+		getExecutorservice().execute(new Runnable() {
+			@Override
+			public void run() {
+				File srcPath = new File(sourceFilepath);
+				File dstPath = new File(targetFilePath);
+				if (srcPath.exists()) {
+					try {
+						FileUtils.copyDirectory(srcPath, dstPath);
+					} catch (IOException e) {
+						logger.error("Failed to copy  the content.");
+					}
+				}
 
-		if (srcPath.exists()) {
-			try {
-				FileUtils.copyDirectory(srcPath, dstPath);
-			} catch (IOException e) {
-				throw new RuntimeException("Error while copying resource.", e);
 			}
-		}
+		});
 	}
-	
+
 	private String getAbsoluteURI(String folder) {
-		return UserGroupSupport.getUserOrganizationNfsInternalPath() + folder+"/";
+		return UserGroupSupport.getUserOrganizationNfsInternalPath() + folder + "/";
+	}
+
+	public static ExecutorService getExecutorservice() {
+		return executorService;
 	}
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -24,6 +23,7 @@ import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
+import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +46,10 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 	private DashboardCassandraService dashboardCassandraService;
 
 	@Autowired
-	private AsyncExecutor asyncExecutor;
+	@javax.annotation.Resource(name = "resourceManager")
+	private ResourceManager resourceManager;
 	
+
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
 
@@ -219,8 +221,8 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 		return dashboardCassandraService;
 	}
 
-	public AsyncExecutor getAsyncExecutor() {
-		return asyncExecutor;
+	public ResourceManager getResourceManager() {
+		return resourceManager;
 	}
 
 	public GooruImageUtil getGooruImageUtil() {

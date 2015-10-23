@@ -638,6 +638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	@Deprecated
 	public AssessmentQuestion copyAssessmentQuestion(User user, String gooruQuestionId) throws Exception {
 		AssessmentQuestion question = getQuestion(gooruQuestionId);
 		AssessmentQuestion copyQuestion = new AssessmentQuestion();
@@ -707,12 +708,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				}
 				copyQuestion.setAssets(questionAssets);
 			}
-			StringBuilder sourceFilepath = new StringBuilder(question.getOrganization().getNfsStorageArea().getInternalPath());
-			sourceFilepath.append(question.getFolder()).append(File.separator);
-			StringBuilder targetFilepath = new StringBuilder(copyQuestion.getOrganization().getNfsStorageArea().getInternalPath());
-			targetFilepath.append(copyQuestion.getFolder()).append(File.separator);
-			this.getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
-
 		}
 		return copyQuestion;
 	}
