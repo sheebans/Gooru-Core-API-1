@@ -40,9 +40,11 @@
 
 	<!-- - Enables the AspectJ support -->
 	<bean id="methodAuthorizationAspect" class="org.ednovo.gooru.security.MethodAuthorizationAspect" />
-
+	<bean id="methodCacheAspect" class="org.ednovo.gooru.application.spring.MethodCacheAspect" />
+	
 	<aop:aspectj-autoproxy>
 		<aop:include name="methodAuthorizationAspect" />
+		<aop:include name="methodCacheAspect" />
 	</aop:aspectj-autoproxy>
 
 

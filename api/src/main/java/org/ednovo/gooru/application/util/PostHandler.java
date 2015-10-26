@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.component.CollectionDeleteProcessor;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.slf4j.Logger;
