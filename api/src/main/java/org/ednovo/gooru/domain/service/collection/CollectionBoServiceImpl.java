@@ -516,29 +516,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
+		String sourceCourseId = data.get(SOURCE_COURSE_ID);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
-
-		if(courseId.equalsIgnoreCase(data.get(SOURCE_COURSE_ID))){
-			int collectionVisibility = getClassRepository().getVisibilitySettings(collection.getContentId(), course.getContentId());
-			if(collectionVisibility > 0){
-				int lessonVisibility = getClassRepository().getVisibilitySettings(lesson.getContentId(), course.getContentId());
-				if(lessonVisibility < 1){
-					getClassRepository().updateCollectionVisibility(collection.getContentId());
-				}
-			}
-		}
-		else{
-			Collection sourceCourse = this.getCollectionDao().getCollectionByType(data.get(SOURCE_COURSE_ID), COURSE_TYPE);
-			int collectionVisibility = getClassRepository().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
-			if(collectionVisibility < 1){
-				getClassRepository().updateCollectionVisibility(collection.getContentId());
-			}
-		}
-			
+		this.getCollectionEventLog().getMoveEventLog(sourceCourseId, unitId, lessonId, collection, user, collection.getContentType().getName());
+		this.checkContentVisibiltiy(courseId, sourceCourseId, collection.getContentId(), lesson.getContentId());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
+		}
+	}
+	
+	private void checkContentVisibiltiy(String targetId, String sourceId, Long collectionId, Long lessonId){
+		boolean collectionVisibility = getClassRepository().getCollectionSettings(collectionId);
+		boolean lessonVisibility = getClassRepository().getCollectionSettings(lessonId);
+		if(targetId.equalsIgnoreCase(sourceId) && collectionVisibility && !lessonVisibility){
+					getClassRepository().updateCollectionVisibility(collectionId);
+		}
+		else if(collectionVisibility && !targetId.equalsIgnoreCase(sourceId)){
+				getClassRepository().updateCollectionVisibility(collectionId);
 		}
 	}
 	

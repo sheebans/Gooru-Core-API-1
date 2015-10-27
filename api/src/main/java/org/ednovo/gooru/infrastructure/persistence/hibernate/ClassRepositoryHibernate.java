@@ -45,6 +45,10 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	private static final String USERCLASS = "From UserClass u where u.partyUid=:partyUid and u.isDeleted=0";
 
 	private static final String COURSE_COLLECTION_CLASSES = "select class_uid as classUid, class.class_id as classId, name, if(visibility = 1, 1, 0) as visibility  from (select class_uid, name, class_id from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid inner join content cc on cc.content_id = course_content_id  where p.is_deleted=0 and cc.gooru_oid =:courseId order by p.created_on desc) as class left join (select collection_id, visibility, class_id  from class_collection_settings  ccs inner join content cc on cc.content_id = ccs.collection_id   where cc.gooru_oid =:collectionId) as collection on collection.class_id = class.class_id";
+	
+	private static final String GET_CONTENT_VISIBILITY  = "select if(count(*)>0,1,0) count FROM class_collection_settings cs where collection_id =:collectionId and cs.visibility =1";
+	
+	private static final String UPDATE_CONTENT_VISIBILITY = "update class_collection_settings set visibility=0 where collection_id=:collectionId";
 
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -245,18 +249,16 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		return list(query);
 	}
 	
-	
 	@Override
-	public int getVisibilitySettings(Long collectionId, Long classIds){
-		Query query = getSession().createSQLQuery("select if(count(*)>0,1,0) count FROM class_collection_settings cs join class c on cs.class_id=c.class_id where course_content_id=:courseId and collection_id =:collectionId and cs.visibility =1").addScalar(COUNT, StandardBasicTypes.INTEGER);
+	public boolean getCollectionSettings(Long collectionId){
+		Query query = getSession().createSQLQuery(GET_CONTENT_VISIBILITY).addScalar(COUNT, StandardBasicTypes.BOOLEAN);
 		query.setParameter(COLLECTION_ID, collectionId);
-		query.setParameter(COURSE_ID, classIds);
-		return (int) list(query).get(0);
+		return (boolean) list(query).get(0);
 	}
 	
 	@Override
 	public void updateCollectionVisibility(Long collectionId){
-		Query query = getSession().createSQLQuery("update class_collection_settings set visibility=0 where collection_id=:collectionId");
+		Query query = getSession().createSQLQuery(UPDATE_CONTENT_VISIBILITY);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.executeUpdate();
 	}
