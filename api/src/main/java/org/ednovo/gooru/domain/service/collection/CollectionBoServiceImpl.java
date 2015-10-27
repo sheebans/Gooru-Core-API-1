@@ -519,14 +519,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String sourceCourseId = data.get(SOURCE_COURSE_ID);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		this.getCollectionEventLog().getMoveEventLog(sourceCourseId, unitId, lessonId, collection, user, collection.getContentType().getName());
-		this.checkContentVisibiltiy(courseId, sourceCourseId, collection.getContentId(), lesson.getContentId());
+		this.updateContentVisibiltiy(courseId, sourceCourseId, collection.getContentId(), lesson.getContentId());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
 		}
 	}
 	
-	private void checkContentVisibiltiy(String targetId, String sourceId, Long collectionId, Long lessonId){
+	private void updateContentVisibiltiy(String targetId, String sourceId, Long collectionId, Long lessonId){
 		boolean collectionVisibility = getClassRepository().getCollectionSettings(collectionId);
 		boolean lessonVisibility = getClassRepository().getCollectionSettings(lessonId);
 		if(collectionVisibility && (targetId.equalsIgnoreCase(sourceId) && !lessonVisibility) || !targetId.equalsIgnoreCase(sourceId)){
