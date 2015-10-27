@@ -53,8 +53,4 @@ public interface CollectionDao extends BaseRepository {
 	
 	Long getPublicCollectionCount(final String gooruOid, final String sharing);
 	
-	int getVisibilitySettings(Long collectionId, Long courseId);
-	
-	void updateCollectionVisibility(Long collectionId);
-
 }

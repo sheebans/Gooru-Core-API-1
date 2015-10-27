@@ -1,15 +1,12 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-import groovy.xml.Entity;
 
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
@@ -308,21 +305,6 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter(GOORU_OID, gooruOid);
 		return (Long) query.list().get(0);
-	}
-	
-	@Override
-	public int getVisibilitySettings(Long collectionId, Long classIds){
-		Query query = getSession().createSQLQuery("select if(count(*)>0,1,0) count FROM class_collection_settings cs join class c on cs.class_id=c.class_id where course_content_id=:courseId and collection_id =:collectionId and cs.visibility =1").addScalar(COUNT, StandardBasicTypes.INTEGER);
-		query.setParameter(COLLECTION_ID, collectionId);
-		query.setParameter(COURSE_ID, classIds);
-		return (int) list(query).get(0);
-	}
-	
-	@Override
-	public void updateCollectionVisibility(Long collectionId){
-		Query query = getSession().createSQLQuery("update class_collection_settings set visibility=0 where collection_id=:collectionId");
-		query.setParameter(COLLECTION_ID, collectionId);
-		query.executeUpdate();
 	}
 
 }

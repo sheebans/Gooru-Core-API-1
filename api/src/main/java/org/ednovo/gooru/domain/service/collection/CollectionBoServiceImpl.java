@@ -12,7 +12,6 @@ import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -33,6 +32,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
@@ -54,6 +54,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollectionDao collectionDao;
+	
+	@Autowired
+	private ClassRepository classRepository;
 
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
@@ -517,19 +520,19 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
 
 		if(courseId.equalsIgnoreCase(data.get(SOURCE_COURSE_ID))){
-			int collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), course.getContentId());
+			int collectionVisibility = getClassRepository().getVisibilitySettings(collection.getContentId(), course.getContentId());
 			if(collectionVisibility > 0){
-				int lessonVisibility = getCollectionDao().getVisibilitySettings(lesson.getContentId(), course.getContentId());
+				int lessonVisibility = getClassRepository().getVisibilitySettings(lesson.getContentId(), course.getContentId());
 				if(lessonVisibility < 1){
-					getCollectionDao().updateCollectionVisibility(collection.getContentId());
+					getClassRepository().updateCollectionVisibility(collection.getContentId());
 				}
 			}
 		}
 		else{
 			Collection sourceCourse = this.getCollectionDao().getCollectionByType(data.get(SOURCE_COURSE_ID), COURSE_TYPE);
-			int collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
+			int collectionVisibility = getClassRepository().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
 			if(collectionVisibility < 1){
-				getCollectionDao().updateCollectionVisibility(collection.getContentId());
+				getClassRepository().updateCollectionVisibility(collection.getContentId());
 			}
 		}
 			
@@ -837,6 +840,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public PartyRepository getPartyRepository() {
 		return partyRepository;
+	}
+	
+	public ClassRepository getClassRepository() {
+		return classRepository;
 	}
 
 }
