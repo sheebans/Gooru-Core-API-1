@@ -12,6 +12,7 @@ import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -514,10 +515,33 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
-		String collectionType = moveCollection(collectionId, lesson, user);
-		if (collectionType != null) {
-			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
+		
+		if(courseId.equalsIgnoreCase(data.get(SOURCE_COURSE_ID))){
+			List<ClassCollectionSettings> collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), course.getContentId());
+			if(collectionVisibility != null){
+				List<ClassCollectionSettings> lessonVisibility = getCollectionDao().getVisibilitySettings(lesson.getContentId(), course.getContentId());
+				if(lessonVisibility.size() < 1){
+					updateCollectionVisibility(collectionVisibility);
+				}
+			}
 		}
+		else{
+			Collection sourceCourse = this.getCollectionDao().getCollectionByType(data.get(SOURCE_COURSE_ID), COURSE_TYPE);
+			List<ClassCollectionSettings> collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
+			updateCollectionVisibility(collectionVisibility);
+		}
+			
+//		String collectionType = moveCollection(collectionId, lesson, user);
+//		if (collectionType != null) {
+//			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
+//		}
+	}
+	
+	private void updateCollectionVisibility(List<ClassCollectionSettings> collectionVisibilitys){
+		for(ClassCollectionSettings collectionVisibility :collectionVisibilitys){
+			collectionVisibility.setVisibility(false);
+		}
+		getCollectionDao().saveAll(collectionVisibilitys);
 	}
 
 	@Override

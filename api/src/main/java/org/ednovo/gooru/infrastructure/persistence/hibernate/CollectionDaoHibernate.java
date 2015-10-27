@@ -1,11 +1,15 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import groovy.xml.Entity;
+
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
@@ -304,6 +308,15 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter(GOORU_OID, gooruOid);
 		return (Long) query.list().get(0);
+	}
+	
+	@Override
+	public List<ClassCollectionSettings> getVisibilitySettings(Long collectionId, Long classIds){
+		Query query = getSession().createSQLQuery("select cs.class_id,cs.collection_id,cs.visibility,cs.score_type_id,cs.last_modified FROM class_collection_settings cs join class c on cs.class_id=c.class_id where course_content_id=:courseId and collection_id =:collectionId and cs.visibility =1").addEntity(ClassCollectionSettings.class);
+		query.setParameter(COLLECTION_ID, collectionId);
+		query.setParameter(COURSE_ID, classIds);
+		//query.setResultTransformer(Criteria.class.));
+		return list(query);
 	}
 
 }

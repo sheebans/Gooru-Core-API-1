@@ -3,6 +3,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
@@ -51,5 +52,7 @@ public interface CollectionDao extends BaseRepository {
 	Object[] getParentCollection(final String collectionGooruOid, final String gooruUid);
 	
 	Long getPublicCollectionCount(final String gooruOid, final String sharing);
+	
+	List<ClassCollectionSettings> getVisibilitySettings(Long collectionId, Long courseId);
 
 }
