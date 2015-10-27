@@ -515,35 +515,30 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
-		
+
 		if(courseId.equalsIgnoreCase(data.get(SOURCE_COURSE_ID))){
-			List<ClassCollectionSettings> collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), course.getContentId());
-			if(collectionVisibility != null){
-				List<ClassCollectionSettings> lessonVisibility = getCollectionDao().getVisibilitySettings(lesson.getContentId(), course.getContentId());
-				if(lessonVisibility.size() < 1){
-					updateCollectionVisibility(collectionVisibility);
+			int collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), course.getContentId());
+			if(collectionVisibility > 0){
+				int lessonVisibility = getCollectionDao().getVisibilitySettings(lesson.getContentId(), course.getContentId());
+				if(lessonVisibility < 1){
+					getCollectionDao().updateCollectionVisibility(collection.getContentId());
 				}
 			}
 		}
 		else{
 			Collection sourceCourse = this.getCollectionDao().getCollectionByType(data.get(SOURCE_COURSE_ID), COURSE_TYPE);
-			List<ClassCollectionSettings> collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
-			updateCollectionVisibility(collectionVisibility);
+			int collectionVisibility = getCollectionDao().getVisibilitySettings(collection.getContentId(), sourceCourse.getContentId());
+			if(collectionVisibility < 1){
+				getCollectionDao().updateCollectionVisibility(collection.getContentId());
+			}
 		}
 			
-//		String collectionType = moveCollection(collectionId, lesson, user);
-//		if (collectionType != null) {
-//			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
-//		}
+		String collectionType = moveCollection(collectionId, lesson, user);
+		if (collectionType != null) {
+			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
+		}
 	}
 	
-	private void updateCollectionVisibility(List<ClassCollectionSettings> collectionVisibilitys){
-		for(ClassCollectionSettings collectionVisibility :collectionVisibilitys){
-			collectionVisibility.setVisibility(false);
-		}
-		getCollectionDao().saveAll(collectionVisibilitys);
-	}
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void moveCollection(String folderId, String collectionId, User user) {
