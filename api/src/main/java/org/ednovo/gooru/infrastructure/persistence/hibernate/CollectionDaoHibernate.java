@@ -1,6 +1,5 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-
 import java.util.List;
 import java.util.Map;
 
