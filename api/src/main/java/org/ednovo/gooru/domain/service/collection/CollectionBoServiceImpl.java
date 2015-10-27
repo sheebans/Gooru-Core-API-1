@@ -529,11 +529,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	private void checkContentVisibiltiy(String targetId, String sourceId, Long collectionId, Long lessonId){
 		boolean collectionVisibility = getClassRepository().getCollectionSettings(collectionId);
 		boolean lessonVisibility = getClassRepository().getCollectionSettings(lessonId);
-		if(targetId.equalsIgnoreCase(sourceId) && collectionVisibility && !lessonVisibility){
+		if(collectionVisibility && (targetId.equalsIgnoreCase(sourceId) && !lessonVisibility) || !targetId.equalsIgnoreCase(sourceId)){
 					getClassRepository().updateCollectionVisibility(collectionId);
-		}
-		else if(collectionVisibility && !targetId.equalsIgnoreCase(sourceId)){
-				getClassRepository().updateCollectionVisibility(collectionId);
 		}
 	}
 	
