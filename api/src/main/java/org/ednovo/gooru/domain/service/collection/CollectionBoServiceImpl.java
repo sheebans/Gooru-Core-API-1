@@ -32,6 +32,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
@@ -53,6 +54,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollectionDao collectionDao;
+	
+	@Autowired
+	private ClassRepository classRepository;
 
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
@@ -512,14 +516,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
+		String sourceCourseId = data.get(SOURCE_COURSE_ID);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		this.getCollectionEventLog().getMoveEventLog(data.get(SOURCE_COURSE_ID), unitId, lessonId, collection, user, collection.getContentType().getName());
+		this.getCollectionEventLog().getMoveEventLog(sourceCourseId, unitId, lessonId, collection, user, collection.getContentType().getName());
+		this.updateContentVisibiltiy(courseId, sourceCourseId, collection.getContentId(), lesson.getContentId());
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
 			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
 		}
 	}
-
+	
+	private void updateContentVisibiltiy(String targetId, String sourceId, Long collectionId, Long lessonId){
+		boolean collectionVisibility = getClassRepository().getCollectionSettings(collectionId);
+		boolean lessonVisibility = getClassRepository().getCollectionSettings(lessonId);
+		if(collectionVisibility && (targetId.equalsIgnoreCase(sourceId) && !lessonVisibility) || !targetId.equalsIgnoreCase(sourceId)){
+					getClassRepository().updateCollectionVisibility(collectionId);
+		}
+	}
+	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void moveCollection(String folderId, String collectionId, User user) {
@@ -818,6 +832,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public PartyRepository getPartyRepository() {
 		return partyRepository;
+	}
+	
+	public ClassRepository getClassRepository() {
+		return classRepository;
 	}
 
 }

@@ -47,4 +47,8 @@ public interface ClassRepository extends BaseRepository {
 	
 	List<Map<String, Object>> getClasses(String courseId, String collectionId, int limit, int offset);
 	
+	boolean getCollectionSettings(Long collectionId);
+	
+	void updateCollectionVisibility(Long collectionId);
+	
 }
