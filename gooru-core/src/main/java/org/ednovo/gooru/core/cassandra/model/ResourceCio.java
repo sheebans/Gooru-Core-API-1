@@ -319,6 +319,8 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private Long ratingReviewCount;	
 
+	@Column
+	private String taxonomyV2Json;
 	
 	public Integer getVersion() {
 		return version;
@@ -1114,5 +1116,13 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setRatingReviewCount(Long ratingReviewCount) {
 		this.ratingReviewCount = ratingReviewCount;
 	}
+	
+	public String getTaxonomyV2Json() {
+		return taxonomyV2Json;
+	}
+
+	public void setTaxonomyV2Json(String taxonomyV2Json) {
+		this.taxonomyV2Json = taxonomyV2Json;
+	}	
 }
 
