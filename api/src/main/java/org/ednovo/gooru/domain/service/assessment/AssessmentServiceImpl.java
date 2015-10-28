@@ -23,17 +23,12 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.assessment;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
@@ -47,17 +42,13 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.QuestionSet;
-import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
-import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -120,9 +111,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private S3ResourceApiHandler s3ResourceApiHandler;
-
-	@Autowired
-	CollectionUtil collectionUtil;
 
 	@Autowired
 	private IndexProcessor indexProcessor;
@@ -194,66 +182,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 		}
 		return new ActionResponseDTO<AssessmentQuestion>(question, errors);
-	}
-
-	@Override
-	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
-		AssessmentQuestion incomingQuestion = question;
-		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
-		Errors errors = validateQuestion(question);
-		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
-
-		if (!errors.hasErrors()) {
-			assessmentRepository.save(question);
-			if (question.getResourceInfo() != null) {
-				resourceRepository.save(question.getResourceInfo());
-			}
-
-			for (Asset asset : assets) {
-				assessmentRepository.deleteQuestionAssets(asset.getAssetId());
-				assetManager.deletePathIfExist(asset.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + asset.getName());
-			}
-			/*
-			 * Remove the assets for the new generation question. These assets
-			 * are in not stored in association in mysql. Since the question is
-			 * getting overridden we need to use original object (as we are
-			 * using transient field).
-			 */
-			if (incomingQuestion.isQuestionNewGen()) {
-				List<String> deletedMediaFiles = incomingQuestion.getDeletedMediaFiles();
-				if (deletedMediaFiles != null && deletedMediaFiles.size() > 0) {
-					for (String deletedMediaFile : deletedMediaFiles) {
-						assetManager.deletePathIfExist(question.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + deletedMediaFile);
-					}
-				}
-			}
-			if (assets.size() > 0) {
-				assessmentRepository.removeAll(assets);
-			}
-
-			ResourceMetaInfo resourceMetaInfo = new ResourceMetaInfo();
-			resourceMetaInfo.setStandards(collectionService.getStandards(question.getTaxonomySet(), false, null));
-			question.setMetaInfo(resourceMetaInfo);
-			updateQuestionTime(question);
-			if (index) {
-				indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-			}
-		}
-
-		return new ActionResponseDTO<AssessmentQuestion>(question, errors);
-	}
-
-	private List<Asset> buildQuestionAssets(List<Integer> assets, Errors errors) {
-		List<Asset> assetList = new ArrayList<Asset>();
-		if (assets != null) {
-			for (Integer assetId : assets) {
-				Asset asset = (Asset) assessmentRepository.getModel(Asset.class, assetId);
-				if (asset != null) {
-					assetList.add(asset);
-				}
-			}
-		}
-		return assetList;
 	}
 
 	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) {
@@ -463,23 +391,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		existingList.addAll(addList);
 	}
 
-	@Override
-	public void updateQuetionInfo(String gooruOQuestionId, Integer segmentId) {
-		updateQuestionTime(getQuestion(gooruOQuestionId));
-	}
-
-	private void updateQuestionTime(AssessmentQuestion question) {
-		if (question != null) {
-			assessmentRepository.updateTimeForSegments(question.getContentId());
-			assessmentRepository.updateTimeForAssessments(question.getContentId());
-		}
-	}
-
-	@Override
-	public boolean getAttemptAnswerStatus(Integer answerId) {
-		return assessmentRepository.getAttemptAnswerStatus(answerId);
-	}
-
 	private Errors validateQuestion(AssessmentQuestion question) throws Exception {
 		final Errors errors = new BindException(question, QUESTION);
 		if (question != null) {
@@ -502,139 +413,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
-	public QuestionSet getQuestionSet(String gooruOQuestionSetId) {
-		return assessmentRepository.getByGooruOId(QuestionSet.class, gooruOQuestionSetId);
-	}
-
-	@Override
-	public ActionResponseDTO<QuestionSet> createQuestionSet(QuestionSet questionSet) throws Exception {
-
-		questionSet = initQuestionSet(questionSet, null);
-
-		Errors errors = validateQuestionSet(questionSet);
-
-		if (!errors.hasErrors()) {
-			assessmentRepository.save(questionSet);
-		}
-
-		return new ActionResponseDTO<QuestionSet>(questionSet, errors);
-	}
-
-	@Override
-	public ActionResponseDTO<QuestionSet> updateQuestionSet(QuestionSet questionSet, String gooruOQuestionSetId) throws Exception {
-		questionSet = initQuestionSet(questionSet, gooruOQuestionSetId);
-
-		Errors errors = validateQuestionSet(questionSet);
-
-		if (!errors.hasErrors()) {
-			assessmentRepository.save(questionSet);
-		}
-
-		return new ActionResponseDTO<QuestionSet>(questionSet, errors);
-	}
-
-	private QuestionSet initQuestionSet(QuestionSet questionSet, String gooruOQuestionSetId) {
-		if (gooruOQuestionSetId == null) {
-			License license = (License) baseRepository.get(License.class, OTHER);
-			questionSet.setLicense(license);
-			questionSet.setGooruOid(UUID.randomUUID().toString());
-			questionSet.setContentId(null);
-			questionSet.setCreatedOn(new java.util.Date());
-			questionSet.setUrl("");
-			ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
-			questionSet.setContentType(contentType);
-		} else {
-			QuestionSet existingQuestionSet = getQuestionSet(gooruOQuestionSetId);
-			existingQuestionSet.setTitle(questionSet.getTitle());
-
-			questionSet = existingQuestionSet;
-		}
-		ResourceType resourceType = (ResourceType) baseRepository.get(ResourceType.class, questionSet.getResourceType().getName());
-		questionSet.setResourceType(resourceType);
-		questionSet.setLastModified(new java.util.Date());
-		return questionSet;
-	}
-
-	private Errors validateQuestionSet(QuestionSet questionSet) throws Exception {
-		final Errors errors = new BindException(questionSet, QUESTION_SET);
-		if (questionSet != null) {
-			ServerValidationUtils.rejectIfNullOrEmpty(errors, questionSet.getTitle(), TITLE, ErrorMessage.REQUIRED_FIELD);
-		}
-		return errors;
-	}
-
-	@Override
-	public List<QuestionSet> listQuestionSets(Map<String, String> filters) {
-		return assessmentRepository.listQuestionSets(filters);
-	}
-
-	@Override
-	public int deleteQuestionSetQuestion(String questionSetGooruOId, String gooruOQuestionId, User caller) {
-		QuestionSetQuestionAssoc questionSetQuestionAssoc = new QuestionSetQuestionAssoc();
-		questionSetQuestionAssoc.setQuestionSet(getQuestionSet(questionSetGooruOId));
-		questionSetQuestionAssoc.setQuestion(getQuestion(gooruOQuestionId));
-		questionSetQuestionAssoc = (QuestionSetQuestionAssoc) assessmentRepository.getModel(QuestionSetQuestionAssoc.class, questionSetQuestionAssoc);
-		if (questionSetQuestionAssoc != null) {
-			assessmentRepository.deleteQuestionSetQuestion(questionSetQuestionAssoc);
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public int deleteQuestionSet(String gooruOQuestionSetId, User caller) {
-		QuestionSet questionSet = getQuestionSet(gooruOQuestionSetId);
-		if (questionSet != null) {
-			assessmentRepository.remove(QuestionSet.class, questionSet.getContentId());
-			return 1;
-		}
-		return 0;
-	}
-
-	@Override
-	public QuestionSetQuestionAssoc createQuestionSetQuestion(QuestionSetQuestionAssoc questionSetQuestion) {
-		assessmentRepository.saveAndFlush(questionSetQuestion);
-		return questionSetQuestion;
-	}
-
-	@Override
 	public List<AssessmentQuestion> getAssessmentQuestions(String gooruOAssessmentId) {
 		return assessmentRepository.getAssessmentQuestions(gooruOAssessmentId);
-	}
-
-	@Override
-	public AssessmentQuestionAssetAssoc uploadQuestionAsset(String gooruQuestionId, AssessmentQuestionAssetAssoc questionAsset, boolean index) throws Exception {
-
-		if (questionAsset.getAsset().getFileData() != null && questionAsset.getAsset().getFileData().length > 2) {
-			AssessmentQuestion question = getQuestion(gooruQuestionId);
-			Asset asset = questionAsset.getAsset();
-			asset.setHasUniqueName(true);
-
-			assessmentRepository.save(asset);
-
-			String realPath = asset.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder();
-			this.getResourceImageUtil().sendMsgToGenerateThumbnails(question, asset.getName());
-			this.assetManager.saveAssetResource(asset, realPath);
-
-			s3ResourceApiHandler.uploadResourceFileWithNewSession(question, asset.getName());
-
-			if (index) {
-				indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-			}
-
-			assessmentRepository.save(asset);
-
-			assessmentRepository.saveAndFlush(questionAsset);
-
-			return questionAsset;
-		}
-		return null;
-	}
-
-	@Override
-	public AssessmentQuestionAssetAssoc getQuestionAsset(final String assetKey, String gooruOAssessmentId) {
-		return assessmentRepository.getQuestionAsset(assetKey, gooruOAssessmentId);
 	}
 
 	@Override
@@ -711,6 +491,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 		return copyQuestion;
 	}
+	
+	
 
 	public ContentRepository getContentRepository() {
 		return contentRepository;
@@ -736,176 +518,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		this.userRepository = userRepository;
 	}
 
-	@Override
-	public boolean assignAsset(String questionGooruOid, Integer assetId, String assetKey) {
-		AssessmentQuestionAssetAssoc questionAssetAssoc = assessmentRepository.findQuestionAsset(questionGooruOid, assetId);
-		if (questionAssetAssoc != null) {
-			questionAssetAssoc.setAssetKey(assetKey);
-			assessmentRepository.save(questionAssetAssoc);
-			return true;
-		}
-		return false;
-	}
-
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
 
 	public void setResourceManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
-	}
-
-	@Override
-	public String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception {
-		if (fileName != null && ResourceImageUtil.getYoutubeVideoId(fileName) != null || fileName.contains(YOUTUBE_URL)) {
-			return fileName;
-		} else {
-			final String mediaFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
-			String resourceImageFile = mediaFolderPath + "/" + fileName;
-			String newImageFile = mediaFolderPath + "/" + assetKey + "_" + fileName;
-			File mediaImage = new File(resourceImageFile);
-			File newImage = new File(newImageFile);
-			mediaImage.renameTo(newImage);
-			fileName = newImage.getName();
-			return newImageFile;
-		}
-	}
-
-	@Override
-	public AssessmentQuestion updateQuestionAssest(String gooruQuestionId, String fileNames) throws Exception {
-		AssessmentQuestion question = getQuestion(gooruQuestionId);
-		final String repositoryPath = question.getOrganization().getNfsStorageArea().getInternalPath();
-		final String mediaFolderPath = repositoryPath + "/" + Constants.UPLOADED_MEDIA_FOLDER;
-		String[] assetKeyArr = fileNames.split("\\s*,\\s*");
-		for (int i = 0; i < assetKeyArr.length; i++) {
-			String resourceImageFile = mediaFolderPath + "/" + assetKeyArr[i];
-			File mediaImage = new File(resourceImageFile);
-			if (!mediaImage.isFile()) {
-				throw new BadRequestException("file not found");
-			}
-			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
-			String fileName = assetKeyArr[i].split("_")[1];
-			byte[] fileContent = FileUtils.readFileToByteArray(mediaImage);
-			if (fileContent.length > 0) {
-				AssessmentQuestionAssetAssoc questionAsset = null;
-				if (assetKey != null && assetKey.length() > 0) {
-					questionAsset = getQuestionAsset(assetKey, gooruQuestionId);
-				}
-				Asset asset = null;
-				if (questionAsset == null) {
-					asset = new Asset();
-					asset.setHasUniqueName(true);
-					questionAsset = new AssessmentQuestionAssetAssoc();
-					questionAsset.setQuestion(question);
-					questionAsset.setAsset(asset);
-					questionAsset.setAssetKey(assetKey);
-				} else {
-					asset = questionAsset.getAsset();
-				}
-				asset.setFileData(fileContent);
-				asset.setName(fileName);
-				question.setThumbnail(fileName);
-				this.getBaseRepository().save(question);
-				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
-				assets.add(uploadQuestionAsset(gooruQuestionId, questionAsset, true));
-				question.setAssets(assets);
-				mediaImage.delete();
-			}
-		}
-		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-		return question;
-	}
-
-	@Override
-	public AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception {
-		AssessmentQuestion question = getQuestion(gooruQuestionId);
-		String[] assetKeyArr = assetKeys.split("\\s*,\\s*");
-		for (int i = 0; i < assetKeyArr.length; i++) {
-			String assetKey = assetKeyArr[i];
-			// String fileName = assetKeyArr[i].split("_")[0];
-			if (resourceImageUtil.getYoutubeVideoId(assetKey) != null || assetKey.contains(YOUTUBE_URL)) {
-				AssessmentQuestionAssetAssoc questionAsset = null;
-				if (assetKey != null && assetKey.length() > 0) {
-					questionAsset = getQuestionAsset(assetKey, gooruQuestionId);
-				}
-				Asset asset = null;
-				if (questionAsset == null) {
-					asset = new Asset();
-					asset.setHasUniqueName(true);
-					questionAsset = new AssessmentQuestionAssetAssoc();
-					questionAsset.setQuestion(question);
-					questionAsset.setAsset(asset);
-					questionAsset.setAssetKey(assetKey);
-				} else {
-					asset = questionAsset.getAsset();
-				}
-				asset.setName(assetKey);
-				asset.setUrl(assetKey);
-				assessmentRepository.save(asset);
-
-				assessmentRepository.saveAndFlush(questionAsset);
-
-				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
-				assets.add(questionAsset);
-				question.setAssets(assets);
-
-			}
-		}
-		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-		return question;
-	}
-
-	@Override
-	public void deleteQuestionAssest(String gooruQuestionId) throws Exception {
-		this.assessmentRepository.deleteQuestionAssoc(gooruQuestionId);
-	}
-
-	@Override
-	public void deleteQuizBulk(String gooruContentIds) {
-		List<Resource> quizResources = resourceRepository.findAllResourcesByGooruOId(gooruContentIds);
-		List<Resource> removeQuizList = new ArrayList<Resource>();
-		if (quizResources.size() > 0) {
-			String removeContentIds = "";
-			int count = 0;
-			for (Resource resource : quizResources) {
-				if (count > 0) {
-					removeContentIds += ",";
-				}
-				if (resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_EXAM.getType()) || resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUIZ.getType())) {
-					removeContentIds += resource.getGooruOid();
-					removeQuizList.add(resource);
-					count++;
-				}
-			}
-			if (removeQuizList.size() > 0) {
-				this.baseRepository.removeAll(removeQuizList);
-				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, QUIZ, null, false, false);
-			}
-		}
-	}
-
-	@Override
-	public void deleteQuestionBulk(String gooruQuestionIds) {
-		List<Resource> questionResources = resourceRepository.findAllResourcesByGooruOId(gooruQuestionIds);
-		List<Resource> removeQuestionList = new ArrayList<Resource>();
-		if (questionResources.size() > 0) {
-			String removeContentIds = "";
-			int count = 0;
-			for (Resource resource : questionResources) {
-				if (count > 0) {
-					removeContentIds += ",";
-				}
-				if (resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
-					removeContentIds += resource.getGooruOid();
-					removeQuestionList.add(resource);
-					count++;
-				}
-			}
-			if (removeQuestionList.size() > 0) {
-				this.baseRepository.removeAll(removeQuestionList);
-				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.INDEX, RESOURCE, null, false, false);
-			}
-		}
 	}
 
 	@Override
@@ -963,11 +581,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			return 1;
 		}
 		return 0;
-	}
-
-	@Override
-	public String findAssessmentNameByGooruOId(String gooruOId) {
-		return assessmentRepository.findAssessmentNameByGooruOid(gooruOId);
 	}
 
 	public ResourceImageUtil getResourceImageUtil() {

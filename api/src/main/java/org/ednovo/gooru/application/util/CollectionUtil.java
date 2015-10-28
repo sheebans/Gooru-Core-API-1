@@ -35,7 +35,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Content;
@@ -48,8 +47,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
-import org.ednovo.gooru.domain.service.search.SearchResult;
-import org.ednovo.gooru.domain.service.search.SearchResultContainer;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -107,22 +104,6 @@ public class CollectionUtil implements ParameterProperties {
 
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(CollectionUtil.class);
-
-	public void enrichCollectionWithTaxonomyMap(SearchResultContainer collectionResultContainer) {
-		if (collectionResultContainer.getSearchResults() != null) {
-			for (SearchResult srContainer : collectionResultContainer.getSearchResults()) {
-				Content findByContent = this.getContentRepository().findContentByGooruId(srContainer.getId());
-				if (findByContent != null) {
-					Map<Integer, List<Code>> taxonomyMapByCode = TaxonomyUtil.getTaxonomyMapByCode(findByContent.getTaxonomySet(), taxonomyService);
-					srContainer.setTaxonomyMapByCode(taxonomyMapByCode);
-					Integer numberOfQuestions = assessmentRepository.getAssessmentQuestionsCount(findByContent.getContentId());
-					srContainer.setNumberOfResources(numberOfQuestions);
-				}
-
-			}
-		}
-	}
-
 
 	public List<User> updateNewCollaborator(Content content, List<String> collaboratorsList, User apiCaller, String predicate, String collaboratorOperation) {
 		List<User> userList = null;
@@ -217,22 +198,6 @@ public class CollectionUtil implements ParameterProperties {
 		if (contentPermissions != null && contentPermissions.size() > 0) {
 			content.setContentPermissions(contentPermissions);
 		}
-	}
-
-	public List<AssessmentQuestion> getAllDataOfQuestions(SearchResultContainer collectionResultContainer) {
-		if (collectionResultContainer.getSearchResults() != null) {
-			String assessmentGooruOid = "";
-			int count = 0;
-			for (SearchResult srContainer : collectionResultContainer.getSearchResults()) {
-				if (count > 0) {
-					assessmentGooruOid += ",";
-				}
-				assessmentGooruOid += "'" + srContainer.getId().toString() + "'";
-				count++;
-			}
-			return assessmentRepository.getAssessmentQuestionsByAssessmentGooruOids(assessmentGooruOid);
-		}
-		return null;
 	}
 
 	public boolean hasSubOrgPermission(String contentOrganizationId) {
