@@ -23,8 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -105,28 +103,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateQuestion(@RequestBody String data, @PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, ASSESSMENT_UPDATE_QUESTION);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-
-		JSONObject json = requestData(data);
-		AssessmentQuestion question = this.getAssessmentService().buildQuestionFromInputParameters(getValue(QUESTION, json), apiCaller, false);
-		if (question.isQuestionNewGen()) {
-			LOGGER.error("updateQuestion: New question types are not supported from this path");
-			throw new NotImplementedException(
-					"updateQuestion: New question types are not supported from this path");
-		}
-
-		ActionResponseDTO<AssessmentQuestion> responseDTO = getAssessmentService().updateQuestion(question, this.buildAssetsInputForm(getValue(DELETE_ASSETS, json)), questionId, true, true);
-
-		setUpdateActionResponseStatus(response, responseDTO);
-
-		SessionContextSupport.putLogParameter(EVENT_NAME, QUESTION_UPDATE);
-		SessionContextSupport.putLogParameter(USER_ID, apiCaller.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, apiCaller.getPartyUid());
-		SessionContextSupport.putLogParameter(ASSESSMENT_GOORU_ID, question.getAssessmentGooruId());
-		String[] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, QUESTION_INCLUDE_FIELDS);
-		includes = (String[]) ArrayUtils.addAll(includes, USER_INCLUDES);
-		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return null;
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUESTION_DELETE })
@@ -163,27 +140,12 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 		response.setStatus((responseData.getErrors().hasErrors()) ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_CREATED);
 	}
 
-	private void setUpdateActionResponseStatus(HttpServletResponse response, ActionResponseDTO<?> responseData) {
-		response.setStatus((responseData.getErrors().hasErrors()) ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_OK);
-	}
-
 	private void setDeleteResponseStatus(HttpServletResponse response, int status) {
 		if (status == 0) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		} else if (status == 2) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-	}
-
-	private List<Integer> buildAssetsInputForm(String data) {
-		List<Integer> deleteAsseList = new ArrayList<Integer>();
-		if (data != null && !data.isEmpty()) {
-			String[] asset = data.split(",");
-			for (int i = 0; i < asset.length; i++) {
-				deleteAsseList.add(Integer.parseInt(asset[i]));
-			}
-		}
-		return deleteAsseList;
 	}
 
 	public AssessmentService getAssessmentService() {

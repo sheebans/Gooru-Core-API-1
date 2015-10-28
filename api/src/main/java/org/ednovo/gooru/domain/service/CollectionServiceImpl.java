@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
@@ -136,14 +135,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel(), collection, null, null, user);
 			boolean updateAssetInS3 = false;
-			if (mediaFileName != null && mediaFileName.length() > 0) {
-				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
-				if (questionImage != null && questionImage.length() > 0) {
-					if (!(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL))) {
-						updateAssetInS3 = true;
-					}
-				}
-			}
 			/*
 			 * The new generation questions have answers as images as well. We
 			 * need to store these assets. Note that since they are going into
@@ -151,13 +142,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			 * just stash them and then make sure that they go till S3
 			 */
 			if (question.isQuestionNewGen()) {
-				List<String> answerAssets = question.getMediaFiles();
-				if (answerAssets != null && answerAssets.size() > 0) {
-					updateAssetInS3 = true;
-					for (String answerAsset : answerAssets) {
-						this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), answerAsset, question, null);
-					}
-				}
 			}
 
 			if (updateAssetInS3) {
@@ -181,48 +165,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(final CollectionItem collectionItem, final String data, final List<Integer> deleteAssets, final User user, final String mediaFileName) throws Exception {
-		final AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
-		final Errors errors = validateUpdateCollectionItem(collectionItem);
-		if (!errors.hasErrors()) {
-			final AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getContent().getGooruOid());
-			if (question != null) {
-				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
-				this.getResourceService().saveOrUpdateResourceTaxonomy(assessmentQuestion, newQuestion.getTaxonomySet());
-				if (assessmentQuestion != null) {
-					if (mediaFileName != null && mediaFileName.length() > 0) {
-						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
-						if (questionImage != null && questionImage.length() > 0) {
-							if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-								assessmentQuestion = this.assessmentService.updateQuestionVideoAssest(assessmentQuestion.getGooruOid(), questionImage);
-							} else {
-								assessmentQuestion = this.assessmentService.updateQuestionAssest(assessmentQuestion.getGooruOid(), StringUtils.substringAfterLast(questionImage, "/"));
-							}
-						}
-					}
-					if (assessmentQuestion.isQuestionNewGen()) {
-						List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
-						if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
-							for (String mediaFileToAdd : mediaFilesToAdd) {
-								assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileToAdd, assessmentQuestion, null);
-							}
-						}
-					}
-					// collectionItem.setQuestionInfo(assessmentQuestion);
-
-					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
-				}
-				// Update the question in mongo now that transaction is almost
-				// done
-				mongoQuestionsService.updateQuestion(collectionItem.getContent().getGooruOid(), data);
-
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-			}
-
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
-		}
-		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
-
+		return null;
 	}
 
 	@Override
@@ -328,13 +271,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(assessmentQuestion, true);
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel().getGooruOid(), collectionId, new CollectionItem(), user, CollectionType.COLLECTION.getCollectionType(), true);
-			if (mediaFileName != null && mediaFileName.length() > 0) {
-				final String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, ASSET_QUESTION);
-				if (questionImage != null && questionImage.length() > 0) {
-					// response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(),
-					// StringUtils.substringAfterLast(questionImage, "/")));
-				}
-			}
 		}
 		return response;
 

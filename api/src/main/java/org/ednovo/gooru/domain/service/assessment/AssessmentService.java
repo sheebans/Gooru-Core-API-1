@@ -24,67 +24,23 @@
 package org.ednovo.gooru.domain.service.assessment;
 
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-import org.ednovo.gooru.core.api.model.AssessmentQuestionAssetAssoc;
-import org.ednovo.gooru.core.api.model.QuestionSet;
-import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface AssessmentService {
-	
+
 	AssessmentQuestion getQuestion(String gooruOQuestionId);
-
-	QuestionSet getQuestionSet(String gooruOQuestionSetId);
-
-	AssessmentQuestionAssetAssoc getQuestionAsset(String assetKey, String gooruOAssessmentId);
 
 	List<AssessmentQuestion> getAssessmentQuestions(String gooruOAssessmentId);
 
-	ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception;
-
-	ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception;
-
-	ActionResponseDTO<QuestionSet> createQuestionSet(QuestionSet questionSet) throws Exception;
-
-	ActionResponseDTO<QuestionSet> updateQuestionSet(QuestionSet questionSet, String gooruOQuestionSetId) throws Exception;
-
-	QuestionSetQuestionAssoc createQuestionSetQuestion(QuestionSetQuestionAssoc questionSetQuestion);
-
-	boolean getAttemptAnswerStatus(Integer answerId);
-
-	List<QuestionSet> listQuestionSets(Map<String, String> filters);
-
-	int deleteQuestionSetQuestion(String gooruOQuestionSetId, String gooruOQuestionId, User caller);
-
-	int deleteQuestionSet(String gooruOQuestionSetId, User caller);
-
-	AssessmentQuestionAssetAssoc uploadQuestionAsset(String gooruQuestionId, AssessmentQuestionAssetAssoc questionAsset, boolean index) throws Exception;
-
 	AssessmentQuestion copyAssessmentQuestion(User user, String gooruQuestionId) throws Exception;
 
-	void updateQuetionInfo(String gooruOQuestionId, Integer segmentId);
-
-	boolean assignAsset(String questionGooruId, Integer assetId, String assetKey);
-
-	String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception;
-
-	AssessmentQuestion updateQuestionAssest(String gooruQuestionId, String assetKeys) throws Exception;
-	
-	AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception;
-
-	void deleteQuestionAssest(String gooruQuestionId) throws Exception;
-
-	void deleteQuizBulk(String gooruContentIds);
-
-	String findAssessmentNameByGooruOId(String gooruOId);
-
-	void deleteQuestionBulk(String gooruQuestionIds);
-	
 	AssessmentQuestion buildQuestionFromInputParameters(String jsonData, User user, boolean addFlag);
-	
+
 	int deleteQuestion(String gooruOQuestionId, User caller);
+	
+	ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception;
+		
 }
