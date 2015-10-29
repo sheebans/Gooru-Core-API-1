@@ -22,7 +22,7 @@ public interface CollectionDao extends BaseRepository {
 
 	int getCollectionItemMaxSequence(Long contentId);
 
-	int getCollectionItemCount(Long contentId, String collectionType);
+	int getCollectionItemCount(Long contentId, String[] collectionType);
 
 	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid, String collectionType);
 

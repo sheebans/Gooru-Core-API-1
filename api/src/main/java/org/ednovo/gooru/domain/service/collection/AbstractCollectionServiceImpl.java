@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
@@ -406,7 +407,13 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public void updateContentMetaDataSummary(Long parentId, String contentType, String action) {
 		ContentMeta parentContentMeta = this.getContentRepository().getContentMeta(parentId);
 		if (parentContentMeta != null) {
-			int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
+			String[] types = {contentType}; 
+			if (contentType.equalsIgnoreCase(ASSESSMENT_URL)) { 
+				types = (String[]) ArrayUtils.add(types, ASSESSMENT);
+			} else if (contentType.equalsIgnoreCase(ASSESSMENT)) { 
+				types = (String[]) ArrayUtils.add(types, ASSESSMENT_URL);
+			}
+			int count = this.getCollectionDao().getCollectionItemCount(parentId, types);
 			if (action.equalsIgnoreCase(DELETE)) {
 				count -= 1;
 			}
