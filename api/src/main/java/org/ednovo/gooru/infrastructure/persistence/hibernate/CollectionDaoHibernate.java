@@ -34,7 +34,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid,r.media_type as mediaType,r.type_name as resourceType, r.folder, r.thumbnail, ct.value, ct.display_name as displayName, c.sharing, ci.collection_item_id as collectionItemId, r.url , co.collection_type as collectionType, ci.item_sequence as itemSequence, rc.gooru_oid as parentGooruOid, r.description, ci.start, ci.stop, cm.meta_data as metaData, ci.narration, aq.type, aq.type_name as typeName, question_text as questionText, explanation, c.user_uid as gooruUId, u.username, if(r.has_frame_breaker!=null, r.has_frame_breaker,rs.frame_breaker) as hasFrameBreaker, ri.num_of_pages as totalPages  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join content_meta cm on cm.content_id = c.content_id left join assessment_question aq on aq.question_id = r.content_id left join user u on u.gooru_uid = c.user_uid  left join resource_info ri on ri.resource_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id where rc.gooru_oid=:collectionId and rc.is_deleted=0";
 
-	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id  join content ct on ct.content_id=co.content_id where c.content_id =:contentId and co.collection_type=:collectionType and is_deleted=0";
+	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id  join content ct on ct.content_id=co.content_id where c.content_id =:contentId and co.collection_type in (:collectionType) and is_deleted=0";
 
 	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo ";
 
@@ -183,10 +183,10 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public int getCollectionItemCount(Long contentId, String collectionType) {
+	public int getCollectionItemCount(Long contentId, String[] collectionType) {
 		Query query = getSession().createSQLQuery(GET_COLLECTION_ITEM_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		query.setParameter(CONTENT_ID, contentId);
-		query.setParameter(COLLECTION_TYPE, collectionType);
+		query.setParameterList(COLLECTION_TYPE, collectionType);
 		return (int) list(query).get(0);
 	}
 
