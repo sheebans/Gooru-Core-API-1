@@ -60,19 +60,18 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
-		request.getMethod();
 		StringBuilder redisKey = new StringBuilder(prefixKey);
 		//to get the path variable
-				Map<?, ?> path = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-				Iterator<?> entries = path.entrySet().iterator();
-				while (entries.hasNext()) {
-				    Map.Entry entry = (Map.Entry) entries.next();
-				    redisKey.append(HYPHEN).append(entry.getValue());
-				}
+		Map<?, ?> path = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+		Iterator<?> entries = path.entrySet().iterator();
+		while (entries.hasNext()) {
+		    Map.Entry entry = (Map.Entry) entries.next();
+		    redisKey.append(HYPHEN).append(entry.getValue());
+		}
 		//get param value
 		Map<String, String> parameters  = request.getParameterMap();
 		for (String key : parameters.keySet()) {
-		    if(!key.contains(SESSION)){
+		    if(!key.equalsIgnoreCase(SESSION_TOKEN)){
 		    	redisKey.append(HYPHEN).append(request.getParameter(key));
 		    }
 		}
