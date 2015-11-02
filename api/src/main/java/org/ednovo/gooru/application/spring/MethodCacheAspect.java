@@ -76,7 +76,6 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		    	redisKey.append(HYPHEN).append(request.getParameter(key));
 		    }
 		}
-		System.out.println("Key :  "+redisKey);
 		return redisKey.toString();
 	}
 
