@@ -2931,4 +2931,6 @@ public interface ParameterProperties {
     String CLASS_USER_ADD = "classpage.user.add";
 
     String VISIBILITY = "visibility";
+    
+    String PREFIX_KEY = "testing";
 }

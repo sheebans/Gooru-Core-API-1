@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface RedisCache
 {	
 	public String key() default "";
+	
+	public long ttl() default 0;
 }
