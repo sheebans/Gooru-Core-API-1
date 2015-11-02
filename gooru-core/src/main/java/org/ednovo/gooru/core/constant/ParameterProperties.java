@@ -2932,5 +2932,4 @@ public interface ParameterProperties {
 
     String VISIBILITY = "visibility";
     
-    String PREFIX_KEY = "testing";
 }
