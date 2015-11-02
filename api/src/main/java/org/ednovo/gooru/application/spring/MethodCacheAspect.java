@@ -35,16 +35,14 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		String redisKey = generateKey(redisCache.key());
 		if(getRedisService().getValue(redisKey) == null){
 			Map<String, Object> data = ((ModelAndView) model).getModel();
-			if(redisCache.ttl() != 0){
-				getRedisService().putValue(redisKey, (String)data.get(MODEL), redisCache.ttl());
+			Object json = data.get(MODEL);
+			if(redisCache.ttl() != 0 && !json.toString().isEmpty()){
+				getRedisService().putValue(redisKey, (String)json, redisCache.ttl());
 			}
-			else{
-				getRedisService().putValue(redisKey, (String)data.get(MODEL));
+			else if(!data.get(MODEL).toString().isEmpty()){
+				getRedisService().putValue(redisKey, (String)json);
 			}
 		}
-		else if(redisCache.ttl() == -1){
-				getRedisService().deleteKey(redisKey);
-			}
 	}
 	
 	@Around(value = "cacheCheckPointcut() && @annotation(redisCache)")
