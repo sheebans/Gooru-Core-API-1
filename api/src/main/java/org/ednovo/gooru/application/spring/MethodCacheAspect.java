@@ -32,7 +32,8 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 
 	@AfterReturning(pointcut = "cacheCheckPointcut() && @annotation(redisCache)", returning="model")
 	public void cache(JoinPoint jointPoint, RedisCache redisCache,  Object model) throws Throwable {
-		String redisKey = generateKey(redisCache.key());
+		HttpServletRequest request = getRequest();
+		String redisKey = generateKey(redisCache.key(), request);
 		if(getRedisService().getValue(redisKey) == null){
 			Map<String, Object> data = ((ModelAndView) model).getModel();
 			Object json = data.get(MODEL);
@@ -47,19 +48,25 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 	
 	@Around(value = "cacheCheckPointcut() && @annotation(redisCache)")
 	public Object cache(ProceedingJoinPoint pjp, RedisCache redisCache) throws Throwable{
-		String redisKey = generateKey(redisCache.key());
-		String data =getRedisService().getValue(redisKey);
-		if(data != null){
-			return toModelAndView(data);
-		} 
+		HttpServletRequest request = getRequest();
+		if(request.getParameter(CLEAR_CACHE).equalsIgnoreCase(FALSE)){
+			String redisKey = generateKey(redisCache.key(), request);
+			String data =getRedisService().getValue(redisKey);
+			if(data != null){
+				return toModelAndView(data);
+			} 
+		}
 		return pjp.proceed();
 	}
 	
-	private String generateKey(String prefixKey){
+	private HttpServletRequest getRequest(){
 		HttpServletRequest request = null;
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
+		return request;
+	}
+	private String generateKey(String prefixKey, HttpServletRequest request){
 		StringBuilder redisKey = new StringBuilder(prefixKey);
 		//to get the path variable
 		Map<?, ?> path = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
@@ -71,7 +78,7 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		//get param value
 		Map<String, String> parameters  = request.getParameterMap();
 		for (String key : parameters.keySet()) {
-		    if(!key.equalsIgnoreCase(SESSION_TOKEN)){
+		    if(!key.equalsIgnoreCase(SESSION_TOKEN) && !key.equalsIgnoreCase(CLEAR_CACHE)){
 		    	redisKey.append(HYPHEN).append(request.getParameter(key));
 		    }
 		}
