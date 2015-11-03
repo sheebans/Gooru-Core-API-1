@@ -12,13 +12,19 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.ednovo.gooru.application.util.SerializerUtil;
+import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import scala.reflect.generic.Constants.Constant;
 
 @Aspect
 public class MethodCacheAspect extends SerializerUtil implements ConstantProperties{
@@ -33,7 +39,7 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 	@AfterReturning(pointcut = "cacheCheckPointcut() && @annotation(redisCache)", returning="model")
 	public void cache(JoinPoint jointPoint, RedisCache redisCache,  Object model) throws Throwable {
 		HttpServletRequest request = getRequest();
-		String redisKey = generateKey(redisCache.key(), request);
+		String redisKey = generateKey(redisCache.key(), request, null);
 		if(getRedisService().getValue(redisKey) == null){
 			Map<String, Object> data = ((ModelAndView) model).getModel();
 			Object json = data.get(MODEL);
@@ -49,8 +55,8 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 	@Around(value = "cacheCheckPointcut() && @annotation(redisCache)")
 	public Object cache(ProceedingJoinPoint pjp, RedisCache redisCache) throws Throwable{
 		HttpServletRequest request = getRequest();
-		if(request.getParameter(CLEAR_CACHE).equalsIgnoreCase(FALSE)){
-			String redisKey = generateKey(redisCache.key(), request);
+		if(request.getParameter(CLEAR_CACHE)!=null && request.getParameter(CLEAR_CACHE).equalsIgnoreCase(FALSE)){
+			String redisKey = generateKey(redisCache.key(), request, null);
 			String data =getRedisService().getValue(redisKey);
 			if(data != null){
 				return toModelAndView(data);
@@ -59,6 +65,14 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		return pjp.proceed();
 	}
 	
+	@AfterReturning(pointcut = "@annotation(clearCache)")
+	public void clearCache(JoinPoint joinntPoint, ClearCache clearCache){
+		HttpServletRequest request = getRequest();
+		String redisKey = generateKey(clearCache.key(), request, null)+"*";
+		getRedisService().bulkKeyDelete(redisKey);
+	}
+	
+	
 	private HttpServletRequest getRequest(){
 		HttpServletRequest request = null;
 		if (RequestContextHolder.getRequestAttributes() != null) {
@@ -66,11 +80,14 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		}
 		return request;
 	}
-	private String generateKey(String prefixKey, HttpServletRequest request){
+	
+	private String generateKey(String prefixKey, HttpServletRequest request, String id){
 		StringBuilder redisKey = new StringBuilder(prefixKey);
+		User user = (User) request.getAttribute(Constants.USER);
+		redisKey.append(HYPHEN).append((id != null)? id:user.getGooruUId());
 		//to get the path variable
-		Map<?, ?> path = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-		Iterator<?> entries = path.entrySet().iterator();
+		Map<?, ?> pathVariables = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+		Iterator<?> entries = pathVariables.entrySet().iterator();
 		while (entries.hasNext()) {
 		    Map.Entry entry = (Map.Entry) entries.next();
 		    redisKey.append(HYPHEN).append(entry.getValue());
