@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.application.spring.ClearCache;
+import org.ednovo.gooru.application.spring.RedisCache;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -41,6 +43,7 @@ public class LessonRestController extends BaseController implements ConstantProp
 	@Autowired
 	private CollectionDeleteProcessor collectionDeleteProcessor;
 
+	@ClearCache(key = {CONTENT}, id = UNIT_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
@@ -56,6 +59,7 @@ public class LessonRestController extends BaseController implements ConstantProp
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
+	@ClearCache(key = {CONTENT}, id = UNIT_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
@@ -63,18 +67,21 @@ public class LessonRestController extends BaseController implements ConstantProp
 		this.getLessonService().updateLesson(courseId, unitId, lessonId, buildLesson(data), user);
 	}
 
+	@RedisCache(key = {CONTENT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getLessonService().getLesson(lessonId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
+	@RedisCache(key = {CONTENT,LESSONS})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getLessons(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getLessonService().getLessons(unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
+	@ClearCache(key = {CONTENT}, id = UNIT_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
@@ -83,6 +90,7 @@ public class LessonRestController extends BaseController implements ConstantProp
 		getCollectionDeleteProcessor().deleteContent(lessonId, LESSON);
 	}
 	
+	@ClearCache(key = {CONTENT}, id = UNIT_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
 	public ModelAndView copyLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {

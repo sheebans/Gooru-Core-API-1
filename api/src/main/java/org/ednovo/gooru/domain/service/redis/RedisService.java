@@ -72,4 +72,6 @@ public interface RedisService extends CassandraCacheService {
 	String getStandardValue(String key);
 	
 	void put(String key, String value, long timeout);
+
+	void bulkDelete(String key);
 }

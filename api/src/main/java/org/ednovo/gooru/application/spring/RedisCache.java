@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RedisCache
 {	
-	public String key() default "";
+	public String[] key() default "";
 	
 	public long ttl() default 0;
 }

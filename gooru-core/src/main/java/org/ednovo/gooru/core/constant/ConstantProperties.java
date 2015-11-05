@@ -982,6 +982,4 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String SESSION_TOKEN = "sessionToken";
 	
-    final static String V3_LIBRARY = "v3_cul_library";
-	
 }
