@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.ednovo.gooru.application.spring.ClearCache;
+import org.ednovo.gooru.application.spring.RedisCache;
 
 @RequestMapping(value = { RequestMappingUri.COURSE })
 @Controller
@@ -44,6 +46,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	@Autowired
 	private CollectionDeleteProcessor collectionDeleteProcessor;
 
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createCourse(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
@@ -60,6 +63,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@ClearCache(key = {CONTENT}, id = ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateCourse(@PathVariable(value = ID) final String courseId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -67,18 +71,21 @@ public class CourseRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT}, ttl=900)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT,COURSES}, ttl=900)
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getCourses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(this.getCourseService().getCourses(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RedisCache(key = {CONTENT}, ttl=900)
 	@RequestMapping(value = RequestMappingUri.COURSES_CLASS, method = RequestMethod.GET)
 	public ModelAndView getClasses(@PathVariable(value = ID) final String courseGooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final int limit,
 			final HttpServletRequest request, final HttpServletResponse response) {
@@ -86,6 +93,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@ClearCache(key = {CONTENT}, id = ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -94,6 +102,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@ClearCache(key = {CONTENT}, id = ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
 	public ModelAndView copyCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);

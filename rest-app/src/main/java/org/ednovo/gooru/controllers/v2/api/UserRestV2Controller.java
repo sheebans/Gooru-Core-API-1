@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.application.spring.RedisCache;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
@@ -476,6 +477,7 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT})
 	@RequestMapping(value = RequestMappingUri.USER_COURSES, method = RequestMethod.GET)
 	public ModelAndView getCourses(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {

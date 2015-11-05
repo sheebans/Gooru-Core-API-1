@@ -294,7 +294,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		return null;
 
 	}
-	
+
 	@Override
 	public String get(String key) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
@@ -307,7 +307,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String getStandardValue(String key) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
@@ -364,7 +364,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			logger.error("Redis Error:{}", e);
 		}
 	}
-	
+
 	@Override
 	public void put(String key, String value, long timeout) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
@@ -377,9 +377,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Override
 	public void deleteKey(String key) {
-		try{
-		redisStringTemplate.delete(returnSanitizedKey(key));
-		} catch(Exception e){
+		try {
+			redisStringTemplate.delete(returnSanitizedKey(key));
+		} catch (Exception e) {
 			logger.error("Delete key from redis failed!" + e.getMessage());
 		}
 	}
@@ -393,7 +393,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 		}
 	}
-	
+
 	@Override
 	public void bulkKeyDelete(String keyWildCard) {
 		Set<String> keys = this.getkeys(keyWildCard);
@@ -401,6 +401,20 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			Iterator<String> iterator = keys.iterator();
 			while (iterator.hasNext()) {
 				redisStringTemplate.delete(iterator.next());
+			}
+		}
+	}
+
+	@Override
+	public void bulkDelete(String key) {
+		Set<String> keys = this.getkeys(key);
+		if (keys.size() > 0) {
+			String golbalKey = keys.iterator().hasNext() ? keys.iterator().next() : null;
+			if (golbalKey != null) {
+				StringBuilder actualKey = new StringBuilder(golbalKey.split("~")[0]);
+				actualKey.append("*").append(golbalKey.split("~")[0]).append("*");
+				bulkKeyDelete(actualKey.toString());
+				bulkKeyDelete("*"  + key + "*");
 			}
 		}
 	}
