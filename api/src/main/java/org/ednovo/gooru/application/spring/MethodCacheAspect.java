@@ -1,6 +1,5 @@
 package org.ednovo.gooru.application.spring;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -13,19 +12,15 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.ednovo.gooru.application.util.SerializerUtil;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.domain.service.redis.RedisService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import scala.reflect.generic.Constants.Constant;
 
 @Aspect
 public class MethodCacheAspect extends SerializerUtil implements ConstantProperties {
@@ -34,6 +29,8 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 	private RedisService redisService;
 
 	final String TILD = "~";
+	
+	final String STAR = "*";
 
 	@Pointcut("execution(* org.ednovo.gooru.controllers.*.*RestController.*(..)) || " + "execution(* org.ednovo.gooru.controllers.*.*.*Rest*Controller.*(..))) ")
 	public void cacheCheckPointcut() {
@@ -45,9 +42,10 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		String redisKey = generateKey(redisCache.key(), request, null);
 		if (getRedisService().getValue(redisKey) == null) {
 			Map<String, Object> data = ((ModelAndView) model).getModel();
-			if (redisCache.ttl() != 0 ) {
+			String json = (String) data.get(MODEL);
+			if (redisCache.ttl() != 0 && !json.equalsIgnoreCase("[]")) {
 				getRedisService().putValue(redisKey, (String) data.get(MODEL), redisCache.ttl());
-			} else if (!data.get(MODEL).toString().isEmpty()) {
+			} else if (!json.equalsIgnoreCase("[]")) {
 				getRedisService().putValue(redisKey, (String) data.get(MODEL));
 			}
 		}
@@ -73,13 +71,13 @@ public class MethodCacheAspect extends SerializerUtil implements ConstantPropert
 		StringBuilder redisKey = new StringBuilder(prefixKey);
 		if (clearCache.id() != null) {
 			Map<?, ?> pathVariables = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-			redisKey.append("*").append(pathVariables.get(clearCache.id())).append("*");
+			redisKey.append(STAR).append(pathVariables.get(clearCache.id())).append(STAR);
 		}
 		getRedisService().bulkDelete(redisKey.toString());
 		if (clearCache.deleteSessionUserCache()) {
 			User user = (User) request.getAttribute(Constants.USER);
 			redisKey.setLength(0);
-			redisKey.append("*").append(clearCache.key()).append("*").append(user.getGooruUId());
+			redisKey.append(STAR).append(clearCache.key()).append(STAR).append(user.getGooruUId());
 			getRedisService().bulkKeyDelete(redisKey.toString());
 		}
 

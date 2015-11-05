@@ -476,8 +476,8 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 		this.getUserImportService().createUser(filename, apiCaller, request);
 	}
 
-	@RedisCache(key = {CONTENT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT})
 	@RequestMapping(value = RequestMappingUri.USER_COURSES, method = RequestMethod.GET)
 	public ModelAndView getCourses(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {

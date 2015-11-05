@@ -43,8 +43,8 @@ public class UnitRestController extends BaseController implements ConstantProper
 	@Autowired
 	private CollectionDeleteProcessor collectionDeleteProcessor;
 
-	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createUnit(@PathVariable(value = COURSE_ID) final String courseId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -59,31 +59,31 @@ public class UnitRestController extends BaseController implements ConstantProper
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getUnitService().updateUnit(courseId, unitId, buildUnit(data), user);
 	}
 
-	@RedisCache(key = {CONTENT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT}, ttl=900)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getUnitService().getUnit(unitId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
-	@RedisCache(key = {CONTENT, UNIT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT, UNIT}, ttl=900)
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getUnits(@PathVariable(value = COURSE_ID) final String courseId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getUnitService().getUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
-	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
+	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -91,8 +91,8 @@ public class UnitRestController extends BaseController implements ConstantProper
 		getCollectionDeleteProcessor().deleteContent(unitId, UNIT);
 	}
 	
-	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@ClearCache(key = {CONTENT}, id = COURSE_ID)
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.POST)
 	public ModelAndView copyUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
