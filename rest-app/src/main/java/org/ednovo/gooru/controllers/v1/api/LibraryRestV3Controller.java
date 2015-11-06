@@ -26,14 +26,14 @@ public class LibraryRestV3Controller extends BaseController implements ConstantP
 	private LibraryService libraryService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RedisCache(key = {CONTENT})
+	@RedisCache(key = {CONTENT,LIBRARY})
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getLibrary(final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getLibraryService().getLibraries(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RedisCache(key = {CONTENT})
+	@RedisCache(key = {CONTENT,LIBRARY})
 	@RequestMapping(value = RequestMappingUri.V3_LIBRARY_COURSE, method = RequestMethod.GET)
 	public ModelAndView getCourses(@PathVariable(value = ID) final String userUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
 			final HttpServletResponse response) {
