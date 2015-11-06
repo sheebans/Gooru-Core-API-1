@@ -89,7 +89,6 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 
 			}
 			resource.setLicense(license);
-			resource.getSharing();
 			if (newResource.getSharing() == null) {
 				resource.setSharing(Sharing.PRIVATE.getSharing());
 			} else {
