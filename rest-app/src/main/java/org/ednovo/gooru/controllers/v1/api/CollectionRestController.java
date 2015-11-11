@@ -197,8 +197,8 @@ public class CollectionRestController extends BaseController implements Constant
 		this.getCollectionBoService().moveCollection(build(data), courseId, unitId, lessonId, collectionId, user);
 	}
 
-	@RedisCache(key = {CONTENT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT})
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ID }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @PathVariable(value = ID) final String collectionId,
 			@RequestParam(value = INCLUDE_ITEMS, required = false, defaultValue = FALSE) final boolean includeItems, @RequestParam(value = INCLUDE_LAST_MODIFIED_USER, required = false, defaultValue = FALSE) final boolean includeLastModifiedUser, final HttpServletRequest request,
@@ -207,32 +207,32 @@ public class CollectionRestController extends BaseController implements Constant
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollection(collectionId, COLLECTION, user, includeItems, includeLastModifiedUser), RESPONSE_FORMAT_JSON, EXCLUDE, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
-	@RedisCache(key = {CONTENT, COLLECTION})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT, COLLECTION})
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION }, method = RequestMethod.GET)
 	public ModelAndView getCollections(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, @RequestParam(value = COLLECTION_TYPE, required = false, defaultValue = COLLECTION_TYPES) String collectionTypes, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollections(lessonUId, collectionTypes, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_COLLECTION_ITEMS, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
-	@RedisCache(key = {CONTENT, ITEM})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT, ITEM})
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ITEM }, method = RequestMethod.GET)
 	public ModelAndView getCollectionItems(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItems(collectionId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_COLLECTION_ITEMS, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
-	@RedisCache(key = {CONTENT})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT})
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_RESOURCE_ID, RequestMappingUri.LESSON_COLLECTION_QUESTION_ID }, method = RequestMethod.GET)
 	public ModelAndView getResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
 			@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_COLLECTION_ITEMS, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
-	@RedisCache(key = {CONTENT, CLASS})
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RedisCache(key = {CONTENT, CLASS})
 	@RequestMapping(value = { RequestMappingUri.COURSE_COLLECTION_CLASSES }, method = RequestMethod.GET)
 	public ModelAndView getClasses(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
