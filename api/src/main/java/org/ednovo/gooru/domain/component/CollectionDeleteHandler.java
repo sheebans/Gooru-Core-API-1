@@ -72,12 +72,7 @@ public class CollectionDeleteHandler  {
 			List<CollectionItem> collectionItems = getCollectionDao().getCollectionItems(collectionId, true);
 			if (collectionItems != null) {
 				for (CollectionItem collectionItem : collectionItems) {
-					if (collectionItem.getContent().getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-						getCollectionDao().remove(collectionItem);
-					} else {
-						Content content = collectionItem.getContent();
-						getCollectionDao().remove(content);
-					}
+					getCollectionDao().remove(collectionItem);
 				}
 			}
 			try {
