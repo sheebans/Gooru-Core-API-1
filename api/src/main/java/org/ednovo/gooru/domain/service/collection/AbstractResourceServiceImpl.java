@@ -120,11 +120,7 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 		resourceSource.setDomainName(domainName);
 		resourceSource.setAttribution(attribution);
 		resourceSource.setActiveStatus(1);
-		if (BaseUtil.checkUrlHasHttpSupport(domainName)) {
-			resourceSource.setHasHttpsSupport(1);
-		} else {
-			resourceSource.setHasHttpsSupport(0);
-		}
+		resourceSource.setHasHttpsSupport(0);
 		getResourceRepository().save(resourceSource);
 		return resourceSource;
 	}
