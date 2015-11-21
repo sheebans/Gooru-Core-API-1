@@ -750,12 +750,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Long getFolderListCount(final String gooruOid, final String title, final String gooruUid) {
-		String sql = "select count(1) as count from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
+		String sql = "select count(1) as count from  collection c inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
 		if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "'";
 		}
 		if (title != null) {
-			sql += " and r.title = '" + title + "'";
+			sql += " and c.title = '" + title + "'";
 		}
 		if (gooruUid != null) {
 			sql += " and u.gooru_uid = '" + gooruUid + "'";
