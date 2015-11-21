@@ -8,6 +8,7 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface CollectionDao extends BaseRepository {
+	
 	Collection getCollection(String collectionId);
 
 	Collection getCollectionByType(String collectionId, String[] collectionType);
@@ -51,5 +52,7 @@ public interface CollectionDao extends BaseRepository {
 	Object[] getParentCollection(final String collectionGooruOid, final String gooruUid);
 	
 	Long getPublicCollectionCount(final String gooruOid, final String sharing);
+	
+	List<Map<String, Object>> findOrphanCollection(String collectionId);
 
 }

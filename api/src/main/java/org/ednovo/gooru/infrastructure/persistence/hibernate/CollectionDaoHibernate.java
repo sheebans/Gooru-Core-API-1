@@ -59,6 +59,8 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTION_ITEM_IDS = "SELECT rc.gooru_oid FROM collection_item ci INNER JOIN content rc ON (rc.content_id = ci.resource_content_id) WHERE ci.collection_content_id = :collectionId";
 
 	private static final String GET_COLLECTION_WITHOUT_DELETE_CHECK = "FROM Collection where gooruOid=:collectionId";
+	
+	private static final String FIND_ORPHAN_COLLECTION = "select c.title, cc.content_id as collectionId, cc.gooru_oid as gooruOid, c.language_objective as languageObjective, c.collection_type as type, c.image_path as imagePath, cc.sharing,  c.goals, c.ideas, c.questions,c.performance_tasks as performanceTasks, c.collection_type as collectionType,  c.description, c.url, cs.data, cm.meta_data as metaData, c.publish_status_id as publishStatus, c.build_type_id as buildType, cc.user_uid as gooruUId, u.username, cc.last_modified as lastModified, cc.last_updated_user_uid as lastModifiedUserUid  from  collection c  inner join content cc on cc.content_id =  c.content_id left join content_settings cs on cs.content_id = c.content_id left join content_meta cm  on  cm.content_id = cc.content_id inner join organization o  on  o.organization_uid = cc.organization_uid  inner join user u on u.gooru_uid = cc.user_uid where cc.gooru_oid =:gooruOid";
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -285,6 +287,14 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ID, collectionId);
 		return list(query);
 	}
+	
+	@Override
+	public List<Map<String, Object>> findOrphanCollection(String gooruOid) {
+		Query query = getSession().createSQLQuery(FIND_ORPHAN_COLLECTION);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
 
 	@Override
 	public Object[] getParentCollection(final String collectionGooruOid, final String gooruUid) {
@@ -305,5 +315,4 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(GOORU_OID, gooruOid);
 		return (Long) query.list().get(0);
 	}
-
 }

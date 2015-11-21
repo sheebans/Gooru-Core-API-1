@@ -186,14 +186,14 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	protected Map<String, Object> generateQuestionMetaData(Content content, AssessmentQuestion question, User user) {
 		Map<String, Object> data = generateResourceMetaData(content, question, user);
-		/* if (!question.isQuestionNewGen()) {
+		if (!question.isQuestionNewGen()) {
 			if (question.getAnswers() != null) {
 				data.put(ANSWERS, question.getAnswers());
 			}
 			if (question.getHints() != null) {
 				data.put(HINTS, question.getHints());
 			}
-		} */
+		}
 		return data;
 	}
 

@@ -233,6 +233,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(GOORU_OID, collectionId);
 		List<Map<String, Object>> collection = getCollectionDao().getCollections(filters, 1, 0);
+		if ((collection == null || collection.size() == 0) && (collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(ASSESSMENT) || collectionType.equalsIgnoreCase(ASSESSMENT_URL))) { 
+			collection = getCollectionDao().findOrphanCollection(collectionId);
+		}
 		rejectIfNull((collection == null || collection.size() == 0 ? null : collection), GL0056, 404, collectionType);
 		return mergeMetaData(collection.get(0));
 	}
