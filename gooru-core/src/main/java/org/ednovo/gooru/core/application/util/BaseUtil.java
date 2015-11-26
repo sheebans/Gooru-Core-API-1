@@ -68,13 +68,7 @@ public class BaseUtil {
 	}
 
 	public static String changeHttpsProtocol(String url) {
-		if (RequestContextHolder.getRequestAttributes() != null) {
-			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-			if (request != null && request.getRequestURL() != null && url != null && url.contains("http://") && request.getRequestURL().toString().contains("https://")) {
-				url = url.replaceFirst("http://", "https://");
-			}
-		}
-		return url;
+		return changeHttpsProtocolByHeader(url);
 	}
 
 	public static String changeToHttpProtocol(String url) {
