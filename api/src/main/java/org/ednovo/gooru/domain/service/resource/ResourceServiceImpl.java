@@ -1558,7 +1558,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty()) {
-					if (!(resource.getSharing().equalsIgnoreCase(PUBLIC)) && resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
+					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = BaseUtil.getDomainName(newResource.getUrl());
